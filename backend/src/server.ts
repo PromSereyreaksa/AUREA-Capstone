@@ -1,4 +1,7 @@
-import express from 'express';
+import express, { Request, Response, NextFunction } from 'express';
+import dotenv from 'dotenv';
+dotenv.config();
+
 import cors from 'cors';
 import testRoutes from './interfaces/routes/testRoutes';
 import userRoutes from './interfaces/routes/userRoutes';
@@ -28,6 +31,12 @@ app.use('/api', testRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/pdf', pdfExtractRoutes);
 
+// Global error handler - log actual errors
+app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+  console.error('Error:', err.message || err);
+  console.error('Stack:', err.stack);
+  res.status(500).json({ error: err.message || 'Internal Server Error' });
+});
 // 404 handler
 app.use((req, res) => {
   res.status(404).json({
