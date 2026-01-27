@@ -16,18 +16,16 @@ body {
 }
 
 /* Generic page container */
-.page {
-  width: 100%;
-  max-width: 1200px; /* optional max width for large screens */
+.components-helper {
+  max-width: 1280px; /* optional max width for large screens */
   margin: 0 auto;
-  padding: 10px 20px;
-  box-sizing: border-box;
+  /* box-sizing: border-box; */
 }
 
 /* Constrain inner content of wide sections so backgrounds can be full-width
    while content stays centered and respects horizontal padding. */
 .wide-section > div,
-.page > div {
+.components-helper > div {
   max-width: 1800px;
   margin-left: auto;
   margin-right: auto;
@@ -37,5 +35,5 @@ body {
 
 /* Optional: spacing between sections */
 section + section {
-  margin-top: 5vh;
+  padding-top: 5vh;
 }
