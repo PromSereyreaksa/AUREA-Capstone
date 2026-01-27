@@ -7,7 +7,7 @@ export class SignUpUser {
   async execute(email: string, password: string, role: string): Promise<User> {
     
     const user = new User(
-      0, // user_id will be set by DB
+      0, 
       email,
       password,
       role
