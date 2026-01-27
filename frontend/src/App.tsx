@@ -1,11 +1,16 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider } from './features/auth';
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
+import { AuthProvider } from "./features/auth";
 import {
   SignUpPage,
   SignInPage,
   VerifyEmailPage,
   ForgotPasswordPage,
-} from './features/auth';
+} from "./features/auth";
 
 import {
   Header,
@@ -14,10 +19,11 @@ import {
   CalloutBanner,
   ProductExplanation,
   Footer,
-} from './features/landing-page';
+} from "./features/landing-page";
 
-import './App.css';
+import { GuestAccessViewpage } from "./features/guest-access";
 
+import "./App.css";
 
 function App() {
   return (
@@ -29,12 +35,12 @@ function App() {
           <Route path="/signin" element={<SignInPage />} />
           <Route path="/verify-email" element={<VerifyEmailPage />} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-          
+
           {/* Landing Page Routes */}
           <Route
             path="/"
             element={
-               <>
+              <>
                 <Header />
                 <Hero />
                 <PricingFeature />
@@ -45,9 +51,17 @@ function App() {
             }
           />
 
+          {/* Guest Access / Portfolios Route */}
+          <Route path="/portfolios" element={<GuestAccessViewpage />} />
+
           {/* Placeholder Routes */}
-          <Route path="/dashboard" element={<div style={{ padding: '2rem' }}>Dashboard - Coming Soon</div>} />
-          
+          <Route
+            path="/dashboard"
+            element={
+              <div style={{ padding: "2rem" }}>Dashboard - Coming Soon</div>
+            }
+          />
+
           {/* Default Route */}
           <Route path="/" element={<Navigate to="/signup" replace />} />
         </Routes>
