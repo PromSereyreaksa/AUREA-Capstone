@@ -6,7 +6,18 @@ import {
   VerifyEmailPage,
   ForgotPasswordPage,
 } from './features/auth';
+
+import {
+  Header,
+  Hero,
+  PricingFeature,
+  CalloutBanner,
+  ProductExplanation,
+  Footer,
+} from './features/landing-page';
+
 import './App.css';
+
 
 function App() {
   return (
@@ -19,6 +30,21 @@ function App() {
           <Route path="/verify-email" element={<VerifyEmailPage />} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           
+          {/* Landing Page Routes */}
+          <Route
+            path="/"
+            element={
+               <>
+                <Header />
+                <Hero />
+                <PricingFeature />
+                <CalloutBanner />
+                <ProductExplanation />
+                <Footer />
+              </>
+            }
+          />
+
           {/* Placeholder Routes */}
           <Route path="/dashboard" element={<div style={{ padding: '2rem' }}>Dashboard - Coming Soon</div>} />
           
