@@ -1,19 +1,22 @@
-import { Request, Response, NextFunction } from 'express';
+import { Request, Response } from 'express';
 import { UserRepository } from '../../infrastructure/repositories/UserRepository';
 import { SignUpUser } from '../../application/use_cases/SignUpUser';
+import { UserValidator } from '../../shared/validators';
+import { ResponseHelper } from '../../shared/utils';
+import { asyncHandler } from '../../shared/middleware';
 
 const userRepo = new UserRepository();
 const signUpUser = new SignUpUser(userRepo);
 
-export const signUpUserController = async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const { email, password, role } = req.body;
-    if (!email || !password || !role) {
-      return res.status(400).json({ error: 'Email, password, and role are required.' });
-    }``
-    const user = await signUpUser.execute(email, password, role);
-    return res.status(201).json({ user });
-  } catch (error) {
-    next(error);
-  }
-};
+export const signUpUserController = asyncHandler(async (req: Request, res: Response) => {
+  const { email, password, role } = req.body;
+
+  // Validate inputs using shared validators
+  UserValidator.validateEmail(email);
+  UserValidator.validatePassword(password);
+  UserValidator.validateRole(role);
+
+  const user = await signUpUser.execute(email, password, role);
+
+  return ResponseHelper.created(res, { user }, 'User created successfully');
+});

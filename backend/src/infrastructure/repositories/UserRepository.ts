@@ -2,6 +2,7 @@ import { IUserRepository } from "../../domain/repositories/IUserRepository";
 import { User } from "../../domain/entities/User";
 import { supabase } from "../db/supabaseClient";
 import { mapUserFromDb, mapUserToDb } from "./../mappers/userMapper";
+import { DatabaseError, ConflictError } from "../../shared/errors";
 
 export class UserRepository implements IUserRepository {
   async create(user: User): Promise<User> {
@@ -13,7 +14,13 @@ export class UserRepository implements IUserRepository {
       .select()
       .single();
 
-    if (error) throw error;
+    if (error) {
+      // Handle unique constraint violation (duplicate email)
+      if (error.code === '23505') {
+        throw new ConflictError('A user with this email already exists');
+      }
+      throw new DatabaseError(`Failed to create user: ${error.message}`);
+    }
     return mapUserFromDb(data);
   }
 
@@ -24,7 +31,10 @@ export class UserRepository implements IUserRepository {
       .eq("email", email)
       .maybeSingle();
 
-    if (error || !data) return null;
+    if (error) {
+      throw new DatabaseError(`Failed to find user by email: ${error.message}`);
+    }
+    if (!data) return null;
     return mapUserFromDb(data);
   }
 
@@ -35,7 +45,10 @@ export class UserRepository implements IUserRepository {
       .eq("user_id", user_id)
       .maybeSingle();
 
-    if (error || !data) return null;
+    if (error) {
+      throw new DatabaseError(`Failed to find user by ID: ${error.message}`);
+    }
+    if (!data) return null;
     return mapUserFromDb(data);
   }
 }

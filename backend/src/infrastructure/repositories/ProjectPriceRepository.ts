@@ -2,6 +2,7 @@ import { IProjectPriceRepository } from '../../domain/repositories/IProjectPrice
 import { ProjectPrice } from '../../domain/entities/ProjectPrice';
 import { supabase } from '../db/supabaseClient';
 import { mapProjectPriceFromDb, mapProjectPriceToDb } from '../mappers/projectPriceMapper';
+import { DatabaseError } from '../../shared/errors';
 
 export class ProjectPriceRepository implements IProjectPriceRepository {
   async create(project: ProjectPrice): Promise<ProjectPrice> {
@@ -12,7 +13,9 @@ export class ProjectPriceRepository implements IProjectPriceRepository {
       .select()
       .single();
 
-    if (error) throw error;
+    if (error) {
+      throw new DatabaseError(`Failed to create project: ${error.message}`);
+    }
     return mapProjectPriceFromDb(data);
   }
 
@@ -23,7 +26,12 @@ export class ProjectPriceRepository implements IProjectPriceRepository {
       .eq('project_id', projectId)
       .single();
 
-    if (error || !data) return null;
+    if (error) {
+      // PGRST116 = no rows found, which is expected for findById
+      if (error.code === 'PGRST116') return null;
+      throw new DatabaseError(`Failed to find project: ${error.message}`);
+    }
+    if (!data) return null;
     return mapProjectPriceFromDb(data);
   }
 
@@ -33,7 +41,9 @@ export class ProjectPriceRepository implements IProjectPriceRepository {
       .select('*')
       .eq('user_id', userId);
 
-    if (error) throw error;
+    if (error) {
+      throw new DatabaseError(`Failed to find projects for user: ${error.message}`);
+    }
     return data ? data.map(mapProjectPriceFromDb) : [];
   }
 }

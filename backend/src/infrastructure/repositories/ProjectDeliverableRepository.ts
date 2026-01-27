@@ -2,6 +2,7 @@ import { IProjectDeliverableRepository } from '../../domain/repositories/IProjec
 import { ProjectDeliverable } from '../../domain/entities/ProjectDeliverable';
 import { supabase } from '../db/supabaseClient';
 import { mapProjectDeliverableFromDb, mapProjectDeliverableToDb } from '../mappers/projectDeliverableMapper';
+import { DatabaseError } from '../../shared/errors';
 
 export class ProjectDeliverableRepository implements IProjectDeliverableRepository {
   async create(deliverable: ProjectDeliverable): Promise<ProjectDeliverable> {
@@ -12,7 +13,9 @@ export class ProjectDeliverableRepository implements IProjectDeliverableReposito
       .select()
       .single();
 
-    if (error) throw error;
+    if (error) {
+      throw new DatabaseError(`Failed to create deliverable: ${error.message}`);
+    }
     return mapProjectDeliverableFromDb(data);
   }
 
@@ -22,7 +25,9 @@ export class ProjectDeliverableRepository implements IProjectDeliverableReposito
       .select('*')
       .eq('project_id', projectId);
 
-    if (error) throw error;
+    if (error) {
+      throw new DatabaseError(`Failed to find deliverables: ${error.message}`);
+    }
     return data ? data.map(mapProjectDeliverableFromDb) : [];
   }
 }
