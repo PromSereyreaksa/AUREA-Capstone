@@ -51,4 +51,32 @@ export class UserRepository implements IUserRepository {
     if (!data) return null;
     return mapUserFromDb(data);
   }
+
+  async verifyEmail(user_id: number): Promise<void> {
+    const { error } = await supabase
+      .from("users")
+      .update({ 
+        email_verified: true,
+        verification_otp: null,
+        verify_otp_expired: null
+      })
+      .eq("user_id", user_id);
+
+    if (error) throw error;
+  }
+
+  async updateOTP(user_id: number, otp: string, expiration: Date): Promise<void> {
+    // Format timestamp without timezone suffix for PostgreSQL timestamp column
+    const expirationStr = expiration.toISOString().replace('T', ' ').replace('Z', '');
+    
+    const { error } = await supabase
+      .from("users")
+      .update({ 
+        verification_otp: otp,
+        verify_otp_expired: expirationStr
+      })
+      .eq("user_id", user_id);
+
+    if (error) throw error;
+  }
 }

@@ -37,4 +37,12 @@ export class UserValidator extends BaseValidator {
     this.throwIf(name.trim().length < 2, 'Name must be at least 2 characters long');
     return name.trim();
   }
+
+  static validateOTP(otp: any): string {
+    this.throwIf(this.isNullOrEmpty(otp), 'OTP is required');
+    const otpString = String(otp).trim();
+    this.throwIf(otpString.length !== 6, 'OTP must be 6 digits');
+    this.throwIf(!/^\d{6}$/.test(otpString), 'OTP must contain only numbers');
+    return otpString;
+  }
 }
