@@ -1,0 +1,257 @@
+paths:
+  /users/signup:
+    post:
+      summary: Register a new user
+      description: |
+        Creates a new user account and sends an OTP to the provided email for verification.
+        The OTP is valid for 10 minutes and must be used to verify the email before the user can log in.
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+                - role
+              properties:
+                email:
+                  type: string
+                  format: email
+                  description: User's email address (must be unique)
+                  example: user@example.com
+                password:
+                  type: string
+                  format: password
+                  minLength: 6
+                  description: User's password (minimum 6 characters)
+                  example: password123
+                role:
+                  type: string
+                  enum: [client, designer, admin]
+                  description: User's role in the system
+                  example: designer
+            examples:
+              designer:
+                summary: Designer signup
+                value:
+                  email: designer@example.com
+                  password: securePass123
+                  role: designer
+              client:
+                summary: Client signup
+                value:
+                  email: client@example.com
+                  password: clientPass456
+                  role: client
+      responses:
+        '201':
+          description: User created successfully. OTP sent to email.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: User created successfully
+                  data:
+                    type: object
+                    properties:
+                      userId:
+                        type: integer
+                        example: 1
+                      email:
+                        type: string
+                        example: user@example.com
+                      otp:
+                        type: string
+                        description: OTP code (returned in development/testing only, not in production)
+                        example: "123456"
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '409':
+          description: Email already registered
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                success: false
+                error:
+                  message: Email already exists
+                  code: DUPLICATE_EMAIL
+
+  /users/verify-otp:
+    post:
+      summary: Verify email with OTP
+      description: |
+        Verifies the user's email using the OTP code sent during signup.
+        Returns a JWT token upon successful verification which should be used for authenticated requests.
+        The token expires in 7 days by default.
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - otp
+              properties:
+                email:
+                  type: string
+                  format: email
+                  description: User's email address
+                  example: user@example.com
+                otp:
+                  type: string
+                  pattern: '^\d{6}$'
+                  description: 6-digit OTP code sent to email
+                  example: "123456"
+            example:
+              email: user@example.com
+              otp: "123456"
+      responses:
+        '200':
+          description: Email verified successfully. JWT token returned.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: OTP verified successfully
+                  data:
+                    type: object
+                    properties:
+                      success:
+                        type: boolean
+                        example: true
+                      message:
+                        type: string
+                        example: Email verified successfully
+                      token:
+                        type: string
+                        description: JWT authentication token (include in Authorization header for protected routes)
+                        example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImVtYWlsIjoidXNlckBleGFtcGxlLmNvbSIsInJvbGUiOiJkZXNpZ25lciIsImlhdCI6MTczODA1MDAwMCwiZXhwIjoxNzM4NjU0ODAwfQ.abcdef123456
+                      user:
+                        $ref: '#/components/schemas/User'
+        '400':
+          description: Invalid OTP or validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                invalidOTP:
+                  summary: Invalid OTP
+                  value:
+                    success: false
+                    error:
+                      message: Invalid OTP
+                      code: INVALID_OTP
+                expiredOTP:
+                  summary: Expired OTP
+                  value:
+                    success: false
+                    error:
+                      message: OTP has expired
+                      code: OTP_EXPIRED
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /users/resend-otp:
+    post:
+      summary: Resend OTP code
+      description: |
+        Generates and sends a new OTP code to the user's email.
+        Cannot be used if the email is already verified.
+        The new OTP will replace any previously sent OTP.
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+              properties:
+                email:
+                  type: string
+                  format: email
+                  description: User's email address
+                  example: user@example.com
+            example:
+              email: user@example.com
+      responses:
+        '200':
+          description: OTP resent successfully or email already verified
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: OTP resent successfully
+                  data:
+                    type: object
+                    properties:
+                      success:
+                        type: boolean
+                        example: true
+                      message:
+                        type: string
+                        example: New OTP sent to your email
+                      otp:
+                        type: string
+                        description: New OTP code (returned in development for testing)
+                        example: "654321"
+              examples:
+                success:
+                  summary: OTP resent successfully
+                  value:
+                    success: true
+                    message: OTP resent successfully
+                    data:
+                      success: true
+                      message: New OTP sent to your email
+                      otp: "654321"
+                alreadyVerified:
+                  summary: Email already verified
+                  value:
+                    success: true
+                    message: OTP resent successfully
+                    data:
+                      success: false
+                      message: Email is already verified
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'

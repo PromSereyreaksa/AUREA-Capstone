@@ -150,32 +150,113 @@ export class GeminiService {
 
         const base64Pdf = pdfBuffer.toString("base64");
 
-        const prompt = `Analyze the PDF document and extract project details and deliverables. Return a JSON object with this exact structure:
+        // COSTAR Prompt: Context, Objective, Style, Tone, Audience, Response
+        const prompt = `# CONTEXT
+You are an expert document analyzer specializing in extracting structured project data from various document formats. You will receive a PDF document that may contain project proposals, design briefs, work orders, client requirements, or technical specifications. These documents vary in format, structure, and completeness.
+
+# OBJECTIVE
+Extract and structure project information into a JSON format for a project management system. Your goal is to:
+1. Identify the core project information (name, title, description)
+2. Extract quantifiable metrics (duration, difficulty level)
+3. Capture legal/licensing information if present
+4. List all deliverables with their quantities
+5. Handle incomplete, unstructured, or ambiguous data gracefully
+
+# STYLE
+- Analytical and precise
+- Infer reasonable values from context when explicit data is missing
+- Normalize terminology to standard categories
+- Extract concrete deliverables, not abstract concepts
+
+# TONE
+Professional, objective, and systematic
+
+# AUDIENCE
+Backend system expecting clean, validated JSON data for database insertion
+
+# RESPONSE FORMAT
+Return ONLY a valid JSON object (no markdown, no explanations) with this exact structure:
+
 {
   "projectDetails": {
-    "project_name": "The main project name or title",
-    "title": "A subtitle or alternative title if available, otherwise same as project_name",
-    "description": "A brief description of the project",
-    "duration": "Duration as a number (e.g., 30 for 30 days), or null if not found",
-    "difficulty": "Project difficulty level: 'Easy', 'Medium', 'Hard', 'Complex', or null",
-    "licensing": "Licensing type (e.g., 'MIT', 'Apache 2.0', 'Commercial', 'One-Time Used') or null",
-    "usage_rights": "Usage rights description or restrictions or null",
-    "result": "Expected outcome or deliverables summary"
+    "project_name": string (REQUIRED: Main project identifier - extract from title, heading, or document name),
+    "title": string (REQUIRED: Project subtitle, tagline, or repeat project_name if no subtitle exists),
+    "description": string | null (Brief summary of project scope, objectives, or purpose. Max 500 chars. null if not found),
+    "duration": number | null (Project duration in DAYS only. Convert weeks/months to days: 1 week = 7 days, 1 month = 30 days. Extract from timeline, schedule, or deadline. null if not found),
+    "difficulty": string | null (MUST be one of: "Easy", "Medium", "Hard", "Complex". Infer from scope, technical requirements, team size, or timeline. null if cannot determine),
+    "licensing": string | null (License type: "One-Time Used", "Limited Used", "Exclusive License", "Commercial", "MIT", "Apache 2.0", or custom license name. null if not mentioned),
+    "usage_rights": string | null (Usage restrictions, distribution rights, or copyright terms. Extract from legal section or terms. null if not specified),
+    "result": string | null (Expected outcomes, final deliverables summary, or project goals. null if not described)
   },
   "deliverables": [
     {
-      "deliverable_type": "Type of deliverable",
-      "quantity": "Quantity as a number"
+      "deliverable_type": string (REQUIRED: Specific deliverable name like "Logo Design", "Mobile App", "Marketing Brochure", "API Documentation"),
+      "quantity": number (REQUIRED: Positive integer. Default to 1 if quantity not specified but deliverable exists)
     }
   ]
 }
 
-IMPORTANT:
-- Return ONLY valid JSON, no additional text or markdown
-- All string values should be non-empty, use null for missing fields
-- quantity must be a number, not a string
-- If no deliverables are found, return an empty array
-- The JSON must be parseable`;
+# EXTRACTION RULES
+
+## Project Name & Title
+- Look for: Document title, "Project Name:", headers, bold text at top
+- If only one name exists: use it for both project_name and title
+- Prefer descriptive names over generic ones ("Website Redesign" > "Project A")
+
+## Duration Conversion
+- "2 weeks" → 14 (days)
+- "3 months" → 90 (days)
+- "1 week" → 7 (days)
+- "1 year" → 365 (days)
+- "Q1 delivery" → estimate based on quarter length (90 days)
+- If range given ("4-6 weeks") → use average (35 days)
+
+## Difficulty Inference
+- "Easy": Simple tasks, 1-2 deliverables, < 2 weeks, junior-level
+- "Medium": Moderate complexity, 3-5 deliverables, 2-8 weeks, requires experience
+- "Hard": Complex requirements, 6-10 deliverables, 2-4 months, senior-level
+- "Complex": Enterprise-scale, 10+ deliverables, > 4 months, expert team
+
+## Deliverables Extraction
+- Look for: "Deliverables:", "Scope:", bullet points, numbered lists, "What we'll create:"
+- Be specific: "3x Logo Variations" → { "deliverable_type": "Logo Variations", "quantity": 3 }
+- Separate similar items: "5 web pages + 2 landing pages" → create 2 deliverable objects
+- Ignore vague items like "quality", "satisfaction", "support" unless they're concrete services
+- Common deliverable patterns:
+  * Design: "Logo", "UI/UX Design", "Brand Guidelines", "Mockups", "Wireframes"
+  * Development: "Website", "Mobile App", "API", "Database Schema", "Backend Service"
+  * Content: "Blog Posts", "Marketing Copy", "Documentation", "Video Scripts"
+  * Marketing: "Social Media Posts", "Ad Campaigns", "Email Templates", "Presentations"
+
+## Handling Edge Cases
+- Missing project name: Use "Untitled Project" or derive from document metadata
+- No deliverables found: Return empty array []
+- Ambiguous duration: Use null rather than guessing
+- Multiple license types: Concatenate with " / " separator
+- Conflicting information: Prefer explicit statements over implied context
+
+## Data Quality
+- All string values must be trimmed (no leading/trailing whitespace)
+- Numbers must be positive integers
+- Use null (not empty strings) for missing optional fields
+- Ensure JSON is valid and parseable
+- No HTML tags or markdown formatting in text fields
+
+# EXAMPLES OF HANDLING VARIOUS FORMATS
+
+Example 1 - Formal Proposal:
+Input: "PROJECT: E-commerce Platform | Duration: 12 weeks | Team Size: 8 | Deliverables: (1) Product catalog with 500 items, (2) Payment gateway integration, (3) Admin dashboard"
+Output: duration: 84, difficulty: "Hard", deliverables: [{"deliverable_type": "Product Catalog", "quantity": 500}, {"deliverable_type": "Payment Gateway Integration", "quantity": 1}, {"deliverable_type": "Admin Dashboard", "quantity": 1}]
+
+Example 2 - Informal Brief:
+Input: "Need a simple logo + business card design. Quick turnaround - about a week"
+Output: duration: 7, difficulty: "Easy", deliverables: [{"deliverable_type": "Logo Design", "quantity": 1}, {"deliverable_type": "Business Card Design", "quantity": 1}]
+
+Example 3 - Incomplete Data:
+Input: "Brand refresh project. Modern, minimalist aesthetic."
+Output: duration: null, difficulty: null, description: "Brand refresh project with modern, minimalist aesthetic", deliverables: []
+
+Now analyze the provided PDF document and extract the project information following these rules exactly.`;
 
         const response = await client.models.generateContent({
           model,

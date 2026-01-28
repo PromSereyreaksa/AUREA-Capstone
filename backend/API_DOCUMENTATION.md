@@ -2,6 +2,23 @@
 
 **Base URL**: `http://localhost:3000`
 
+> **⚠️ API Versioning**: This API supports versioning. Use `/api/v1` for production endpoints (public access) and `/api/v0` for development/testing (localhost only). See details below.
+
+---
+
+## API Versioning
+
+The AUREA API supports two versions:
+
+- **v1 (Production)** - `/api/v1/*` - Public access, stable endpoints
+- **v0 (Development)** - `/api/v0/*` - Localhost only, for testing
+
+**Example URLs:**
+- Production: `POST http://localhost:3000/api/v1/users/signup`
+- Development: `POST http://localhost:3000/api/v0/users/signup` (localhost only)
+
+**Recommendation**: Use `/api/v1` for all production applications. Use `/api/v0` only for local development and testing.
+
 ---
 
 ## Table of Contents
@@ -15,6 +32,9 @@
    - [Extract Project from PDF](#extract-project-from-pdf)
    - [Create Project Manually](#create-project-manually)
    - [Get User Projects](#get-user-projects)
+   - [Get Single Project](#get-single-project)
+   - [Update Project](#update-project)
+   - [Delete Project](#delete-project)
 4. [Error Codes](#error-codes)
 
 ---
@@ -29,7 +49,7 @@ Response: `{ "success": true, "status": "ok", "timestamp": "...", "environment":
 
 ### Test Gemini API
 ```
-GET /api/pdf/test-gemini
+GET /api/v1/pdf/test-gemini
 ```
 Response: `{ "success": true, "data": { "message": "Gemini API is working" } }`
 
@@ -41,7 +61,7 @@ Response: `{ "success": true, "data": { "message": "Gemini API is working" } }`
 Creates a new user account and sends OTP to email for verification.
 
 ```
-POST /api/users/signup
+POST /api/v1/users/signup
 Content-Type: application/json
 ```
 
@@ -89,7 +109,7 @@ Content-Type: application/json
 Verifies email with OTP code and returns JWT token for authentication.
 
 ```
-POST /api/users/verify-otp
+POST /api/v1/users/verify-otp
 Content-Type: application/json
 ```
 
@@ -136,7 +156,7 @@ Content-Type: application/json
 Generates and sends a new OTP to user's email.
 
 ```
-POST /api/users/resend-otp
+POST /api/v1/users/resend-otp
 Content-Type: application/json
 ```
 
@@ -182,7 +202,7 @@ Content-Type: application/json
 Returns the authenticated user's profile information.
 
 ```
-GET /api/users/me
+GET /api/v1/users/me
 Authorization: Bearer <JWT_TOKEN>
 ```
 
@@ -220,7 +240,7 @@ Authorization: Bearer <JWT_TOKEN>
 Extracts project details from a PDF document using Gemini AI.
 
 ```
-POST /api/pdf/extract
+POST /api/v1/pdf/extract
 Content-Type: multipart/form-data
 ```
 
@@ -274,7 +294,7 @@ Content-Type: multipart/form-data
 Creates a project with manually provided details.
 
 ```
-POST /api/pdf/create-project
+POST /api/v1/pdf/create-project
 Content-Type: application/json
 ```
 
@@ -329,7 +349,7 @@ Content-Type: application/json
 Retrieves all projects for a specific user.
 
 ```
-GET /api/pdf/projects/:userId
+GET /api/v1/pdf/projects/:userId
 ```
 
 **Response** (200):
@@ -351,6 +371,157 @@ GET /api/pdf/projects/:userId
 
 **Errors**:
 - `400`: Invalid user ID
+
+---
+
+### Get Single Project
+Retrieves a specific project with all its deliverables.
+
+```
+GET /api/v1/pdf/projects/:userId/:projectId
+```
+
+**Path Parameters**:
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| userId | Number | User ID |
+| projectId | Number | Project ID |
+
+**Response** (200):
+```json
+{
+  "success": true,
+  "data": {
+    "project_id": 1,
+    "user_id": 1,
+    "project_name": "Website Redesign",
+    "title": "Complete Website Overhaul",
+    "description": "Full website redesign and modernization",
+    "duration": 8,
+    "difficulty": "High",
+    "licensing": "Exclusive",
+    "usage_rights": "Commercial",
+    "result": "Production-ready website",
+    "deliverables": [
+      {
+        "deliverable_id": 1,
+        "project_id": 1,
+        "deliverable_type": "UI Design",
+        "quantity": 15
+      }
+    ]
+  }
+}
+```
+
+**Errors**:
+- `400`: Invalid user ID or project ID
+- `403`: Access denied (not project owner)
+- `404`: Project not found
+
+---
+
+### Update Project
+Updates project details. Only the project owner can update.
+
+```
+PUT /api/v1/pdf/projects/:userId/:projectId
+Content-Type: application/json
+```
+
+**Path Parameters**:
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| userId | Number | User ID |
+| projectId | Number | Project ID |
+
+**Request Body** (All fields optional):
+```json
+{
+  "title": "Updated Project Title",
+  "description": "Updated description",
+  "duration": 10,
+  "difficulty": "Medium",
+  "licensing": "Limited Use",
+  "usage_rights": "Business Use",
+  "result": "Updated result description",
+  "deliverables": [
+    {
+      "deliverable_type": "Mobile Design",
+      "quantity": 5
+    }
+  ]
+}
+```
+
+**Response** (200):
+```json
+{
+  "success": true,
+  "message": "Project updated successfully",
+  "data": {
+    "project_id": 1,
+    "user_id": 1,
+    "project_name": "Website Redesign",
+    "title": "Updated Project Title",
+    "description": "Updated description",
+    "duration": 10,
+    "difficulty": "Medium",
+    "licensing": "Limited Use",
+    "usage_rights": "Business Use",
+    "result": "Updated result description",
+    "deliverables": [
+      {
+        "deliverable_id": 2,
+        "project_id": 1,
+        "deliverable_type": "Mobile Design",
+        "quantity": 5
+      }
+    ]
+  }
+}
+```
+
+**Validation**:
+- At least one field must be provided for update
+- `duration`: Positive integer if provided
+- `quantity`: Positive integer if provided
+
+**Errors**:
+- `400`: Invalid input, missing required fields
+- `403`: Access denied (not project owner)
+- `404`: Project not found
+
+---
+
+### Delete Project
+Deletes a project and all associated deliverables. Only the project owner can delete.
+
+```
+DELETE /api/v1/pdf/projects/:userId/:projectId
+```
+
+**Path Parameters**:
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| userId | Number | User ID |
+| projectId | Number | Project ID |
+
+**Response** (200):
+```json
+{
+  "success": true,
+  "message": "Project deleted successfully",
+  "data": {
+    "projectId": 1
+  }
+}
+```
+
+**Errors**:
+- `400`: Invalid user ID or project ID
+- `403`: Access denied (not project owner)
+- `404`: Project not found
 
 ---
 
@@ -395,13 +566,13 @@ GET /api/pdf/projects/:userId
 ## Authentication Flow
 
 ```
-1. POST /api/users/signup     → Creates user, sends OTP email
-                              ↓
-2. POST /api/users/verify-otp → Verifies OTP, returns JWT token
-                              ↓
-3. Use JWT token in headers   → Authorization: Bearer <token>
-                              ↓
-4. Access protected routes    → GET /api/users/me
+1. POST /api/v1/users/signup     → Creates user, sends OTP email
+                                 ↓
+2. POST /api/v1/users/verify-otp → Verifies OTP, returns JWT token
+                                 ↓
+3. Use JWT token in headers      → Authorization: Bearer <token>
+                                 ↓
+4. Access protected routes       → GET /api/v1/users/me
 ```
 
 ---

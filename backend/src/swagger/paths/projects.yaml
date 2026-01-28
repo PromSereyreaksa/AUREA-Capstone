@@ -1,0 +1,299 @@
+paths:
+  /pdf/projects/{userId}:
+    get:
+      summary: Get all projects for a user
+      description: |
+        Retrieves all projects created by a specific user.
+        Returns an array of projects without detailed deliverable information.
+      tags:
+        - Project Management
+      parameters:
+        - $ref: '#/components/parameters/userIdParam'
+      responses:
+        '200':
+          description: Projects retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Projects retrieved successfully
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Project'
+              example:
+                success: true
+                message: Projects retrieved successfully
+                data:
+                  - project_id: 1
+                    user_id: 1
+                    project_name: Website Redesign
+                    title: Complete Website Overhaul
+                    description: Full website redesign
+                    duration: 30
+                    difficulty: Medium
+                    licensing: Exclusive
+                    usage_rights: Commercial
+                    result: Production-ready website
+                    created_at: "2026-01-28T10:00:00.000Z"
+                  - project_id: 2
+                    user_id: 1
+                    project_name: Logo Design
+                    title: Brand Identity
+                    description: Modern logo design
+                    duration: 14
+                    difficulty: Easy
+                    licensing: One-Time Used
+                    usage_rights: Personal Use
+                    result: Logo files
+                    created_at: "2026-01-27T09:00:00.000Z"
+        '400':
+          description: Invalid user ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: No projects found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Projects retrieved successfully
+                  data:
+                    type: array
+                    example: []
+
+  /pdf/projects/{userId}/{projectId}:
+    get:
+      summary: Get single project with deliverables
+      description: |
+        Retrieves detailed information about a specific project including all its deliverables.
+        Only the project owner can access this endpoint.
+      tags:
+        - Project Management
+      parameters:
+        - $ref: '#/components/parameters/userIdParam'
+        - $ref: '#/components/parameters/projectIdParam'
+      responses:
+        '200':
+          description: Project retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/ProjectWithDeliverables'
+              example:
+                success: true
+                data:
+                  project_id: 1
+                  user_id: 1
+                  project_name: Website Redesign
+                  title: Complete Website Overhaul
+                  description: Full website redesign and modernization
+                  duration: 30
+                  difficulty: Medium
+                  licensing: Exclusive
+                  usage_rights: Commercial
+                  result: Production-ready website
+                  created_at: "2026-01-28T10:00:00.000Z"
+                  deliverables:
+                    - deliverable_id: 1
+                      project_id: 1
+                      deliverable_type: UI Design
+                      quantity: 15
+                    - deliverable_id: 2
+                      project_id: 1
+                      deliverable_type: Responsive Layout
+                      quantity: 10
+        '400':
+          description: Invalid user ID or project ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+    put:
+      summary: Update project
+      description: |
+        Updates project details. Only the project owner can update.
+        All fields are optional - only provided fields will be updated.
+        Deliverables can also be updated with this endpoint.
+      tags:
+        - Project Management
+      parameters:
+        - $ref: '#/components/parameters/userIdParam'
+        - $ref: '#/components/parameters/projectIdParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                project_name:
+                  type: string
+                  description: Short project name
+                  example: Website Redesign v2
+                title:
+                  type: string
+                  description: Project title
+                  example: Updated Website Overhaul
+                description:
+                  type: string
+                  description: Project description
+                  example: Updated description with new requirements
+                duration:
+                  type: integer
+                  description: Duration in days
+                  minimum: 1
+                  example: 45
+                difficulty:
+                  type: string
+                  enum: [Easy, Medium, Hard, Complex]
+                  example: Hard
+                licensing:
+                  type: string
+                  example: Exclusive
+                usage_rights:
+                  type: string
+                  example: Commercial
+                result:
+                  type: string
+                  example: Enhanced production-ready website
+                deliverables:
+                  type: array
+                  description: Updated list of deliverables (replaces existing)
+                  items:
+                    type: object
+                    required:
+                      - deliverable_type
+                      - quantity
+                    properties:
+                      deliverable_type:
+                        type: string
+                        example: UI Design
+                      quantity:
+                        type: integer
+                        minimum: 1
+                        example: 20
+            examples:
+              partialUpdate:
+                summary: Update only some fields
+                value:
+                  title: Updated Project Title
+                  difficulty: Hard
+                  duration: 45
+              fullUpdate:
+                summary: Update all fields including deliverables
+                value:
+                  project_name: Complete Redesign
+                  title: Full Website Overhaul v2
+                  description: Updated requirements and scope
+                  duration: 60
+                  difficulty: Complex
+                  licensing: Exclusive
+                  usage_rights: Commercial
+                  result: Enterprise-ready website
+                  deliverables:
+                    - deliverable_type: UI Design
+                      quantity: 20
+                    - deliverable_type: API Integration
+                      quantity: 5
+      responses:
+        '200':
+          description: Project updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Project updated successfully
+                  data:
+                    type: object
+                    properties:
+                      project:
+                        $ref: '#/components/schemas/Project'
+                      deliverables:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Deliverable'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+    delete:
+      summary: Delete project
+      description: |
+        Deletes a project and all its associated deliverables.
+        Only the project owner can delete the project.
+        This action is permanent and cannot be undone.
+      tags:
+        - Project Management
+      parameters:
+        - $ref: '#/components/parameters/userIdParam'
+        - $ref: '#/components/parameters/projectIdParam'
+      responses:
+        '200':
+          description: Project deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Project deleted successfully
+                  data:
+                    type: object
+                    properties:
+                      projectId:
+                        type: integer
+                        example: 1
+              example:
+                success: true
+                message: Project deleted successfully
+                data:
+                  projectId: 1
+        '400':
+          description: Invalid user ID or project ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'

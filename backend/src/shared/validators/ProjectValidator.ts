@@ -45,6 +45,23 @@ export class ProjectValidator extends BaseValidator {
     this.validateDeliverables(data.deliverables!);
   }
 
+  static validateUpdateProjectInput(data: ProjectInput): void {
+    // For updates, at least one field should be provided
+    const hasFields = data.project_name || data.title || data.description || 
+                      data.duration || data.difficulty || data.licensing || 
+                      data.usage_rights || data.result || data.deliverables;
+
+    this.throwIf(
+      !hasFields,
+      'At least one field must be provided for update'
+    );
+
+    // Validate specific fields if provided
+    if (data.deliverables) {
+      this.validateDeliverables(data.deliverables);
+    }
+  }
+
   static validateDeliverables(deliverables: DeliverableInput[]): void {
     deliverables.forEach((d, index) => {
       this.throwIf(
@@ -89,17 +106,24 @@ export class ProjectValidator extends BaseValidator {
   }
 
   static sanitizeProjectData(data: ProjectInput) {
+    // Helper function to truncate strings to max length
+    const truncate = (str: string | undefined, maxLen: number): string | undefined => {
+      if (!str) return undefined;
+      const trimmed = str.trim();
+      return trimmed.length > maxLen ? trimmed.substring(0, maxLen) : trimmed || undefined;
+    };
+
     return {
-      project_name: data.project_name?.trim() || '',
-      title: data.title?.trim() || '',
-      description: data.description?.trim() || undefined,
+      project_name: truncate(data.project_name, 100) || '',
+      title: truncate(data.title, 100) || '',
+      description: truncate(data.description, 500),
       duration: this.validateDuration(data.duration),
       difficulty: this.validateDifficulty(data.difficulty),
       licensing: this.validateLicensing(data.licensing),
       usage_rights: this.validateUsageRights(data.usage_rights),
-      result: data.result?.trim() || undefined,
+      result: truncate(data.result, 255),
       deliverables: data.deliverables?.map(d => ({
-        deliverable_type: d.deliverable_type.trim(),
+        deliverable_type: truncate(d.deliverable_type, 100) || '',
         quantity: this.validateQuantity(d.quantity)
       })) || []
     };

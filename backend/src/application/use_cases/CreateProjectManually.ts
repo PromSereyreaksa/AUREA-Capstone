@@ -34,7 +34,7 @@ export class CreateProjectManually {
 
     // Create project price entity
     const projectPrice = new ProjectPrice(
-      0, // project_id will be set by DB
+      0, 
       userId,
       projectData.project_name,
       projectData.title,
@@ -53,7 +53,7 @@ export class CreateProjectManually {
     const savedDeliverables: ProjectDeliverable[] = [];
     for (const deliverable of projectData.deliverables) {
       const projectDeliverable = new ProjectDeliverable(
-        0, // deliverable_id will be set by DB
+        0, 
         savedProject.project_id,
         deliverable.deliverable_type,
         deliverable.quantity

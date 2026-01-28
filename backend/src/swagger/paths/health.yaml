@@ -1,0 +1,35 @@
+paths:
+  /health:
+    get:
+      summary: Health check
+      description: |
+        Returns the health status of the API server.
+        This is a simple health check endpoint for monitoring server status.
+        Accessible without authentication at the root path.
+      tags:
+        - Health
+      responses:
+        '200':
+          description: Server is healthy and running
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  status:
+                    type: string
+                    example: ok
+                  timestamp:
+                    type: string
+                    format: date-time
+                    example: '2026-01-28T10:50:56.152Z'
+                  environment:
+                    type: string
+                    example: development
+                  version:
+                    type: string
+                    example: v1
+        

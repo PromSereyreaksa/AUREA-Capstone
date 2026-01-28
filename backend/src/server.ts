@@ -1,13 +1,15 @@
 import express, { Request, Response, NextFunction } from 'express';
 import dotenv from 'dotenv';
-dotenv.config();
-
 import cors from 'cors';
+import swaggerUi from 'swagger-ui-express';
+import swaggerSpec from './config/swagger';
 import testRoutes from './interfaces/routes/testRoutes';
 import userRoutes from './interfaces/routes/userRoutes';
 import pdfExtractRoutes from './interfaces/routes/pdfExtractRoutes';
-import { errorHandler, requestLogger } from './shared/middleware';
+import { errorHandler, requestLogger, versionMiddleware, versionCheck, restrictV0ToLocalhost } from './shared/middleware';
 
+// Suppress dotenv logging in non-debug mode
+dotenv.config({ debug: false });
 const app = express();
 
 // Middleware
@@ -15,28 +17,51 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(requestLogger);
+app.use(versionCheck);
+app.use(restrictV0ToLocalhost); // Restrict v0 to localhost only
 
 // Health check
-app.get('/health', (req, res) => {
+
+
+app.get('/api/v0/health', (req, res) => {
   res.json({ 
     success: true,
     status: 'ok', 
     timestamp: new Date().toISOString(),
-    environment: process.env.NODE_ENV || 'development'
+    environment: process.env.NODE_ENV || 'development',
+    version: 'v0'
   });
 });
 
-// Routes
-app.use('/api', testRoutes);
-app.use('/api/users', userRoutes);
-app.use('/api/pdf', pdfExtractRoutes);
-
-// Global error handler - log actual errors
-app.use((err: any, req: Request, res: Response, next: NextFunction) => {
-  console.error('Error:', err.message || err);
-  console.error('Stack:', err.stack);
-  res.status(500).json({ error: err.message || 'Internal Server Error' });
+app.get('/api/v1/health', (req, res) => {
+  res.json({ 
+    success: true,
+    status: 'ok', 
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || 'development',
+    version: 'v1'
+  });
 });
+
+// Swagger Documentation (v0 only - for developers)
+app.use('/api/v0/docs', swaggerUi.serve);
+app.get('/api/v0/docs', swaggerUi.setup(swaggerSpec, {
+  customCss: '.swagger-ui .topbar { display: none }',
+  customSiteTitle: 'AUREA API v0 - Development',
+  customfavIcon: '/favicon.ico'
+}));
+
+//for developer
+app.use('/api/v0', versionMiddleware('v0'), testRoutes);
+app.use('/api/v0/users', versionMiddleware('v0'), userRoutes);
+app.use('/api/v0/pdf', versionMiddleware('v0'), pdfExtractRoutes);
+
+
+//for users v1
+app.use('/api/v1', versionMiddleware('v1'), testRoutes);
+app.use('/api/v1/users', versionMiddleware('v1'), userRoutes);
+app.use('/api/v1/pdf', versionMiddleware('v1'), pdfExtractRoutes);
+
 // 404 handler
 app.use((req, res) => {
   res.status(404).json({
