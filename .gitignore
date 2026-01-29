@@ -5,6 +5,7 @@ backend/node_modules/
 
 # Vite / build files
 frontend/dist/
+backend/dist/
 
 # Logs
 *.log
