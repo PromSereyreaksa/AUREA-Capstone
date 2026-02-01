@@ -1,55 +1,81 @@
-import { createClient } from '@supabase/supabase-js';
-
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
-const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
-
-export const supabase = createClient(supabaseUrl, supabaseKey);
-
-// HTTP Client for backend API
 export const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
 
 export class HttpClient {
-  private baseUrl: string;
+  public baseUrl: string;
 
   constructor(baseUrl: string = API_BASE_URL) {
     this.baseUrl = baseUrl;
   }
 
+  private getHeaders(): HeadersInit {
+    const headers: HeadersInit = {
+      'Content-Type': 'application/json',
+    };
+
+    // Add auth token if exists
+    const token = localStorage.getItem('auth_token');
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+
+    return headers;
+  }
+
   async get<T>(endpoint: string): Promise<T> {
     const response = await fetch(`${this.baseUrl}${endpoint}`, {
       method: 'GET',
-      headers: { 'Content-Type': 'application/json' },
+      headers: this.getHeaders(),
     });
-    if (!response.ok) throw new Error(`GET ${endpoint} failed`);
+    
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ message: 'Request failed' }));
+      throw new Error(error.message || `GET ${endpoint} failed`);
+    }
+    
     return response.json();
   }
 
   async post<T>(endpoint: string, data: any): Promise<T> {
     const response = await fetch(`${this.baseUrl}${endpoint}`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: this.getHeaders(),
       body: JSON.stringify(data),
     });
-    if (!response.ok) throw new Error(`POST ${endpoint} failed`);
+    
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ message: 'Request failed' }));
+      throw new Error(error.message || `POST ${endpoint} failed`);
+    }
+    
     return response.json();
   }
 
   async put<T>(endpoint: string, data: any): Promise<T> {
     const response = await fetch(`${this.baseUrl}${endpoint}`, {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
+      headers: this.getHeaders(),
       body: JSON.stringify(data),
     });
-    if (!response.ok) throw new Error(`PUT ${endpoint} failed`);
+    
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ message: 'Request failed' }));
+      throw new Error(error.message || `PUT ${endpoint} failed`);
+    }
+    
     return response.json();
   }
 
   async delete<T>(endpoint: string): Promise<T> {
     const response = await fetch(`${this.baseUrl}${endpoint}`, {
       method: 'DELETE',
-      headers: { 'Content-Type': 'application/json' },
+      headers: this.getHeaders(),
     });
-    if (!response.ok) throw new Error(`DELETE ${endpoint} failed`);
+    
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ message: 'Request failed' }));
+      throw new Error(error.message || `DELETE ${endpoint} failed`);
+    }
+    
     return response.json();
   }
 }

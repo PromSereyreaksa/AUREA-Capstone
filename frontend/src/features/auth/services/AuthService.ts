@@ -1,70 +1,62 @@
 import type { IAuthService } from './IAuthService';
 import type { User } from '../../../shared/types';
-import { supabase, httpClient } from '../../../shared/api/client';
+import { httpClient } from '../../../shared/api/client';
 
 export class AuthService implements IAuthService {
   async signUp(email: string, password: string): Promise<User> {
-    // Create auth user in Supabase
-    const { data: authData, error: authError } = await supabase.auth.signUp({
-      email,
-      password,
-    });
-
-    if (authError) throw authError;
-    if (!authData.user) throw new Error('Failed to create user');
-
-    // Create user record in backend
     try {
-      const userData = await httpClient.post<User>('/users/signup', {
+      const response = await httpClient.post<{ user: User; token: string }>('/users/signup', {
         email,
         password,
         role: 'designer',
       });
-      return userData;
-    } catch (err) {
-      console.error('Backend signup error:', err);
-      throw new Error("User can't be created in backend.");
+      
+      // Store token in localStorage
+      if (response.token) {
+        localStorage.setItem('auth_token', response.token);
+      }
+      
+      return response.user;
+    } catch (error: any) {
+      throw new Error(error.message || 'Sign up failed');
     }
   }
 
   async signIn(email: string, password: string): Promise<User> {
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-
-    if (error) throw error;
-    if (!data.user) throw new Error('Failed to sign in');
-
-    // Fetch full user data from backend
     try {
-      const userData = await httpClient.post<User>('/users/signin', {
+      const response = await httpClient.post<{ user: User; token: string }>('/users/signin', {
         email,
         password,
       });
-      return userData;
-    } catch (err) {
-      console.error('Backend signin error:', err);
-      throw new Error("User can't be found in backend.");
+      
+      // Store token in localStorage
+      if (response.token) {
+        localStorage.setItem('auth_token', response.token);
+      }
+      
+      return response.user;
+    } catch (error: any) {
+      throw new Error(error.message || 'Sign in failed');
     }
   }
 
   async signOut(): Promise<void> {
-    const { error } = await supabase.auth.signOut();
-    if (error) throw error;
+    try {
+      // Call logout endpoint if exists
+      await httpClient.post('/users/signout', {});
+    } catch (error) {
+      console.error('Logout error:', error);
+    } finally {
+      // Always clear token
+      localStorage.removeItem('auth_token');
+    }
   }
 
   async signInWithGoogle(): Promise<User> {
-    const { data, error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
-      },
-    });
-
-    if (error) throw error;
-
-    // User will be redirected, so we return a placeholder
+    // Redirect to backend OAuth endpoint
+    window.location.href = `${httpClient.baseUrl}/auth/google`;
+    
+    // Return placeholder (actual user will be set after redirect)
     return {
       user_id: 0,
       email: '',
@@ -74,31 +66,33 @@ export class AuthService implements IAuthService {
   }
 
   async resetPassword(email: string): Promise<void> {
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/reset-password`,
-    });
-    if (error) throw error;
+    try {
+      await httpClient.post('/users/reset-password', { email });
+    } catch (error: any) {
+      throw new Error(error.message || 'Password reset failed');
+    }
   }
 
   async verifyEmail(code: string): Promise<void> {
-    // Placeholder - implement when backend supports it
     try {
       await httpClient.post('/users/verify-email', { code });
-    } catch (err) {
-      console.log('Email verification placeholder:', code);
+    } catch (error: any) {
+      throw new Error(error.message || 'Email verification failed');
     }
   }
 
   async getCurrentUser(): Promise<User | null> {
-    const { data: { session } } = await supabase.auth.getSession();
+    const token = localStorage.getItem('auth_token');
     
-    if (!session?.user) return null;
+    if (!token) return null;
 
     try {
-      const userData = await httpClient.get<User>(`/users/${session.user.id}`);
-      return userData;
-    } catch (err) {
-      throw new Error("User can't be found");
+      const user = await httpClient.get<User>('/users/me');
+      return user;
+    } catch (error) {
+      // Token invalid or expired
+      localStorage.removeItem('auth_token');
+      return null;
     }
   }
 }

@@ -10,6 +10,11 @@ import {
   SignInPage,
   VerifyEmailPage,
   ForgotPasswordPage,
+} from './features/auth';
+import { 
+  DesignerProfilePage
+} from './features/profile';
+import './App.css';
 } from "./features/auth";
 
 import {
@@ -38,6 +43,9 @@ function App() {
           <Route path="/verify-email" element={<VerifyEmailPage />} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
 
+          {/* Designer profile route */}
+          <Route path="/designer-profile/:designerId" element={<DesignerProfilePage />} />
+          
           {/* Landing Page Routes */}
           <Route
             path="/"

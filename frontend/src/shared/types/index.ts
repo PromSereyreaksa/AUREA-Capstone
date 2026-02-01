@@ -51,5 +51,4 @@ export interface ApiResponse<T> {
   message?: string;
 }
 
-// Common utility types
 export type AsyncResult<T> = Promise<ApiResponse<T>>;
