@@ -5,6 +5,34 @@ import { ProjectPrice } from '../../domain/entities/ProjectPrice';
 import { ProjectDeliverable } from '../../domain/entities/ProjectDeliverable';
 import { CalculateProjectRate } from './CalculateProjectRate';
 
+interface DeliverableInput {
+  deliverable_type: string;
+  quantity: number;
+  items?: string[];  // Sub-items/components included in this deliverable
+}
+
+interface ProjectInput {
+  project_name: string;
+  title: string;
+  description?: string | null;
+  duration?: number | null;
+  difficulty?: string | null;
+  licensing?: string | null;
+  usage_rights?: string | null;
+  result?: string | null;
+  deliverables: DeliverableInput[];
+  // OPTIONAL pricing fields
+  client_type?: string;
+  client_region?: string;
+  auto_calculate_rate?: boolean;
+}
+
+interface CreateResult {
+  project: ProjectPrice;
+  deliverables: ProjectDeliverable[];
+  calculated_rate?: number;
+}
+
 export class CreateProjectManually {
   private calculateProjectRateUseCase?: CalculateProjectRate;
 
@@ -22,24 +50,7 @@ export class CreateProjectManually {
     }
   }
 
-  async execute(
-    userId: number,
-    projectData: {
-      project_name: string;
-      title: string;
-      description?: string | null;
-      duration?: number | null;
-      difficulty?: string | null;
-      licensing?: string | null;
-      usage_rights?: string | null;
-      result?: string | null;
-      deliverables: Array<{ deliverable_type: string; quantity: number }>;
-      // OPTIONAL pricing fields
-      client_type?: string;
-      client_region?: string;
-      auto_calculate_rate?: boolean;
-    }
-  ): Promise<{ project: ProjectPrice; deliverables: ProjectDeliverable[]; calculated_rate?: number }> {
+  async execute(userId: number, projectData: ProjectInput): Promise<CreateResult> {
     // Validate required fields
     if (!projectData.project_name || !projectData.title) {
       throw new Error('project_name and title are required');
@@ -51,7 +62,7 @@ export class CreateProjectManually {
 
     // Create project price entity
     const projectPrice = new ProjectPrice(
-      0, 
+      0,
       userId,
       projectData.project_name,
       projectData.title,
@@ -70,17 +81,23 @@ export class CreateProjectManually {
     const savedDeliverables: ProjectDeliverable[] = [];
     for (const deliverable of projectData.deliverables) {
       const projectDeliverable = new ProjectDeliverable(
-        0, 
+        0,
         savedProject.project_id,
         deliverable.deliverable_type,
-        deliverable.quantity
+        deliverable.quantity,
+        deliverable.items || []
       );
       const saved = await this.projectDeliverableRepo.create(projectDeliverable);
       savedDeliverables.push(saved);
     }
 
+    // Build result
+    const result: CreateResult = {
+      project: savedProject,
+      deliverables: savedDeliverables
+    };
+
     // OPTIONAL: Auto-calculate project rate if user has pricing profile
-    let calculatedRate: number | undefined;
     if (projectData.auto_calculate_rate && this.calculateProjectRateUseCase) {
       try {
         const clientType = projectData.client_type || 'sme';
@@ -93,17 +110,13 @@ export class CreateProjectManually {
           client_region: clientRegion
         });
 
-        calculatedRate = rateResult.final_hourly_rate;
+        result.calculated_rate = rateResult.final_hourly_rate;
       } catch (error: any) {
         // Expected if user hasn't completed pricing onboarding
         console.log('[CreateProject] Auto rate calculation skipped:', error.message);
       }
     }
 
-    return {
-      project: savedProject,
-      deliverables: savedDeliverables,
-      calculated_rate: calculatedRate
-    };
+    return result;
   }
 }

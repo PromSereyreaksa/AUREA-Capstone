@@ -227,12 +227,22 @@ For issues or questions, please contact the development team.
           },
           deliverable_type: {
             type: 'string',
-            example: 'Logo Design'
+            description: 'Category/group name for the deliverable',
+            example: 'Brand Identity System'
           },
           quantity: {
             type: 'integer',
             minimum: 1,
-            example: 3
+            description: 'Number of this deliverable category',
+            example: 1
+          },
+          items: {
+            type: 'array',
+            description: 'Sub-items/components included in this deliverable',
+            items: {
+              type: 'string'
+            },
+            example: ['Primary logo', 'Secondary logo', 'Color palette', 'Typography system']
           }
         },
         required: ['deliverable_type', 'quantity']
