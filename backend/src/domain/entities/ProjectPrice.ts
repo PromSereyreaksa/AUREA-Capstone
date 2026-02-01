@@ -9,6 +9,9 @@ export class ProjectPrice {
     public difficulty?: string,
     public licensing?: string,
     public usage_rights?: string,
-    public result?: string
+    public result?: string,
+    public client_type?: string,          // NEW: 'startup' | 'sme' | 'corporate' | 'ngo' | 'government'
+    public client_region?: string,        // NEW: 'cambodia' | 'southeast_asia' | 'global'
+    public calculated_rate?: number       // NEW: Hourly rate calculated by UREA
   ) {}
 }

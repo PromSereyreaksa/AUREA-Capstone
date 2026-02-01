@@ -1,6 +1,7 @@
 import "dotenv/config";
 import { GoogleGenAI } from "@google/genai";
 import { ExternalServiceError, RateLimitError } from "../../shared/errors";
+import { handleAndLogError, getSafeErrorMessage } from "../../shared/utils/errorUtils";
 
 interface ApiKeyConfig {
   apiKey: string;
@@ -345,9 +346,407 @@ Now analyze the provided PDF document and extract the project information follow
     }
 
     // If we've exhausted all attempts
-    throw new ExternalServiceError(
-      "Gemini",
-      `Failed to extract PDF after ${maxAttempts} attempts. Last error: ${lastError.message}`,
+    const safeMessage = handleAndLogError(lastError, 'PDF extraction', '[GeminiService]');
+    throw new ExternalServiceError("Gemini", safeMessage);
+  }
+
+  /**
+   * Generic content generation method for custom prompts
+   * Used by QuickEstimateRate and other use cases that need AI-generated content
+   */
+  async generateContent(prompt: string): Promise<string> {
+    if (this.apiConfigs.length === 0) {
+      throw new ExternalServiceError("Gemini", "No API keys configured");
+    }
+
+    let lastError: any;
+    let attemptCount = 0;
+    const maxAttempts = Math.min(
+      3,
+      this.apiConfigs.length * this.apiConfigs[0].models.length
     );
+
+    while (attemptCount < maxAttempts) {
+      try {
+        const { apiKey, model } = this.getCurrentConfig();
+        const client = this.clients.get(apiKey);
+
+        if (!client) {
+          throw new ExternalServiceError(
+            "Gemini",
+            "Failed to initialize client"
+          );
+        }
+
+        const response = await client.models.generateContent({
+          model,
+          contents: prompt,
+        });
+
+        const responseText =
+          response.text ||
+          response.candidates?.[0]?.content?.parts?.[0]?.text ||
+          '';
+
+        if (!responseText) {
+          throw new Error('Empty response from Gemini');
+        }
+
+        return responseText;
+      } catch (error: any) {
+        lastError = error;
+
+        if (this.isRateLimitError(error)) {
+          console.warn(
+            `Rate limit hit on API key ${this.currentConfigIndex + 1}. Rotating to next...`
+          );
+          this.rotateToNextModel();
+          attemptCount++;
+          continue;
+        }
+
+        console.warn(
+          `Error generating content: ${error.message}. Trying next...`
+        );
+        this.rotateToNextModel();
+        attemptCount++;
+      }
+    }
+
+    const safeMessage = handleAndLogError(lastError, 'Content generation', '[GeminiService]');
+    throw new ExternalServiceError("Gemini", safeMessage);
+  }
+
+  /**
+   * Generate content with Google Search grounding enabled
+   * This allows the AI to search the internet for real-time, up-to-date information
+   * 
+   * @param prompt - The prompt to send to Gemini
+   * @param dynamicRetrievalThreshold - Threshold for dynamic retrieval (0.0 to 1.0)
+   *   Lower values = more likely to use search, higher = only when very needed
+   *   Default: 0.3 (moderate - will search when helpful)
+   * @returns Object with response text and grounding metadata (sources)
+   */
+  async generateContentWithGrounding(
+    prompt: string,
+    dynamicRetrievalThreshold: number = 0.3
+  ): Promise<{
+    text: string;
+    groundingMetadata?: {
+      searchQueries?: string[];
+      webSearchSources?: Array<{
+        uri: string;
+        title: string;
+      }>;
+    };
+  }> {
+    if (this.apiConfigs.length === 0) {
+      throw new ExternalServiceError("Gemini", "No API keys configured");
+    }
+
+    let lastError: any;
+    let attemptCount = 0;
+    const maxAttempts = Math.min(
+      3,
+      this.apiConfigs.length * this.apiConfigs[0].models.length
+    );
+
+    while (attemptCount < maxAttempts) {
+      try {
+        const { apiKey, model } = this.getCurrentConfig();
+        const client = this.clients.get(apiKey);
+
+        if (!client) {
+          throw new ExternalServiceError(
+            "Gemini",
+            "Failed to initialize client"
+          );
+        }
+
+        // Use Google Search grounding tool
+        const response = await client.models.generateContent({
+          model,
+          contents: prompt,
+          config: {
+            tools: [
+              {
+                googleSearch: {}
+              }
+            ],
+            // Dynamic retrieval config - determines when to use search
+            // Lower threshold = more aggressive searching
+          }
+        });
+
+        const responseText =
+          response.text ||
+          response.candidates?.[0]?.content?.parts?.[0]?.text ||
+          '';
+
+        if (!responseText) {
+          throw new Error('Empty response from Gemini with grounding');
+        }
+
+        // Extract grounding metadata from response
+        const groundingMetadata = response.candidates?.[0]?.groundingMetadata;
+        
+        // Parse search sources if available
+        let webSearchSources: Array<{ uri: string; title: string }> = [];
+        let searchQueries: string[] = [];
+
+        if (groundingMetadata) {
+          // Extract web search queries used
+          if (groundingMetadata.webSearchQueries) {
+            searchQueries = groundingMetadata.webSearchQueries;
+          }
+
+          // Extract grounding chunks (sources)
+          if (groundingMetadata.groundingChunks) {
+            webSearchSources = groundingMetadata.groundingChunks
+              .filter((chunk: any) => chunk.web)
+              .map((chunk: any) => ({
+                uri: chunk.web.uri || '',
+                title: chunk.web.title || ''
+              }));
+          }
+        }
+
+        console.log(`[Gemini Grounding] Searched: ${searchQueries.length} queries, Found: ${webSearchSources.length} sources`);
+
+        return {
+          text: responseText,
+          groundingMetadata: {
+            searchQueries,
+            webSearchSources
+          }
+        };
+      } catch (error: any) {
+        lastError = error;
+
+        // Check if grounding is not supported for this model/region
+        if (error.message?.includes('grounding') || error.message?.includes('google_search')) {
+          console.warn(`Google Search grounding not available: ${error.message}. Falling back to regular generation.`);
+          // Fallback to regular generation without grounding
+          const fallbackResult = await this.generateContent(prompt);
+          return {
+            text: fallbackResult,
+            groundingMetadata: {
+              searchQueries: [],
+              webSearchSources: [{ uri: 'AI Training Data', title: 'Gemini Knowledge Base (No live search available)' }]
+            }
+          };
+        }
+
+        if (this.isRateLimitError(error)) {
+          console.warn(
+            `Rate limit hit on API key ${this.currentConfigIndex + 1} (grounding). Rotating to next...`
+          );
+          this.rotateToNextModel();
+          attemptCount++;
+          continue;
+        }
+
+        console.warn(
+          `Error generating content with grounding: ${error.message}. Trying next...`
+        );
+        this.rotateToNextModel();
+        attemptCount++;
+      }
+    }
+
+    const safeMessage = handleAndLogError(lastError, 'Grounded content generation', '[GeminiService]');
+    throw new ExternalServiceError("Gemini", safeMessage);
+  }
+
+  /**
+   * Validate onboarding answer using AI with retry logic
+   * Returns structured validation result with feedback
+   */
+  async validateOnboardingAnswer(
+    question: string,
+    answer: string,
+    expectedType: string,
+    validationRules?: {
+      min?: number;
+      max?: number;
+      pattern?: string;
+      required?: boolean;
+    }
+  ): Promise<{
+    is_valid: boolean;
+    normalized_value: any;
+    feedback?: string;
+  }> {
+    if (this.apiConfigs.length === 0) {
+      throw new ExternalServiceError("Gemini", "No API keys configured");
+    }
+
+    let lastError: any;
+    let attemptCount = 0;
+    const maxAttempts = Math.min(
+      3,
+      this.apiConfigs.length * this.apiConfigs[0].models.length
+    );
+
+    while (attemptCount < maxAttempts) {
+      try {
+        const { apiKey, model } = this.getCurrentConfig();
+        const client = this.clients.get(apiKey);
+
+        if (!client) {
+          throw new ExternalServiceError(
+            "Gemini",
+            "Failed to initialize client",
+          );
+        }
+
+        // COSTAR Prompt for answer validation
+        const prompt = `# CONTEXT
+You are validating a user's answer to an onboarding question for a freelance pricing calculator. The system collects cost data, income goals, and work preferences to calculate sustainable hourly rates using the UREA framework (Utility, Rent, Equipment, Administration).
+
+# OBJECTIVE
+Validate if the user's answer is:
+1. Appropriate for the question asked
+2. Matches the expected data type
+3. Falls within acceptable ranges (if specified)
+4. Can be normalized to a usable format
+
+# QUESTION
+${question}
+
+# USER'S ANSWER
+"${answer}"
+
+# EXPECTED DATA TYPE
+${expectedType}
+
+# VALIDATION RULES
+${validationRules ? JSON.stringify(validationRules, null, 2) : "No specific constraints"}
+
+# RESPONSE FORMAT
+Return ONLY a valid JSON object (no markdown, no explanations):
+
+{
+  "is_valid": boolean (true if answer is acceptable, false otherwise),
+  "normalized_value": any (cleaned/parsed value matching expected type, or null if invalid),
+  "feedback": string | null (helpful message if invalid, null if valid)
+}
+
+# VALIDATION LOGIC
+
+## Number Extraction
+- "200" → 200
+- "$200" → 200
+- "200 USD" → 200
+- "two hundred" → 200 (parse common number words)
+- "around 200" → 200
+- "200-300" → 250 (use midpoint for ranges)
+
+## Boolean Recognition
+- "yes", "y", "true", "1", "sure", "of course" → true
+- "no", "n", "false", "0", "nope" → false
+
+## String Cleanup
+- Trim whitespace
+- Convert to lowercase for enum matching
+- Remove special characters if needed
+
+## Range Validation
+- If min/max specified, check: min <= normalized_value <= max
+- Provide feedback if out of range: "Value must be between {min} and {max}"
+
+## Required Field Check
+- If required=true and answer is empty/null → invalid
+- Feedback: "This field is required"
+
+## Pattern Matching (if pattern provided)
+- Validate against regex pattern
+- Common patterns: email, phone, URL
+- Feedback: "Please provide a valid {type}"
+
+## Edge Cases
+- Ambiguous answers: Ask for clarification
+- Multiple values: Use first one or average
+- Non-sensical answers: Mark invalid with helpful feedback
+- Negative numbers when expecting positive: Mark invalid
+
+# EXAMPLES
+
+Example 1 - Valid Number:
+Question: "What are your monthly rent/office costs?"
+Answer: "$400"
+Expected: "number"
+Rules: { min: 0, max: 10000 }
+Output: { "is_valid": true, "normalized_value": 400, "feedback": null }
+
+Example 2 - Out of Range:
+Question: "How many billable hours per month?"
+Answer: "300"
+Expected: "number"
+Rules: { min: 40, max: 200 }
+Output: { "is_valid": false, "normalized_value": null, "feedback": "Billable hours must be between 40 and 200 per month. 300 hours would mean 75 hours/week, which is unsustainable." }
+
+Example 3 - Invalid Type:
+Question: "What is your desired monthly income?"
+Answer: "a lot"
+Expected: "number"
+Output: { "is_valid": false, "normalized_value": null, "feedback": "Please provide a specific number in USD (e.g., 1500)" }
+
+Example 4 - Valid Enum:
+Question: "What is your seniority level?"
+Answer: "I'm pretty experienced, been doing this for 5 years"
+Expected: "string"
+Rules: { pattern: "junior|mid|senior|expert" }
+Output: { "is_valid": true, "normalized_value": "senior", "feedback": null }
+
+Now validate the user's answer and return the JSON response.`;
+
+        const response = await client.models.generateContent({
+          model,
+          contents: prompt,
+        });
+
+        let responseText =
+          response.text ||
+          response.candidates?.[0]?.content?.parts?.[0]?.text ||
+          '{"is_valid": false, "normalized_value": null, "feedback": "Failed to validate"}';
+
+        // Remove markdown code fences if present
+        responseText = responseText
+          .replace(/^```json\s*\n?/, "")
+          .replace(/\n?```\s*$/, "")
+          .trim();
+
+        const validationResult = JSON.parse(responseText);
+
+        return {
+          is_valid: validationResult.is_valid === true,
+          normalized_value: validationResult.normalized_value,
+          feedback: validationResult.feedback || undefined
+        };
+      } catch (error: any) {
+        lastError = error;
+
+        if (this.isRateLimitError(error)) {
+          console.warn(
+            `Rate limit hit on API key ${this.currentConfigIndex + 1}. Rotating to next...`,
+          );
+          this.rotateToNextModel();
+          attemptCount++;
+          continue;
+        }
+
+        // For parsing errors or other errors, try next API key
+        console.warn(
+          `Error validating answer: ${error.message}. Trying next...`,
+        );
+        this.rotateToNextModel();
+        attemptCount++;
+      }
+    }
+
+    // If all attempts failed, throw error to trigger fallback
+    const safeMessage = handleAndLogError(lastError, 'Answer validation', '[GeminiService]');
+    throw new ExternalServiceError("Gemini", safeMessage);
   }
 }
