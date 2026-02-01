@@ -20,9 +20,9 @@ export class EmailService {
     // Verify connection configuration
     this.transporter.verify((error, success) => {
       if (error) {
-        console.error('Email service configuration error:', error.message);
+        console.error('[EmailService] Configuration error:', error.message);
       } else {
-        console.log('Email service is ready to send messages');
+        console.log('[EmailService] Ready to send messages');
       }
     });
   }
@@ -118,9 +118,12 @@ export class EmailService {
 
     try {
       await this.transporter.sendMail(mailOptions);
-      console.log(`OTP email sent successfully to ${to}`);
-    } catch (error) {
-      console.error('Error sending email:', error);
+      console.log(`[EmailService] OTP email sent successfully to ${to.replace(/(.{2}).*(@.*)/, '$1***$2')}`);
+    } catch (error: any) {
+      console.error('[EmailService] Error sending OTP email:', {
+        recipient: to.replace(/(.{2}).*(@.*)/, '$1***$2'),
+        error: error.message
+      });
       throw new Error('Failed to send verification email');
     }
   }
@@ -163,9 +166,12 @@ export class EmailService {
 
     try {
       await this.transporter.sendMail(mailOptions);
-      console.log(`Password reset email sent to ${to}`);
-    } catch (error) {
-      console.error('Error sending password reset email:', error);
+      console.log(`[EmailService] Password reset email sent to ${to.replace(/(.{2}).*(@.*)/, '$1***$2')}`);
+    } catch (error: any) {
+      console.error('[EmailService] Error sending password reset email:', {
+        recipient: to.replace(/(.{2}).*(@.*)/, '$1***$2'),
+        error: error.message
+      });
       throw new Error('Failed to send password reset email');
     }
   }

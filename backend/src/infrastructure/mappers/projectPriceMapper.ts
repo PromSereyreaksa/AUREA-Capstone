@@ -1,7 +1,7 @@
 import { ProjectPrice } from '../../domain/entities/ProjectPrice';
 
 export function mapProjectPriceToDb(project: ProjectPrice) {
-  return {
+  const result: any = {
     user_id: project.user_id,
     project_name: project.project_name,
     title: project.title,
@@ -12,6 +12,19 @@ export function mapProjectPriceToDb(project: ProjectPrice) {
     usage_rights: project.usage_rights,
     result: project.result
   };
+
+  // Add new pricing fields if present
+  if (project.client_type !== undefined) {
+    result.client_type = project.client_type;
+  }
+  if (project.client_region !== undefined) {
+    result.client_region = project.client_region;
+  }
+  if (project.calculated_rate !== undefined) {
+    result.calculated_rate = project.calculated_rate;
+  }
+
+  return result;
 }
 
 export function mapProjectPriceFromDb(data: any): ProjectPrice {
@@ -25,6 +38,9 @@ export function mapProjectPriceFromDb(data: any): ProjectPrice {
     data.difficulty,
     data.licensing,
     data.usage_rights,
-    data.result
+    data.result,
+    data.client_type,
+    data.client_region,
+    data.calculated_rate
   );
 }

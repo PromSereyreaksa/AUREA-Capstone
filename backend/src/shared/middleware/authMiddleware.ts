@@ -37,7 +37,8 @@ export const authMiddleware = (req: Request, res: Response, next: NextFunction) 
     req.user = decoded;
     
     next();
-  } catch (error) {
+  } catch (error: any) {
+    console.warn('[Auth] Authentication failed:', error.message);
     return res.status(401).json({ error: 'Authentication failed.' });
   }
 };

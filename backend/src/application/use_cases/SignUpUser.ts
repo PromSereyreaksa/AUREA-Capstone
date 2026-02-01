@@ -54,8 +54,11 @@ export class SignUpUser {
     // Send OTP email
     try {
       await this.emailService.sendOTPEmail(email, otp);
-    } catch (error) {
-      console.error('Failed to send OTP email:', error);
+    } catch (error: any) {
+      console.error('[SignUpUser] Failed to send OTP email:', {
+        email: email.replace(/(.{2}).*(@.*)/, '$1***$2'), // Mask email for privacy
+        error: error.message
+      });
       // Don't throw error - user is already created, they can resend OTP
     }
 

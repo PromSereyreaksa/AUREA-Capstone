@@ -1,0 +1,1510 @@
+[
+  {
+    "monthly_rent": 50,
+    "equipment_cost": 106,
+    "utilities_cost": 75,
+    "materials_cost": 51,
+    "desired_income": 1057,
+    "billable_hours": 87,
+    "profit_margin": 0.21,
+    "years_experience": 10,
+    "skills": [
+      "Poster Design",
+      "Brand Identity",
+      "UI Design"
+    ],
+    "seniority": "expert"
+  },
+  {
+    "monthly_rent": 0,
+    "equipment_cost": 123,
+    "utilities_cost": 67,
+    "materials_cost": 49,
+    "desired_income": 1634,
+    "billable_hours": 73,
+    "profit_margin": 0.18,
+    "years_experience": 0,
+    "skills": [
+      "Poster Design",
+      "UI Design",
+      "Banner Design"
+    ],
+    "seniority": "junior"
+  },
+  {
+    "monthly_rent": 150,
+    "equipment_cost": 307,
+    "utilities_cost": 40,
+    "materials_cost": 40,
+    "desired_income": 2029,
+    "billable_hours": 124,
+    "profit_margin": 0.14,
+    "years_experience": 7,
+    "skills": [
+      "Banner Design"
+    ],
+    "seniority": "expert"
+  },
+  {
+    "monthly_rent": 50,
+    "equipment_cost": 123,
+    "utilities_cost": 88,
+    "materials_cost": 32,
+    "desired_income": 1335,
+    "billable_hours": 114,
+    "profit_margin": 0.18,
+    "years_experience": 5,
+    "skills": [
+      "UX Design"
+    ],
+    "seniority": "senior"
+  },
+  {
+    "monthly_rent": 50,
+    "equipment_cost": 349,
+    "utilities_cost": 88,
+    "materials_cost": 30,
+    "desired_income": 1730,
+    "billable_hours": 107,
+    "profit_margin": 0.22,
+    "years_experience": 8,
+    "skills": [
+      "Illustration",
+      "Banner Design",
+      "Brand Identity"
+    ],
+    "seniority": "expert"
+  },
+  {
+    "monthly_rent": 100,
+    "equipment_cost": 297,
+    "utilities_cost": 77,
+    "materials_cost": 30,
+    "desired_income": 1076,
+    "billable_hours": 82,
+    "profit_margin": 0.14,
+    "years_experience": 0,
+    "skills": [
+      "Illustration",
+      "Graphic Design"
+    ],
+    "seniority": "junior"
+  },
+  {
+    "monthly_rent": 200,
+    "equipment_cost": 153,
+    "utilities_cost": 74,
+    "materials_cost": 29,
+    "desired_income": 1847,
+    "billable_hours": 91,
+    "profit_margin": 0.17,
+    "years_experience": 5,
+    "skills": [
+      "Graphic Design"
+    ],
+    "seniority": "senior"
+  },
+  {
+    "monthly_rent": 250,
+    "equipment_cost": 169,
+    "utilities_cost": 111,
+    "materials_cost": 48,
+    "desired_income": 2002,
+    "billable_hours": 111,
+    "profit_margin": 0.22,
+    "years_experience": 7,
+    "skills": [
+      "Banner Design"
+    ],
+    "seniority": "expert"
+  },
+  {
+    "monthly_rent": 200,
+    "equipment_cost": 202,
+    "utilities_cost": 74,
+    "materials_cost": 28,
+    "desired_income": 1032,
+    "billable_hours": 110,
+    "profit_margin": 0.12,
+    "years_experience": 0,
+    "skills": [
+      "UI Design",
+      "UX Design"
+    ],
+    "seniority": "junior"
+  },
+  {
+    "monthly_rent": 150,
+    "equipment_cost": 135,
+    "utilities_cost": 71,
+    "materials_cost": 91,
+    "desired_income": 1703,
+    "billable_hours": 103,
+    "profit_margin": 0.21,
+    "years_experience": 2,
+    "skills": [
+      "Marketing Design",
+      "UI Design"
+    ],
+    "seniority": "mid"
+  },
+  {
+    "monthly_rent": 100,
+    "equipment_cost": 135,
+    "utilities_cost": 105,
+    "materials_cost": 83,
+    "desired_income": 786,
+    "billable_hours": 76,
+    "profit_margin": 0.23,
+    "years_experience": 5,
+    "skills": [
+      "Graphic Design"
+    ],
+    "seniority": "senior"
+  },
+  {
+    "monthly_rent": 250,
+    "equipment_cost": 252,
+    "utilities_cost": 48,
+    "materials_cost": 69,
+    "desired_income": 1381,
+    "billable_hours": 129,
+    "profit_margin": 0.17,
+    "years_experience": 10,
+    "skills": [
+      "Logo Design",
+      "Brand Identity",
+      "Social Media Design"
+    ],
+    "seniority": "expert"
+  },
+  {
+    "monthly_rent": 200,
+    "equipment_cost": 128,
+    "utilities_cost": 77,
+    "materials_cost": 75,
+    "desired_income": 923,
+    "billable_hours": 128,
+    "profit_margin": 0.08,
+    "years_experience": 10,
+    "skills": [
+      "Social Media Design",
+      "Poster Design",
+      "Graphic Design"
+    ],
+    "seniority": "expert"
+  },
+  {
+    "monthly_rent": 50,
+    "equipment_cost": 322,
+    "utilities_cost": 120,
+    "materials_cost": 58,
+    "desired_income": 1908,
+    "billable_hours": 134,
+    "profit_margin": 0.18,
+    "years_experience": 8,
+    "skills": [
+      "Illustration"
+    ],
+    "seniority": "expert"
+  },
+  {
+    "monthly_rent": 0,
+    "equipment_cost": 253,
+    "utilities_cost": 81,
+    "materials_cost": 82,
+    "desired_income": 639,
+    "billable_hours": 84,
+    "profit_margin": 0.24,
+    "years_experience": 2,
+    "skills": [
+      "Banner Design",
+      "Logo Design"
+    ],
+    "seniority": "mid"
+  },
+  {
+    "monthly_rent": 50,
+    "equipment_cost": 121,
+    "utilities_cost": 102,
+    "materials_cost": 28,
+    "desired_income": 2157,
+    "billable_hours": 138,
+    "profit_margin": 0.21,
+    "years_experience": 3,
+    "skills": [
+      "UX Design"
+    ],
+    "seniority": "mid"
+  },
+  {
+    "monthly_rent": 80,
+    "equipment_cost": 167,
+    "utilities_cost": 107,
+    "materials_cost": 97,
+    "desired_income": 1466,
+    "billable_hours": 97,
+    "profit_margin": 0.24,
+    "years_experience": 8,
+    "skills": [
+      "Banner Design",
+      "Social Media Design",
+      "UI Design"
+    ],
+    "seniority": "expert"
+  },
+  {
+    "monthly_rent": 200,
+    "equipment_cost": 212,
+    "utilities_cost": 106,
+    "materials_cost": 77,
+    "desired_income": 847,
+    "billable_hours": 101,
+    "profit_margin": 0.12,
+    "years_experience": 10,
+    "skills": [
+      "Logo Design",
+      "Poster Design"
+    ],
+    "seniority": "expert"
+  },
+  {
+    "monthly_rent": 100,
+    "equipment_cost": 101,
+    "utilities_cost": 49,
+    "materials_cost": 100,
+    "desired_income": 720,
+    "billable_hours": 99,
+    "profit_margin": 0.09,
+    "years_experience": 3,
+    "skills": [
+      "Illustration"
+    ],
+    "seniority": "mid"
+  },
+  {
+    "monthly_rent": 100,
+    "equipment_cost": 171,
+    "utilities_cost": 102,
+    "materials_cost": 47,
+    "desired_income": 1704,
+    "billable_hours": 86,
+    "profit_margin": 0.2,
+    "years_experience": 1,
+    "skills": [
+      "Marketing Design",
+      "UX Design",
+      "Banner Design"
+    ],
+    "seniority": "junior"
+  },
+  {
+    "monthly_rent": 250,
+    "equipment_cost": 148,
+    "utilities_cost": 52,
+    "materials_cost": 32,
+    "desired_income": 1949,
+    "billable_hours": 125,
+    "profit_margin": 0.14,
+    "years_experience": 7,
+    "skills": [
+      "UX Design",
+      "Logo Design"
+    ],
+    "seniority": "expert"
+  },
+  {
+    "monthly_rent": 50,
+    "equipment_cost": 115,
+    "utilities_cost": 91,
+    "materials_cost": 63,
+    "desired_income": 823,
+    "billable_hours": 101,
+    "profit_margin": 0.11,
+    "years_experience": 10,
+    "skills": [
+      "UX Design",
+      "Graphic Design",
+      "UI Design"
+    ],
+    "seniority": "expert"
+  },
+  {
+    "monthly_rent": 150,
+    "equipment_cost": 218,
+    "utilities_cost": 71,
+    "materials_cost": 29,
+    "desired_income": 1507,
+    "billable_hours": 140,
+    "profit_margin": 0.1,
+    "years_experience": 2,
+    "skills": [
+      "Poster Design",
+      "Logo Design",
+      "Brand Identity"
+    ],
+    "seniority": "mid"
+  },
+  {
+    "monthly_rent": 80,
+    "equipment_cost": 204,
+    "utilities_cost": 102,
+    "materials_cost": 81,
+    "desired_income": 1037,
+    "billable_hours": 121,
+    "profit_margin": 0.23,
+    "years_experience": 3,
+    "skills": [
+      "UI Design"
+    ],
+    "seniority": "mid"
+  },
+  {
+    "monthly_rent": 250,
+    "equipment_cost": 167,
+    "utilities_cost": 98,
+    "materials_cost": 56,
+    "desired_income": 1466,
+    "billable_hours": 132,
+    "profit_margin": 0.11,
+    "years_experience": 0,
+    "skills": [
+      "Banner Design",
+      "Logo Design"
+    ],
+    "seniority": "junior"
+  },
+  {
+    "monthly_rent": 0,
+    "equipment_cost": 291,
+    "utilities_cost": 80,
+    "materials_cost": 27,
+    "desired_income": 702,
+    "billable_hours": 131,
+    "profit_margin": 0.17,
+    "years_experience": 9,
+    "skills": [
+      "Graphic Design",
+      "Logo Design",
+      "Brand Identity"
+    ],
+    "seniority": "expert"
+  },
+  {
+    "monthly_rent": 50,
+    "equipment_cost": 252,
+    "utilities_cost": 48,
+    "materials_cost": 50,
+    "desired_income": 1426,
+    "billable_hours": 85,
+    "profit_margin": 0.24,
+    "years_experience": 2,
+    "skills": [
+      "Banner Design",
+      "Logo Design",
+      "Brand Identity"
+    ],
+    "seniority": "mid"
+  },
+  {
+    "monthly_rent": 200,
+    "equipment_cost": 339,
+    "utilities_cost": 73,
+    "materials_cost": 46,
+    "desired_income": 1971,
+    "billable_hours": 110,
+    "profit_margin": 0.12,
+    "years_experience": 6,
+    "skills": [
+      "Graphic Design",
+      "Social Media Design"
+    ],
+    "seniority": "senior"
+  },
+  {
+    "monthly_rent": 200,
+    "equipment_cost": 337,
+    "utilities_cost": 49,
+    "materials_cost": 21,
+    "desired_income": 1538,
+    "billable_hours": 82,
+    "profit_margin": 0.09,
+    "years_experience": 7,
+    "skills": [
+      "Poster Design"
+    ],
+    "seniority": "expert"
+  },
+  {
+    "monthly_rent": 80,
+    "equipment_cost": 338,
+    "utilities_cost": 84,
+    "materials_cost": 28,
+    "desired_income": 1100,
+    "billable_hours": 117,
+    "profit_margin": 0.13,
+    "years_experience": 4,
+    "skills": [
+      "Poster Design",
+      "Social Media Design"
+    ],
+    "seniority": "senior"
+  },
+  {
+    "monthly_rent": 0,
+    "equipment_cost": 270,
+    "utilities_cost": 110,
+    "materials_cost": 58,
+    "desired_income": 1958,
+    "billable_hours": 83,
+    "profit_margin": 0.24,
+    "years_experience": 9,
+    "skills": [
+      "Social Media Design"
+    ],
+    "seniority": "expert"
+  },
+  {
+    "monthly_rent": 50,
+    "equipment_cost": 290,
+    "utilities_cost": 110,
+    "materials_cost": 39,
+    "desired_income": 1157,
+    "billable_hours": 106,
+    "profit_margin": 0.18,
+    "years_experience": 1,
+    "skills": [
+      "Illustration",
+      "Banner Design",
+      "Social Media Design"
+    ],
+    "seniority": "junior"
+  },
+  {
+    "monthly_rent": 300,
+    "equipment_cost": 164,
+    "utilities_cost": 46,
+    "materials_cost": 31,
+    "desired_income": 1899,
+    "billable_hours": 124,
+    "profit_margin": 0.22,
+    "years_experience": 8,
+    "skills": [
+      "Logo Design"
+    ],
+    "seniority": "expert"
+  },
+  {
+    "monthly_rent": 80,
+    "equipment_cost": 263,
+    "utilities_cost": 73,
+    "materials_cost": 40,
+    "desired_income": 2118,
+    "billable_hours": 126,
+    "profit_margin": 0.17,
+    "years_experience": 5,
+    "skills": [
+      "Poster Design",
+      "Logo Design"
+    ],
+    "seniority": "senior"
+  },
+  {
+    "monthly_rent": 50,
+    "equipment_cost": 341,
+    "utilities_cost": 59,
+    "materials_cost": 89,
+    "desired_income": 673,
+    "billable_hours": 117,
+    "profit_margin": 0.18,
+    "years_experience": 1,
+    "skills": [
+      "UI Design"
+    ],
+    "seniority": "junior"
+  },
+  {
+    "monthly_rent": 0,
+    "equipment_cost": 178,
+    "utilities_cost": 86,
+    "materials_cost": 25,
+    "desired_income": 1332,
+    "billable_hours": 96,
+    "profit_margin": 0.2,
+    "years_experience": 2,
+    "skills": [
+      "Brand Identity",
+      "Illustration",
+      "UI Design"
+    ],
+    "seniority": "mid"
+  },
+  {
+    "monthly_rent": 80,
+    "equipment_cost": 336,
+    "utilities_cost": 70,
+    "materials_cost": 40,
+    "desired_income": 962,
+    "billable_hours": 122,
+    "profit_margin": 0.08,
+    "years_experience": 9,
+    "skills": [
+      "Illustration",
+      "UI Design",
+      "Banner Design"
+    ],
+    "seniority": "expert"
+  },
+  {
+    "monthly_rent": 80,
+    "equipment_cost": 301,
+    "utilities_cost": 53,
+    "materials_cost": 68,
+    "desired_income": 679,
+    "billable_hours": 130,
+    "profit_margin": 0.12,
+    "years_experience": 4,
+    "skills": [
+      "Illustration",
+      "Social Media Design"
+    ],
+    "seniority": "senior"
+  },
+  {
+    "monthly_rent": 100,
+    "equipment_cost": 106,
+    "utilities_cost": 64,
+    "materials_cost": 71,
+    "desired_income": 1272,
+    "billable_hours": 105,
+    "profit_margin": 0.23,
+    "years_experience": 3,
+    "skills": [
+      "Illustration",
+      "Poster Design"
+    ],
+    "seniority": "mid"
+  },
+  {
+    "monthly_rent": 200,
+    "equipment_cost": 340,
+    "utilities_cost": 43,
+    "materials_cost": 34,
+    "desired_income": 1134,
+    "billable_hours": 92,
+    "profit_margin": 0.18,
+    "years_experience": 6,
+    "skills": [
+      "Logo Design",
+      "Brand Identity"
+    ],
+    "seniority": "senior"
+  },
+  {
+    "monthly_rent": 250,
+    "equipment_cost": 188,
+    "utilities_cost": 80,
+    "materials_cost": 75,
+    "desired_income": 1841,
+    "billable_hours": 135,
+    "profit_margin": 0.1,
+    "years_experience": 9,
+    "skills": [
+      "Banner Design",
+      "Social Media Design",
+      "Logo Design"
+    ],
+    "seniority": "expert"
+  },
+  {
+    "monthly_rent": 0,
+    "equipment_cost": 233,
+    "utilities_cost": 108,
+    "materials_cost": 45,
+    "desired_income": 1345,
+    "billable_hours": 125,
+    "profit_margin": 0.09,
+    "years_experience": 6,
+    "skills": [
+      "Illustration",
+      "Marketing Design",
+      "Brand Identity"
+    ],
+    "seniority": "senior"
+  },
+  {
+    "monthly_rent": 150,
+    "equipment_cost": 270,
+    "utilities_cost": 92,
+    "materials_cost": 61,
+    "desired_income": 1424,
+    "billable_hours": 107,
+    "profit_margin": 0.17,
+    "years_experience": 4,
+    "skills": [
+      "UI Design"
+    ],
+    "seniority": "senior"
+  },
+  {
+    "monthly_rent": 250,
+    "equipment_cost": 273,
+    "utilities_cost": 62,
+    "materials_cost": 98,
+    "desired_income": 1765,
+    "billable_hours": 108,
+    "profit_margin": 0.15,
+    "years_experience": 10,
+    "skills": [
+      "Social Media Design"
+    ],
+    "seniority": "expert"
+  },
+  {
+    "monthly_rent": 100,
+    "equipment_cost": 210,
+    "utilities_cost": 114,
+    "materials_cost": 97,
+    "desired_income": 1940,
+    "billable_hours": 111,
+    "profit_margin": 0.16,
+    "years_experience": 4,
+    "skills": [
+      "Banner Design",
+      "Poster Design"
+    ],
+    "seniority": "senior"
+  },
+  {
+    "monthly_rent": 80,
+    "equipment_cost": 268,
+    "utilities_cost": 50,
+    "materials_cost": 56,
+    "desired_income": 1655,
+    "billable_hours": 112,
+    "profit_margin": 0.1,
+    "years_experience": 7,
+    "skills": [
+      "Social Media Design"
+    ],
+    "seniority": "expert"
+  },
+  {
+    "monthly_rent": 100,
+    "equipment_cost": 137,
+    "utilities_cost": 43,
+    "materials_cost": 25,
+    "desired_income": 1101,
+    "billable_hours": 130,
+    "profit_margin": 0.18,
+    "years_experience": 3,
+    "skills": [
+      "UX Design"
+    ],
+    "seniority": "mid"
+  },
+  {
+    "monthly_rent": 100,
+    "equipment_cost": 283,
+    "utilities_cost": 89,
+    "materials_cost": 83,
+    "desired_income": 1418,
+    "billable_hours": 101,
+    "profit_margin": 0.11,
+    "years_experience": 6,
+    "skills": [
+      "Logo Design",
+      "Brand Identity",
+      "UI Design"
+    ],
+    "seniority": "senior"
+  },
+  {
+    "monthly_rent": 80,
+    "equipment_cost": 305,
+    "utilities_cost": 106,
+    "materials_cost": 79,
+    "desired_income": 702,
+    "billable_hours": 101,
+    "profit_margin": 0.24,
+    "years_experience": 3,
+    "skills": [
+      "UX Design"
+    ],
+    "seniority": "mid"
+  },
+  {
+    "monthly_rent": 300,
+    "equipment_cost": 270,
+    "utilities_cost": 107,
+    "materials_cost": 91,
+    "desired_income": 1819,
+    "billable_hours": 110,
+    "profit_margin": 0.24,
+    "years_experience": 2,
+    "skills": [
+      "Marketing Design",
+      "Poster Design"
+    ],
+    "seniority": "mid"
+  },
+  {
+    "monthly_rent": 300,
+    "equipment_cost": 329,
+    "utilities_cost": 60,
+    "materials_cost": 80,
+    "desired_income": 1521,
+    "billable_hours": 103,
+    "profit_margin": 0.21,
+    "years_experience": 6,
+    "skills": [
+      "Social Media Design",
+      "Poster Design",
+      "UX Design"
+    ],
+    "seniority": "senior"
+  },
+  {
+    "monthly_rent": 100,
+    "equipment_cost": 170,
+    "utilities_cost": 96,
+    "materials_cost": 29,
+    "desired_income": 2061,
+    "billable_hours": 106,
+    "profit_margin": 0.12,
+    "years_experience": 10,
+    "skills": [
+      "Illustration",
+      "Poster Design"
+    ],
+    "seniority": "expert"
+  },
+  {
+    "monthly_rent": 80,
+    "equipment_cost": 138,
+    "utilities_cost": 69,
+    "materials_cost": 69,
+    "desired_income": 2021,
+    "billable_hours": 89,
+    "profit_margin": 0.2,
+    "years_experience": 1,
+    "skills": [
+      "UI Design"
+    ],
+    "seniority": "junior"
+  },
+  {
+    "monthly_rent": 200,
+    "equipment_cost": 238,
+    "utilities_cost": 99,
+    "materials_cost": 73,
+    "desired_income": 727,
+    "billable_hours": 96,
+    "profit_margin": 0.22,
+    "years_experience": 6,
+    "skills": [
+      "Marketing Design",
+      "Logo Design"
+    ],
+    "seniority": "senior"
+  },
+  {
+    "monthly_rent": 250,
+    "equipment_cost": 222,
+    "utilities_cost": 40,
+    "materials_cost": 65,
+    "desired_income": 1211,
+    "billable_hours": 119,
+    "profit_margin": 0.23,
+    "years_experience": 9,
+    "skills": [
+      "Poster Design",
+      "Marketing Design"
+    ],
+    "seniority": "expert"
+  },
+  {
+    "monthly_rent": 100,
+    "equipment_cost": 224,
+    "utilities_cost": 68,
+    "materials_cost": 54,
+    "desired_income": 1492,
+    "billable_hours": 132,
+    "profit_margin": 0.08,
+    "years_experience": 9,
+    "skills": [
+      "UI Design",
+      "Graphic Design"
+    ],
+    "seniority": "expert"
+  },
+  {
+    "monthly_rent": 80,
+    "equipment_cost": 259,
+    "utilities_cost": 108,
+    "materials_cost": 23,
+    "desired_income": 1406,
+    "billable_hours": 73,
+    "profit_margin": 0.09,
+    "years_experience": 7,
+    "skills": [
+      "Graphic Design",
+      "UX Design"
+    ],
+    "seniority": "expert"
+  },
+  {
+    "monthly_rent": 0,
+    "equipment_cost": 166,
+    "utilities_cost": 88,
+    "materials_cost": 61,
+    "desired_income": 1033,
+    "billable_hours": 128,
+    "profit_margin": 0.14,
+    "years_experience": 2,
+    "skills": [
+      "Social Media Design",
+      "UI Design"
+    ],
+    "seniority": "mid"
+  },
+  {
+    "monthly_rent": 50,
+    "equipment_cost": 220,
+    "utilities_cost": 42,
+    "materials_cost": 89,
+    "desired_income": 706,
+    "billable_hours": 114,
+    "profit_margin": 0.12,
+    "years_experience": 4,
+    "skills": [
+      "Logo Design"
+    ],
+    "seniority": "senior"
+  },
+  {
+    "monthly_rent": 100,
+    "equipment_cost": 151,
+    "utilities_cost": 42,
+    "materials_cost": 99,
+    "desired_income": 912,
+    "billable_hours": 100,
+    "profit_margin": 0.1,
+    "years_experience": 0,
+    "skills": [
+      "Brand Identity",
+      "Banner Design",
+      "UX Design"
+    ],
+    "seniority": "junior"
+  },
+  {
+    "monthly_rent": 200,
+    "equipment_cost": 142,
+    "utilities_cost": 117,
+    "materials_cost": 97,
+    "desired_income": 2131,
+    "billable_hours": 84,
+    "profit_margin": 0.21,
+    "years_experience": 4,
+    "skills": [
+      "Social Media Design"
+    ],
+    "seniority": "senior"
+  },
+  {
+    "monthly_rent": 0,
+    "equipment_cost": 337,
+    "utilities_cost": 79,
+    "materials_cost": 93,
+    "desired_income": 1987,
+    "billable_hours": 118,
+    "profit_margin": 0.15,
+    "years_experience": 1,
+    "skills": [
+      "Banner Design",
+      "Brand Identity",
+      "Marketing Design"
+    ],
+    "seniority": "junior"
+  },
+  {
+    "monthly_rent": 150,
+    "equipment_cost": 317,
+    "utilities_cost": 116,
+    "materials_cost": 35,
+    "desired_income": 1759,
+    "billable_hours": 75,
+    "profit_margin": 0.14,
+    "years_experience": 1,
+    "skills": [
+      "Illustration",
+      "Brand Identity"
+    ],
+    "seniority": "junior"
+  },
+  {
+    "monthly_rent": 200,
+    "equipment_cost": 103,
+    "utilities_cost": 93,
+    "materials_cost": 82,
+    "desired_income": 816,
+    "billable_hours": 125,
+    "profit_margin": 0.24,
+    "years_experience": 8,
+    "skills": [
+      "UX Design",
+      "Graphic Design",
+      "UI Design"
+    ],
+    "seniority": "expert"
+  },
+  {
+    "monthly_rent": 150,
+    "equipment_cost": 257,
+    "utilities_cost": 108,
+    "materials_cost": 81,
+    "desired_income": 1552,
+    "billable_hours": 125,
+    "profit_margin": 0.22,
+    "years_experience": 2,
+    "skills": [
+      "Social Media Design",
+      "Illustration",
+      "Banner Design"
+    ],
+    "seniority": "mid"
+  },
+  {
+    "monthly_rent": 150,
+    "equipment_cost": 325,
+    "utilities_cost": 97,
+    "materials_cost": 51,
+    "desired_income": 2136,
+    "billable_hours": 129,
+    "profit_margin": 0.18,
+    "years_experience": 1,
+    "skills": [
+      "UI Design",
+      "Illustration",
+      "Logo Design"
+    ],
+    "seniority": "junior"
+  },
+  {
+    "monthly_rent": 200,
+    "equipment_cost": 146,
+    "utilities_cost": 102,
+    "materials_cost": 47,
+    "desired_income": 1326,
+    "billable_hours": 103,
+    "profit_margin": 0.14,
+    "years_experience": 7,
+    "skills": [
+      "Social Media Design",
+      "Poster Design",
+      "Logo Design"
+    ],
+    "seniority": "expert"
+  },
+  {
+    "monthly_rent": 100,
+    "equipment_cost": 121,
+    "utilities_cost": 70,
+    "materials_cost": 72,
+    "desired_income": 1600,
+    "billable_hours": 100,
+    "profit_margin": 0.2,
+    "years_experience": 8,
+    "skills": [
+      "UX Design",
+      "Marketing Design",
+      "Logo Design"
+    ],
+    "seniority": "expert"
+  },
+  {
+    "monthly_rent": 150,
+    "equipment_cost": 156,
+    "utilities_cost": 91,
+    "materials_cost": 51,
+    "desired_income": 1227,
+    "billable_hours": 117,
+    "profit_margin": 0.16,
+    "years_experience": 1,
+    "skills": [
+      "Illustration",
+      "UI Design",
+      "Marketing Design"
+    ],
+    "seniority": "junior"
+  },
+  {
+    "monthly_rent": 300,
+    "equipment_cost": 169,
+    "utilities_cost": 79,
+    "materials_cost": 52,
+    "desired_income": 1072,
+    "billable_hours": 85,
+    "profit_margin": 0.2,
+    "years_experience": 5,
+    "skills": [
+      "Brand Identity",
+      "Poster Design"
+    ],
+    "seniority": "senior"
+  },
+  {
+    "monthly_rent": 100,
+    "equipment_cost": 155,
+    "utilities_cost": 101,
+    "materials_cost": 55,
+    "desired_income": 2083,
+    "billable_hours": 137,
+    "profit_margin": 0.18,
+    "years_experience": 2,
+    "skills": [
+      "Banner Design"
+    ],
+    "seniority": "mid"
+  },
+  {
+    "monthly_rent": 100,
+    "equipment_cost": 192,
+    "utilities_cost": 62,
+    "materials_cost": 58,
+    "desired_income": 628,
+    "billable_hours": 138,
+    "profit_margin": 0.1,
+    "years_experience": 4,
+    "skills": [
+      "Logo Design"
+    ],
+    "seniority": "senior"
+  },
+  {
+    "monthly_rent": 150,
+    "equipment_cost": 278,
+    "utilities_cost": 56,
+    "materials_cost": 82,
+    "desired_income": 810,
+    "billable_hours": 71,
+    "profit_margin": 0.18,
+    "years_experience": 8,
+    "skills": [
+      "UX Design",
+      "Marketing Design"
+    ],
+    "seniority": "expert"
+  },
+  {
+    "monthly_rent": 80,
+    "equipment_cost": 347,
+    "utilities_cost": 46,
+    "materials_cost": 52,
+    "desired_income": 1578,
+    "billable_hours": 84,
+    "profit_margin": 0.22,
+    "years_experience": 5,
+    "skills": [
+      "UX Design",
+      "Brand Identity"
+    ],
+    "seniority": "senior"
+  },
+  {
+    "monthly_rent": 0,
+    "equipment_cost": 138,
+    "utilities_cost": 59,
+    "materials_cost": 92,
+    "desired_income": 1222,
+    "billable_hours": 80,
+    "profit_margin": 0.25,
+    "years_experience": 9,
+    "skills": [
+      "Poster Design"
+    ],
+    "seniority": "expert"
+  },
+  {
+    "monthly_rent": 100,
+    "equipment_cost": 298,
+    "utilities_cost": 106,
+    "materials_cost": 68,
+    "desired_income": 1522,
+    "billable_hours": 126,
+    "profit_margin": 0.13,
+    "years_experience": 6,
+    "skills": [
+      "UI Design",
+      "Social Media Design",
+      "Logo Design"
+    ],
+    "seniority": "senior"
+  },
+  {
+    "monthly_rent": 50,
+    "equipment_cost": 342,
+    "utilities_cost": 66,
+    "materials_cost": 100,
+    "desired_income": 1032,
+    "billable_hours": 103,
+    "profit_margin": 0.19,
+    "years_experience": 9,
+    "skills": [
+      "Banner Design"
+    ],
+    "seniority": "expert"
+  },
+  {
+    "monthly_rent": 50,
+    "equipment_cost": 140,
+    "utilities_cost": 40,
+    "materials_cost": 72,
+    "desired_income": 1522,
+    "billable_hours": 130,
+    "profit_margin": 0.13,
+    "years_experience": 2,
+    "skills": [
+      "Social Media Design"
+    ],
+    "seniority": "mid"
+  },
+  {
+    "monthly_rent": 300,
+    "equipment_cost": 118,
+    "utilities_cost": 69,
+    "materials_cost": 53,
+    "desired_income": 1880,
+    "billable_hours": 95,
+    "profit_margin": 0.15,
+    "years_experience": 4,
+    "skills": [
+      "Banner Design",
+      "Graphic Design",
+      "Social Media Design"
+    ],
+    "seniority": "senior"
+  },
+  {
+    "monthly_rent": 50,
+    "equipment_cost": 115,
+    "utilities_cost": 61,
+    "materials_cost": 59,
+    "desired_income": 1818,
+    "billable_hours": 106,
+    "profit_margin": 0.15,
+    "years_experience": 2,
+    "skills": [
+      "Social Media Design",
+      "UI Design"
+    ],
+    "seniority": "mid"
+  },
+  {
+    "monthly_rent": 300,
+    "equipment_cost": 212,
+    "utilities_cost": 50,
+    "materials_cost": 96,
+    "desired_income": 681,
+    "billable_hours": 125,
+    "profit_margin": 0.2,
+    "years_experience": 4,
+    "skills": [
+      "Social Media Design",
+      "Logo Design",
+      "Brand Identity"
+    ],
+    "seniority": "senior"
+  },
+  {
+    "monthly_rent": 0,
+    "equipment_cost": 295,
+    "utilities_cost": 74,
+    "materials_cost": 93,
+    "desired_income": 682,
+    "billable_hours": 92,
+    "profit_margin": 0.16,
+    "years_experience": 3,
+    "skills": [
+      "UX Design",
+      "Social Media Design",
+      "Graphic Design"
+    ],
+    "seniority": "mid"
+  },
+  {
+    "monthly_rent": 250,
+    "equipment_cost": 262,
+    "utilities_cost": 102,
+    "materials_cost": 31,
+    "desired_income": 1562,
+    "billable_hours": 114,
+    "profit_margin": 0.15,
+    "years_experience": 9,
+    "skills": [
+      "Brand Identity",
+      "Graphic Design"
+    ],
+    "seniority": "expert"
+  },
+  {
+    "monthly_rent": 250,
+    "equipment_cost": 277,
+    "utilities_cost": 103,
+    "materials_cost": 56,
+    "desired_income": 1956,
+    "billable_hours": 121,
+    "profit_margin": 0.22,
+    "years_experience": 5,
+    "skills": [
+      "Logo Design",
+      "UX Design",
+      "Brand Identity"
+    ],
+    "seniority": "senior"
+  },
+  {
+    "monthly_rent": 150,
+    "equipment_cost": 182,
+    "utilities_cost": 54,
+    "materials_cost": 71,
+    "desired_income": 1653,
+    "billable_hours": 70,
+    "profit_margin": 0.19,
+    "years_experience": 5,
+    "skills": [
+      "UX Design",
+      "UI Design",
+      "Logo Design"
+    ],
+    "seniority": "senior"
+  },
+  {
+    "monthly_rent": 200,
+    "equipment_cost": 259,
+    "utilities_cost": 103,
+    "materials_cost": 100,
+    "desired_income": 1505,
+    "billable_hours": 76,
+    "profit_margin": 0.11,
+    "years_experience": 3,
+    "skills": [
+      "Graphic Design",
+      "Social Media Design",
+      "UX Design"
+    ],
+    "seniority": "mid"
+  },
+  {
+    "monthly_rent": 50,
+    "equipment_cost": 107,
+    "utilities_cost": 120,
+    "materials_cost": 97,
+    "desired_income": 1090,
+    "billable_hours": 90,
+    "profit_margin": 0.13,
+    "years_experience": 7,
+    "skills": [
+      "Poster Design"
+    ],
+    "seniority": "expert"
+  },
+  {
+    "monthly_rent": 50,
+    "equipment_cost": 157,
+    "utilities_cost": 54,
+    "materials_cost": 79,
+    "desired_income": 840,
+    "billable_hours": 89,
+    "profit_margin": 0.16,
+    "years_experience": 6,
+    "skills": [
+      "Social Media Design",
+      "Poster Design",
+      "Marketing Design"
+    ],
+    "seniority": "senior"
+  },
+  {
+    "monthly_rent": 300,
+    "equipment_cost": 350,
+    "utilities_cost": 100,
+    "materials_cost": 51,
+    "desired_income": 1535,
+    "billable_hours": 140,
+    "profit_margin": 0.1,
+    "years_experience": 6,
+    "skills": [
+      "Marketing Design"
+    ],
+    "seniority": "senior"
+  },
+  {
+    "monthly_rent": 80,
+    "equipment_cost": 321,
+    "utilities_cost": 48,
+    "materials_cost": 55,
+    "desired_income": 2182,
+    "billable_hours": 123,
+    "profit_margin": 0.14,
+    "years_experience": 8,
+    "skills": [
+      "Social Media Design",
+      "Logo Design",
+      "Marketing Design"
+    ],
+    "seniority": "expert"
+  },
+  {
+    "monthly_rent": 300,
+    "equipment_cost": 321,
+    "utilities_cost": 59,
+    "materials_cost": 77,
+    "desired_income": 1703,
+    "billable_hours": 131,
+    "profit_margin": 0.14,
+    "years_experience": 4,
+    "skills": [
+      "Poster Design",
+      "UI Design",
+      "UX Design"
+    ],
+    "seniority": "senior"
+  },
+  {
+    "monthly_rent": 100,
+    "equipment_cost": 278,
+    "utilities_cost": 70,
+    "materials_cost": 93,
+    "desired_income": 1384,
+    "billable_hours": 99,
+    "profit_margin": 0.23,
+    "years_experience": 5,
+    "skills": [
+      "Logo Design",
+      "Illustration"
+    ],
+    "seniority": "senior"
+  },
+  {
+    "monthly_rent": 250,
+    "equipment_cost": 198,
+    "utilities_cost": 59,
+    "materials_cost": 83,
+    "desired_income": 675,
+    "billable_hours": 86,
+    "profit_margin": 0.17,
+    "years_experience": 7,
+    "skills": [
+      "Illustration",
+      "Brand Identity",
+      "UX Design"
+    ],
+    "seniority": "expert"
+  },
+  {
+    "monthly_rent": 300,
+    "equipment_cost": 103,
+    "utilities_cost": 58,
+    "materials_cost": 72,
+    "desired_income": 1940,
+    "billable_hours": 89,
+    "profit_margin": 0.09,
+    "years_experience": 1,
+    "skills": [
+      "Illustration",
+      "UI Design"
+    ],
+    "seniority": "junior"
+  },
+  {
+    "monthly_rent": 50,
+    "equipment_cost": 318,
+    "utilities_cost": 82,
+    "materials_cost": 88,
+    "desired_income": 1378,
+    "billable_hours": 110,
+    "profit_margin": 0.19,
+    "years_experience": 10,
+    "skills": [
+      "Poster Design",
+      "Logo Design"
+    ],
+    "seniority": "expert"
+  },
+  {
+    "monthly_rent": 50,
+    "equipment_cost": 160,
+    "utilities_cost": 120,
+    "materials_cost": 56,
+    "desired_income": 1065,
+    "billable_hours": 81,
+    "profit_margin": 0.15,
+    "years_experience": 9,
+    "skills": [
+      "Brand Identity"
+    ],
+    "seniority": "expert"
+  },
+  {
+    "monthly_rent": 80,
+    "equipment_cost": 277,
+    "utilities_cost": 78,
+    "materials_cost": 23,
+    "desired_income": 694,
+    "billable_hours": 111,
+    "profit_margin": 0.22,
+    "years_experience": 7,
+    "skills": [
+      "Illustration",
+      "Marketing Design"
+    ],
+    "seniority": "expert"
+  },
+  {
+    "monthly_rent": 80,
+    "equipment_cost": 162,
+    "utilities_cost": 107,
+    "materials_cost": 72,
+    "desired_income": 1759,
+    "billable_hours": 93,
+    "profit_margin": 0.11,
+    "years_experience": 6,
+    "skills": [
+      "Marketing Design"
+    ],
+    "seniority": "senior"
+  },
+  {
+    "monthly_rent": 100,
+    "equipment_cost": 227,
+    "utilities_cost": 114,
+    "materials_cost": 38,
+    "desired_income": 1075,
+    "billable_hours": 129,
+    "profit_margin": 0.19,
+    "years_experience": 6,
+    "skills": [
+      "Social Media Design",
+      "Logo Design"
+    ],
+    "seniority": "senior"
+  },
+  {
+    "monthly_rent": 150,
+    "equipment_cost": 273,
+    "utilities_cost": 109,
+    "materials_cost": 40,
+    "desired_income": 751,
+    "billable_hours": 126,
+    "profit_margin": 0.24,
+    "years_experience": 7,
+    "skills": [
+      "Social Media Design",
+      "UI Design",
+      "Marketing Design"
+    ],
+    "seniority": "expert"
+  }
+]
