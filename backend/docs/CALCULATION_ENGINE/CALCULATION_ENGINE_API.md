@@ -675,7 +675,7 @@ Base Rate: $2,616.25 ÷ 140 = $18.69/hour
 ```
 
 ---
-
+<!-- 
 ## OpenAPI Specification
 
 ```yaml
@@ -1003,7 +1003,7 @@ paths:
           description: Profile not found
 ```
 
----
+--- -->
 
 **Documentation Version:** 1.0.0  
 **Last Updated:** February 1, 2026

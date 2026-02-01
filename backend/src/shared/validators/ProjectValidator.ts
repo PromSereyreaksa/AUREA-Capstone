@@ -3,6 +3,7 @@ import { BaseValidator } from './BaseValidator';
 interface DeliverableInput {
   deliverable_type: string;
   quantity: number | string;
+  items?: string[]; // Sub-items/components included in this deliverable
 }
 
 interface ProjectInput {
@@ -119,12 +120,15 @@ export class ProjectValidator extends BaseValidator {
       description: truncate(data.description, 500),
       duration: this.validateDuration(data.duration),
       difficulty: this.validateDifficulty(data.difficulty),
-      licensing: this.validateLicensing(data.licensing),
-      usage_rights: this.validateUsageRights(data.usage_rights),
+      licensing: truncate(this.validateLicensing(data.licensing), 100),
+      usage_rights: truncate(this.validateUsageRights(data.usage_rights), 100),
       result: truncate(data.result, 255),
       deliverables: data.deliverables?.map(d => ({
         deliverable_type: truncate(d.deliverable_type, 100) || '',
-        quantity: this.validateQuantity(d.quantity)
+        quantity: this.validateQuantity(d.quantity),
+        items: Array.isArray(d.items) 
+          ? d.items.map(item => truncate(String(item), 100) || '').filter(Boolean)
+          : []
       })) || []
     };
   }

@@ -1,0 +1,35 @@
+{
+  "test_suite_version": "3.0.0",
+  "generated_at": "2026-02-01T18:52:53+07:00",
+  "overall_metrics": {
+    "total_tests": 32,
+    "passed": 28,
+    "failed": 4,
+    "skipped": 0,
+    "pass_rate": 87.5,
+    "edge_cases_passed": 21,
+    "edge_cases_total": 23
+  },
+  "deliverable_metrics": {
+    "expected_categories": 185,
+    "found_categories": 194,
+    "category_accuracy": 104,
+    "total_items_found": 909,
+    "avg_items_per_category": 4.7,
+    "thin_deliverable_warnings": 29
+  },
+  "performance_metrics": {
+    "total_duration_seconds": 871,
+    "avg_extraction_ms": 23337,
+    "min_extraction_ms": 1999,
+    "max_extraction_ms": 66400
+  },
+  "ai_models": {
+    "available": ["gemini-2.5-flash-lite", "gemini-3-flash-preview"]
+  },
+  "files": {
+    "report": "/home/long/Desktop/capstone backend/AUREA-Capstone/backend/tests/gemini_test/scripts/../results/comprehensive_report_20260201_183822.txt",
+    "csv": "/home/long/Desktop/capstone backend/AUREA-Capstone/backend/tests/gemini_test/scripts/../results/test_data_20260201_183822.csv",
+    "json": "/home/long/Desktop/capstone backend/AUREA-Capstone/backend/tests/gemini_test/scripts/../results/metrics_20260201_183822.json"
+  }
+}

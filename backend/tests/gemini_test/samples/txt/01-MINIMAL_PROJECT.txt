@@ -1,0 +1,11 @@
+PROJECT: Simple Website Redesign
+
+We need a website redesign for our small business. The current site looks outdated.
+
+Requirements:
+- Modern design
+- Mobile friendly
+- Contact form
+
+Budget: Limited
+Timeline: ASAP

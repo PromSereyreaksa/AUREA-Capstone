@@ -1,0 +1,727 @@
+paths:
+  /api/v1/pricing/onboarding/start:
+    post:
+      summary: Start or resume pricing onboarding session
+      description: |
+        Start a new pricing onboarding session or resume an existing one.
+        This endpoint initializes the AUREA framework questionnaire for calculating sustainable pricing.
+      tags:
+        - Pricing - Onboarding
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - user_id
+              properties:
+                user_id:
+                  type: integer
+                  description: ID of the user
+                  example: 1
+      responses:
+        '200':
+          description: Onboarding session started successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Onboarding session started
+                  data:
+                    type: object
+                    properties:
+                      session_id:
+                        type: string
+                        format: uuid
+                        example: "550e8400-e29b-41d4-a716-446655440000"
+                      current_question:
+                        type: string
+                        example: What is your monthly business expense?
+                      question_index:
+                        type: integer
+                        example: 1
+                      total_questions:
+                        type: integer
+                        example: 10
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized - Missing or invalid token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/v1/pricing/onboarding/answer:
+    post:
+      summary: Answer current onboarding question
+      description: |
+        Submit an answer to the current onboarding question.
+        Advance through the AUREA framework questionnaire.
+      tags:
+        - Pricing - Onboarding
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - session_id
+                - answer
+              properties:
+                session_id:
+                  type: string
+                  format: uuid
+                  description: Onboarding session ID
+                  example: "550e8400-e29b-41d4-a716-446655440000"
+                answer:
+                  type: string
+                  description: User's answer to current question
+                  example: "400"
+      responses:
+        '200':
+          description: Answer recorded successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Answer recorded
+                  data:
+                    type: object
+                    properties:
+                      session_id:
+                        type: string
+                        format: uuid
+                      current_question:
+                        type: string
+                      question_index:
+                        type: integer
+                      is_complete:
+                        type: boolean
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized - Missing or invalid token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/v1/pricing/calculate-base-rate:
+    post:
+      summary: Calculate base hourly rate using AUREA framework
+      description: |
+        Calculate a sustainable hourly rate based on the AUREA framework.
+        Requires all onboarding answers to be provided.
+        
+        Formula: Base Rate = (A + U + R + E) / (Available Work Hours)
+        - A: Administration (Business overhead)
+        - U: Utility (Software, tools, services)
+        - R: Rent (Office/workspace)
+        - E: Equipment (Hardware, furniture)
+      tags:
+        - Pricing - Calculations
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - user_id
+                - monthly_business_expense
+                - monthly_software_expense
+                - office_workspace_cost
+                - equipment_cost
+                - available_work_hours
+              properties:
+                user_id:
+                  type: integer
+                  description: ID of the user
+                  example: 1
+                monthly_business_expense:
+                  type: number
+                  description: Monthly business/admin expenses
+                  example: 400
+                monthly_software_expense:
+                  type: number
+                  description: Monthly software and tool expenses
+                  example: 150
+                office_workspace_cost:
+                  type: number
+                  description: Monthly rent/workspace cost
+                  example: 800
+                equipment_cost:
+                  type: number
+                  description: Monthly equipment amortization
+                  example: 200
+                available_work_hours:
+                  type: number
+                  description: Available billable hours per month
+                  example: 160
+      responses:
+        '200':
+          description: Base rate calculated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Base rate calculated
+                  data:
+                    type: object
+                    properties:
+                      base_rate:
+                        type: number
+                        description: Calculated hourly rate
+                        example: 75.5
+                      breakdown:
+                        type: object
+                        properties:
+                          administration:
+                            type: number
+                            example: 400
+                          utility:
+                            type: number
+                            example: 150
+                          rent:
+                            type: number
+                            example: 800
+                          equipment:
+                            type: number
+                            example: 200
+                          total_monthly:
+                            type: number
+                            example: 1550
+                          available_hours:
+                            type: number
+                            example: 160
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized - Missing or invalid token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/v1/pricing/calculate-project-rate:
+    post:
+      summary: Calculate project rate with difficulty and complexity multipliers
+      description: |
+        Calculate a project-specific rate by applying difficulty and complexity multipliers
+        to the base rate. This endpoint factors in:
+        - Project difficulty (Easy, Medium, Hard, Complex)
+        - Number of deliverables
+        - Project complexity
+        
+        Final Rate = Base Rate × Difficulty Multiplier × Complexity Factor
+      tags:
+        - Pricing - Calculations
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - user_id
+                - base_rate
+                - difficulty
+                - deliverable_count
+              properties:
+                user_id:
+                  type: integer
+                  example: 1
+                base_rate:
+                  type: number
+                  description: Base hourly rate (from calculate-base-rate)
+                  example: 75.5
+                difficulty:
+                  type: string
+                  enum: [Easy, Medium, Hard, Complex]
+                  description: Project difficulty level
+                  example: Hard
+                deliverable_count:
+                  type: integer
+                  description: Number of deliverables
+                  example: 5
+      responses:
+        '200':
+          description: Project rate calculated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Project rate calculated
+                  data:
+                    type: object
+                    properties:
+                      project_rate:
+                        type: number
+                        description: Final project rate
+                        example: 113.25
+                      base_rate:
+                        type: number
+                        example: 75.5
+                      difficulty_multiplier:
+                        type: number
+                        example: 1.5
+                      complexity_factor:
+                        type: number
+                        example: 1.0
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized - Missing or invalid token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/v1/pricing/quick-estimate:
+    post:
+      summary: Quick AI-powered project estimate
+      description: |
+        Generate a quick AI-powered project rate estimate based on project description.
+        Uses Gemini AI to analyze the project and apply appropriate pricing.
+        
+        ⚠️ **Rate Limited**: 5 requests per minute
+      tags:
+        - Pricing - AI Estimation
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - user_id
+                - project_description
+              properties:
+                user_id:
+                  type: integer
+                  example: 1
+                project_description:
+                  type: string
+                  description: Description of the project for AI analysis
+                  example: |
+                    Design and develop a modern e-commerce website with:
+                    - Product catalog with 500+ items
+                    - Shopping cart and checkout
+                    - Payment gateway integration
+                    - Admin dashboard
+                    - Mobile responsive design
+      responses:
+        '200':
+          description: Quick estimate generated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Quick estimate generated
+                  data:
+                    type: object
+                    properties:
+                      estimated_rate:
+                        type: number
+                        description: AI-estimated hourly rate
+                        example: 95.75
+                      estimated_hours:
+                        type: number
+                        description: Estimated project duration in hours
+                        example: 240
+                      estimated_total:
+                        type: number
+                        description: Total estimated project cost
+                        example: 22980
+                      reasoning:
+                        type: string
+                        description: AI's reasoning for the estimate
+                        example: "Complex e-commerce project with multiple features and integrations"
+        '429':
+          description: Rate limit exceeded (5 requests per minute)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  error:
+                    type: object
+                    properties:
+                      message:
+                        type: string
+                        example: "AI estimation limit reached. Please wait before making another request (max 5/minute)"
+                      retryAfter:
+                        type: integer
+                        description: Seconds to wait before retrying
+                        example: 45
+        '401':
+          description: Unauthorized - Missing or invalid token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/v1/pricing/profile:
+    get:
+      summary: Get user's pricing profile
+      description: |
+        Retrieve the user's complete pricing profile including:
+        - Base rate information
+        - AUREA framework values
+        - Pricing history
+      tags:
+        - Pricing - Profile
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: user_id
+          in: query
+          description: User ID (auto-populated from JWT)
+          schema:
+            type: integer
+          example: 1
+      responses:
+        '200':
+          description: Pricing profile retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Pricing profile retrieved
+                  data:
+                    type: object
+                    properties:
+                      user_id:
+                        type: integer
+                      base_rate:
+                        type: number
+                      monthly_business_expense:
+                        type: number
+                      monthly_software_expense:
+                        type: number
+                      office_workspace_cost:
+                        type: number
+                      equipment_cost:
+                        type: number
+                      available_work_hours:
+                        type: number
+                      last_updated:
+                        type: string
+                        format: date-time
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Profile not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    put:
+      summary: Update user's pricing profile
+      description: |
+        Update AUREA framework values and recalculate base rate.
+      tags:
+        - Pricing - Profile
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user_id:
+                  type: integer
+                  example: 1
+                monthly_business_expense:
+                  type: number
+                  example: 400
+                monthly_software_expense:
+                  type: number
+                  example: 150
+                office_workspace_cost:
+                  type: number
+                  example: 800
+                equipment_cost:
+                  type: number
+                  example: 200
+                available_work_hours:
+                  type: number
+                  example: 160
+      responses:
+        '200':
+          description: Profile updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: object
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/v1/projects/{userId}/{projectId}/delivery-estimate:
+    post:
+      summary: Generate delivery estimate for a project
+      description: |
+        Generate a delivery timeline estimate based on:
+        - Project deliverables
+        - Complexity
+        - Availability
+        
+        Returns estimated start date, duration, and completion date.
+      tags:
+        - Project Management - Delivery
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+          example: 1
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: integer
+          example: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                start_date:
+                  type: string
+                  format: date
+                  description: Planned project start date
+                  example: "2026-02-15"
+                availability_hours_per_week:
+                  type: number
+                  description: Hours available per week for this project
+                  example: 20
+      responses:
+        '200':
+          description: Delivery estimate generated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      project_id:
+                        type: integer
+                      estimated_start:
+                        type: string
+                        format: date
+                        example: "2026-02-15"
+                      estimated_duration_days:
+                        type: integer
+                        example: 45
+                      estimated_completion:
+                        type: string
+                        format: date
+                        example: "2026-04-01"
+                      deliverables_breakdown:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            name:
+                              type: string
+                            estimated_days:
+                              type: number
+        '404':
+          description: Project not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/v1/projects/{userId}/{projectId}/pricing:
+    get:
+      summary: Get pricing details for a specific project
+      description: |
+        Retrieve all pricing information for a project including:
+        - Base rate at time of project creation
+        - Applied difficulty multiplier
+        - Total estimated cost
+        - Cost breakdown by deliverable (if available)
+      tags:
+        - Project Management - Pricing
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+          example: 1
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: integer
+          example: 1
+      responses:
+        '200':
+          description: Project pricing details retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      project_id:
+                        type: integer
+                      project_name:
+                        type: string
+                      base_rate:
+                        type: number
+                        description: Base hourly rate used for this project
+                      difficulty:
+                        type: string
+                        enum: [Easy, Medium, Hard, Complex]
+                      difficulty_multiplier:
+                        type: number
+                      project_rate:
+                        type: number
+                      estimated_hours:
+                        type: number
+                      estimated_total_cost:
+                        type: number
+                      pricing_history:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            updated_at:
+                              type: string
+                              format: date-time
+                            rate:
+                              type: number
+        '404':
+          description: Project not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'

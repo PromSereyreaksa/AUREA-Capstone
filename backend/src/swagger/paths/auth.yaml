@@ -1,5 +1,5 @@
 paths:
-  /users/signup:
+  /api/v1/users/signup:
     post:
       summary: Register a new user
       description: |
@@ -88,7 +88,7 @@ paths:
                   message: Email already exists
                   code: DUPLICATE_EMAIL
 
-  /users/verify-otp:
+  /api/v1/users/verify-otp:
     post:
       summary: Verify email with OTP
       description: |
@@ -177,7 +177,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 
-  /users/resend-otp:
+  /api/v1/users/resend-otp:
     post:
       summary: Resend OTP code
       description: |

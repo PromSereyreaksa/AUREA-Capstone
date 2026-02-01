@@ -1,5 +1,5 @@
 paths:
-  /users/me:
+  /api/v1/users/me:
     get:
       summary: Get current user profile
       description: |

@@ -4,7 +4,8 @@ export function mapProjectDeliverableToDb(deliverable: ProjectDeliverable) {
   return {
     project_id: deliverable.project_id,
     deliverable_type: deliverable.deliverable_type,
-    quantity: deliverable.quantity
+    quantity: deliverable.quantity,
+    items: deliverable.items || []
   };
 }
 
@@ -13,6 +14,7 @@ export function mapProjectDeliverableFromDb(data: any): ProjectDeliverable {
     data.deliverable_id,
     data.project_id,
     data.deliverable_type,
-    data.quantity
+    data.quantity,
+    data.items || []
   );
 }
