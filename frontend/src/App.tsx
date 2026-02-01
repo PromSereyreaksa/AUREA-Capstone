@@ -23,6 +23,8 @@ import {
 
 import { GuestAccessViewpage } from "./features/guest-access";
 
+import { DashboardPage } from "./features/dashbard";
+
 import "./App.css";
 
 function App() {
@@ -54,11 +56,32 @@ function App() {
           {/* Guest Access / Portfolios Route */}
           <Route path="/portfolios" element={<GuestAccessViewpage />} />
 
+          {/* Dashboard Route */}
+          <Route path="/dashboard" element={<DashboardPage />} />
+
           {/* Placeholder Routes */}
           <Route
-            path="/dashboard"
+            path="/projects"
             element={
-              <div style={{ padding: "2rem" }}>Dashboard - Coming Soon</div>
+              <div style={{ padding: "2rem" }}>Projects - Coming Soon</div>
+            }
+          />
+          <Route
+            path="/fee-estimator"
+            element={
+              <div style={{ padding: "2rem" }}>Fee Estimator - Coming Soon</div>
+            }
+          />
+          <Route
+            path="/settings"
+            element={
+              <div style={{ padding: "2rem" }}>Settings - Coming Soon</div>
+            }
+          />
+          <Route
+            path="/profile"
+            element={
+              <div style={{ padding: "2rem" }}>Profile - Coming Soon</div>
             }
           />
 
