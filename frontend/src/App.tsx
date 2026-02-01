@@ -6,6 +6,9 @@ import {
   VerifyEmailPage,
   ForgotPasswordPage,
 } from './features/auth';
+import { 
+  DesignerProfilePage
+} from './features/profile';
 import './App.css';
 
 function App() {
@@ -18,6 +21,9 @@ function App() {
           <Route path="/signin" element={<SignInPage />} />
           <Route path="/verify-email" element={<VerifyEmailPage />} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+
+          {/* Designer profile route */}
+          <Route path="/designer-profile/:designerId" element={<DesignerProfilePage />} />
           
           {/* Placeholder Routes */}
           <Route path="/dashboard" element={<div style={{ padding: '2rem' }}>Dashboard - Coming Soon</div>} />
