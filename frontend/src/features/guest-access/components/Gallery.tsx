@@ -37,14 +37,14 @@ const galleryItems = [
   },
   {
     id: 5,
-    name: "sereyreaksa",
+    name: "belly",
     title: "Abstract Ocean",
     image:
       "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=500&h=400&fit=crop",
   },
   {
     id: 6,
-    name: "sereyreaksa",
+    name: "hanuman",
     title: "Dark Wanderer",
     image:
       "https://images.unsplash.com/photo-1484693432045-dfb8e4c6d8c4?w=500&h=400&fit=crop",
