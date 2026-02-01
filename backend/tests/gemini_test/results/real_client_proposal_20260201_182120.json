@@ -1,0 +1,82 @@
+{
+  "success": true,
+  "message": "PDF extracted and project created successfully",
+  "data": {
+    "project": {
+      "project_id": 326,
+      "user_id": 1,
+      "project_name": "Kōra",
+      "title": "Kōra Wellness Café Branding",
+      "description": "Visual identity development for a modern wellness café. The brand focuses on specialty coffee, herbal drinks, and light food with a clean, calm, and premium aesthetic using earthy tones and modern typography.",
+      "duration": 30,
+      "difficulty": "Medium",
+      "licensing": "Standard License",
+      "usage_rights": "Commercial Use",
+      "result": "A comprehensive brand identity system including logo, social media templates, business cards, and usage guidelines.",
+      "client_type": null,
+      "client_region": null,
+      "calculated_rate": null
+    },
+    "deliverables": [
+      {
+        "deliverable_id": 4598,
+        "project_id": 326,
+        "deliverable_type": "Brand Identity System",
+        "quantity": 1,
+        "items": [
+          "Primary logo design",
+          "Brand symbol/mark for physical application",
+          "Color palette (earthy/natural tones)",
+          "Typography system",
+          "Favicon"
+        ]
+      },
+      {
+        "deliverable_id": 4599,
+        "project_id": 326,
+        "deliverable_type": "Brand Guidelines",
+        "quantity": 1,
+        "items": [
+          "Logo usage rules",
+          "Color usage guidelines",
+          "Typography hierarchy",
+          "Application examples for menus and digital use"
+        ]
+      },
+      {
+        "deliverable_id": 4600,
+        "project_id": 326,
+        "deliverable_type": "Social Media Kit",
+        "quantity": 1,
+        "items": [
+          "Reusable Instagram post templates",
+          "Editable story templates",
+          "Profile image"
+        ]
+      },
+      {
+        "deliverable_id": 4601,
+        "project_id": 326,
+        "deliverable_type": "Marketing Collateral",
+        "quantity": 1,
+        "items": [
+          "Business card design"
+        ]
+      },
+      {
+        "deliverable_id": 4602,
+        "project_id": 326,
+        "deliverable_type": "Final Asset Delivery",
+        "quantity": 1,
+        "items": [
+          "Source files (AI/Figma/PSD)",
+          "Exported assets (PNG/SVG/PDF)",
+          "Documentation/Guidelines PDF"
+        ]
+      }
+    ],
+    "metadata": {
+      "model": "gemini-3-flash-preview"
+    }
+  }
+}

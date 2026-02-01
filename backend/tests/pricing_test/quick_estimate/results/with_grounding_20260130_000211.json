@@ -1,0 +1,103 @@
+{
+  "test_type": "with_google_search_grounding",
+  "timestamp": "2026-01-30T00:02:18+07:00",
+  "results": [
+{
+  "experience_level": "beginner",
+  "skills": "Logo Design, Social Media Graphics",
+  "hours_per_week": 20,
+  "client_type": "sme",
+  "success": true,
+  "estimate": {
+    "hourly_rate_min": 8,
+    "hourly_rate_max": 25,
+    "recommended_rate": 15,
+    "currency": "USD"
+  },
+  "ai_researched_costs": {
+    "monthly_software_cost": 35,
+    "software_details": "Adobe Creative Cloud All Apps is estimated at $90/year or approximately $7.50/month. Figma's Pro plan is around $45/month (based on international pricing, regional pricing may vary). Canva Pro is available for $12 for a year, which is approximately $1/month. For this calculation, we'll use a blended cost assuming a mix of tools. A reasonable estimate for a junior designer's essential software suite would be around $35/month.",
+    "monthly_workspace_cost": 120,
+    "workspace_details": "For a junior designer, a co-working space is a practical option. The Factory Phnom Penh offers monthly office rentals starting from $280 for unfurnished spaces, with a price per square meter of $15. However, daily passes are available for $8. For a more budget-friendly option, Mekong Space offers air-conditioned co-working memberships at $100/month. A more typical range for a dedicated desk in a co-working space in Phnom Penh is between $265 and $534 per month. Given the junior level, a reasonable mid-range estimate for a dedicated desk in a co-working space would be around $120/month.",
+    "monthly_equipment_cost": 100,
+    "equipment_details": "A junior graphic designer would need a reliable laptop. Good Windows laptops suitable for graphic design can range from $700 to $1200. A MacBook Air or Pro (entry-level) would be in the range of $1000-$1500. For peripherals, a decent monitor ($200-$300), a drawing tablet (e.g., Wacom Intuos, $100-$200), and essential accessories would add another $300-$500. Amortizing a total equipment cost of $1500 over 3 years (36 months) results in a monthly equipment cost of approximately $41.67. To account for potential upgrades or a slightly higher initial investment, a monthly estimate of $100 for equipment amortization is used.",
+    "monthly_utilities_cost": 70,
+    "monthly_internet_cost": 35,
+    "total_monthly_expenses": 360
+  },
+  "ai_researched_income": {
+    "suggested_monthly_income": 1200,
+    "income_reasoning": "The average cost of living for a single person in Phnom Penh is estimated to be around $523 (budget-conscious, excluding rent) to $876 (average) per month. Considering a comfortable living standard and the need for freelancers to cover benefits and taxes (estimated at 20-30% more than employed), a target income of $1200/month is a reasonable starting point for a junior freelancer.",
+    "billable_hours_ratio": 0.6,
+    "estimated_billable_hours": 48
+  },
+  "market_research": {
+    "median_rate": 9,
+    "percentile_75_rate": 15,
+    "position": "at_market",
+    "market_insights": "Freelance graphic designer rates in Cambodia vary significantly. On platforms like Truelancer, rates for graphic designers can range from $3/hr to $15/hr. Some experienced designers on Upwork in Phnom Penh list rates around $9-$15/hr. Agencies in Cambodia can charge much higher, with hourly rates from $50-$199/hr for design services. For a junior designer, positioning within the $8-$25/hr range is appropriate, aligning with the mid-to-high end of freelance platform rates for local designers and providing value compared to agency pricing."
+  },
+  "calculation_breakdown": {
+    "total_costs": 360,
+    "target_income": 1200,
+    "billable_hours": 48,
+    "urea_formula_result": 11.25
+  },
+  "sources": [
+    "khmer24.com (https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQHS3f9Hp8Fv0uss7rsQY6edM3WjFztol1rU1l_T1KgZfuFxNkncVe1pQlR1h-8OBSiDMhVbaGPAoDD0FWaAAiWkMM3CpQdpWpBmI2cSplJFSzmORdKQmuIYKypyu39B4DMO-L4pU7RgvwTdrkuQrmbvnDJaey-uCt14TrJwQTg=)",
+    "khmer24.com (https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGTor4ruWjMvUW9dqz_MPmEfTojpY-elZxM37SmoTbG3Uf1gVmoXQcWDnDPFRqY5l2UAB9fjk96Snr5qV5XzYtwpi7HVtgciIblyeP152Xmr4mHkbv1-B74T0cfHyLDPC8Sfc33I1qNdYPtwbNLvBj6pgpOEF23zs10W-Zg17Ejm1vJlmqRmg==)",
+    "factoryphnompenh.com (https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQF32YNyNcB1XDldYVXMhoMjbuVRj2JndTjGalmLEnfwjpx_5Mf4-2R1WAka1_MPv17YqmDEDdwfeyfbEmgY3KAdfnrj8Bn5DNU5m8pNplCX5kbFlaJBYVVJsUdIePE61z2-4sAlwQ==)",
+    "mekong-space.com (https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFyFV_SwfwUVj5mWfzwjlNyYqY05htQDB1WwyLbitGcpbulRMbrcXBO6ByvwbfVSqhr28NcORe3YKdnH54Lw8l8MROOdrYKi-oOv2mXxXI403mfGzoE8gzI)",
+    "office-hub.com (https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQEbYZig3l_vbaCk2vpoL0kAFEijo9eu1yngzQQXUXojB_CneqcsKKk20kFmJEzkliRLjAQxRbkZBE4Zj9_RpvHs6ePfstOHJhjBX8i27UioXXWJLgSt55nqeQidG0TEjI4kcBGaEhSDo1uCfXQBS-Q3CD7b8vv1_RtuE3ZJCnKGuFN-QCMh-a2JumWiviXP9c_XulDHtr6JPA==)",
+    "ips-cambodia.com (https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGq3iuysAWquBaAh4X5kb5RRoexmReNplwTuMC1Rto2FDHdsOcO67hYrBubOaIU8qgzBFW5MYIUXjPzfIQC3p6bbYT_VeBo9R5EAiENm7lgBu7VwWmtDbJfgLmI4knAhvbExm-NO_xwhxPmSpM=)",
+    "livingcostindex.com (https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQEgyFD1lkZv51psI-_NeTcF7vGoBloLXju9L5Bkg0rV6CZLHoBzOzGf5DE7P4M2F0EtmBYBc0HWsfShCZjuIEAT4jOXV3Y1D0TqA3GC85t1mkTGEb6CrVuvs1FMpZkKiwPJx9Q3I_z6u64gIgrr)",
+    "truelancer.com (https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGI7SE1qW_8Aln-KYja6XSBersKARukvEfrrBcWwPQ0nkmo_uwbJYKlNJP55QoGyPP7Jcp-j0QBA_KJolye2HE5GtDu4kPZJ5RUy9on1h6bX8sr_pnzS-tvwCMSh-22qs1CmFovJkpP13O_EOmwAcl5GMyN2E-sSyypnFK159U=)",
+    "upwork.com (https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQEfvbMNoOLJVt1TVS6mRu22XYEz23P8XVWAQhscuRUVCOAuFDFkbjOQaBEv9FV54sP5nVw_LdQBeIM2rVPsmenMDX2lmgy_ZjL20XAAgDBlufprHAsFLElbc39y3QmpNVJUvfXtgqWQ74qbldA=)",
+    "clutch.co (https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQEpJSQwtvJTaUO1zf_CMeddouMnUQF9tRJOexCrIEFN-bTZtx2iHeYuzPHj-JtjyRfxxSDHLV-k4Y_KylPrfuMhg8F9OzKDrBzbuNuk-chOGwWolOVox5-fmGr18Jjdpg==)",
+    "techbehemoths.com (https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQErfo9mj20rf0kOsSO9XvHectvfotuwQcxtYgltwVugXYFKyLF-Ul7fSCXnhHsq5S115qV-GbSLn-JIyaVNFgE_5mQHQzHyBsz72QduKqiyqxerb5Z1pS5mgpr9qv42phoxLVtnKsszDB1NAXzaJ7kowJI2ie5w)",
+    "https://www.google.com/search?q=Adobe+Creative+Cloud+Cambodia+price",
+    "https://www.google.com/search?q=Figma+Cambodia+price",
+    "https://www.google.com/search?q=Canva+Pro+Cambodia+price",
+    "https://www.google.com/search?q=graphic+design+software+Cambodia",
+    "https://www.google.com/search?q=co-working+spaces+Phnom+Penh+prices",
+    "https://www.google.com/search?q=office+rental+prices+Phnom+Penh",
+    "https://www.google.com/search?q=laptop+prices+Cambodia+for+graphic+design",
+    "https://www.google.com/search?q=monitor+prices+Cambodia",
+    "https://www.google.com/search?q=drawing+tablet+prices+Cambodia",
+    "https://www.google.com/search?q=electricity+cost+Phnom+Penh+home+office",
+    "https://www.google.com/search?q=internet+packages+Phnom+Penh+SINET+Opennet+Metfone",
+    "https://www.google.com/search?q=mobile+data+plans+Cambodia",
+    "https://www.google.com/search?q=junior+graphic+designer+salary+Phnom+Penh",
+    "https://www.google.com/search?q=freelance+graphic+designer+rates+Cambodia",
+    "https://www.google.com/search?q=cost+of+living+Phnom+Penh",
+    "https://www.google.com/search?q=freelance+rates+Upwork+Cambodia+graphic+design",
+    "https://www.google.com/search?q=freelance+rates+Fiverr+Cambodia+graphic+design",
+    "https://www.google.com/search?q=graphic+design+agency+rates+Cambodia",
+    "https://www.google.com/search?q=billable+hours+ratio+freelance+graphic+designer",
+    "https://www.realestate.com.kh/offices-for-rent/phnom-penh/",
+    "https://www.facebook.com/metfone.closer/",
+    "https://www.upwork.com/categories/graphic-design/graphic-designers/asia/cambodia/",
+    "https://www.livingcost.org/cost/cambodia/phnom-penh",
+    "https://www.clutch.co/kh/web-design/agencies/graphic-design",
+    "https://officespace.com.kh/coworking-spaces-in-phnom-penh-cambodia/",
+    "https://www.reddit.com/r/cambodia/comments/16c881y/what_is_the_average_monthly_electric_bill_for_a_new/",
+    "https://www.factoryphnompenh.com/office-spaces",
+    "https://www.regus.com/en-us/cambodia/phnom-penh/coworking-space",
+    "https://www.eac.gov.kh/wp-content/uploads/2021/11/Decision-No.-014-Eng.pdf",
+    "https://www.canva.com/pricing/",
+    "https://www.mekongspace.com/",
+    "https://www.metfone.com.kh/en/internet-packages",
+    "https://www.truelancer.com/free-lance-graphic-designers/phnom-penh-cambodia"
+  ],
+  "sources_count": 44,
+  "has_web_urls": true
+}
+,
+{"experience_level": "intermediate", "success": false, "error": "Unknown error"}
+,
+{"experience_level": "experienced", "success": false, "error": "Unknown error"}
+,
+{"experience_level": "expert", "success": false, "error": "Unknown error"}
+
+  ]
+}

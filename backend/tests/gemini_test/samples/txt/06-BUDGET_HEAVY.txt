@@ -1,0 +1,153 @@
+PROJECT COST ESTIMATE & DELIVERABLES BREAKDOWN
+
+Client: Midwest Manufacturing Co.
+Project: Custom Manufacturing ERP System
+Date: January 2026
+
+═══════════════════════════════════════════════════════════════════
+
+PHASE 1: DISCOVERY & PLANNING
+───────────────────────────────────────────────────────────────────
+• Requirements Gathering Sessions (8 hours).............$4,000
+• Business Process Analysis (16 hours)..................$8,000
+• Technical Architecture Document (1 unit)..............$3,500
+• Project Plan & Timeline (1 unit)......................$2,000
+• Stakeholder Presentation (2 sessions).................$1,500
+                                          Subtotal: $19,000
+
+═══════════════════════════════════════════════════════════════════
+
+PHASE 2: UI/UX DESIGN
+───────────────────────────────────────────────────────────────────
+• User Research & Personas (1 set)......................$2,500
+• Information Architecture (1 document).................$2,000
+• Wireframes (25 screens @ $150/screen)................$3,750
+• High-Fidelity Mockups (25 screens @ $300/screen).....$7,500
+• Interactive Prototype (1 unit)........................$4,000
+• Design System & Style Guide (1 unit)..................$3,500
+• Usability Testing Session (2 rounds).................,$2,000
+                                          Subtotal: $25,250
+
+═══════════════════════════════════════════════════════════════════
+
+PHASE 3: FRONTEND DEVELOPMENT
+───────────────────────────────────────────────────────────────────
+• Dashboard Module (1 complete)........................$12,000
+• Inventory Management Module (1 complete).............$15,000
+• Order Processing Module (1 complete).................$18,000
+• Production Planning Module (1 complete)..............$20,000
+• Quality Control Module (1 complete)..................$14,000
+• Reporting Module (1 complete)........................$16,000
+• User Management Module (1 complete)...................$8,000
+• Settings & Configuration Module (1 complete)..........$6,000
+                                          Subtotal: $109,000
+
+═══════════════════════════════════════════════════════════════════
+
+PHASE 4: BACKEND DEVELOPMENT
+───────────────────────────────────────────────────────────────────
+• Database Design & Setup (1 schema)....................$8,000
+• RESTful API Development (50 endpoints @ $200)........$10,000
+• Authentication & Authorization System (1 unit)........$6,000
+• Business Logic Implementation (120 hours @ $150).....$18,000
+• Third-Party Integrations (4 systems @ $3,000)........$12,000
+• Data Migration Scripts (3 sources).....................$7,000
+• Background Job Processing System (1 unit)..............$4,000
+• API Documentation (Complete)..........................$3,000
+                                          Subtotal: $68,000
+
+═══════════════════════════════════════════════════════════════════
+
+PHASE 5: TESTING & QA
+───────────────────────────────────────────────────────────────────
+• Test Plan & Test Cases (1 complete set)...............$3,000
+• Manual Testing (80 hours @ $80).......................$6,400
+• Automated Test Suite (1 complete).....................$8,000
+• Performance Testing (1 complete)......................$4,000
+• Security Audit & Penetration Testing (1 complete).....$6,000
+• Bug Fixes & Refinements (estimated)....................$8,000
+• User Acceptance Testing Support (40 hours)............$3,200
+                                          Subtotal: $38,600
+
+═══════════════════════════════════════════════════════════════════
+
+PHASE 6: DEPLOYMENT & TRAINING
+───────────────────────────────────────────────────────────────────
+• Server Setup & Configuration (1 environment)..........$4,000
+• Production Deployment (1 release).....................$3,000
+• User Training Materials (1 complete set)..............$4,000
+• Administrator Training (2 sessions @ $1,500)..........$3,000
+• End-User Training (4 sessions @ $1,200)...............$4,800
+• Video Tutorials (8 videos @ $500).....................$4,000
+• Knowledge Base Setup (1 complete).....................$2,500
+                                          Subtotal: $25,300
+
+═══════════════════════════════════════════════════════════════════
+
+PHASE 7: POST-LAUNCH SUPPORT (6 MONTHS)
+───────────────────────────────────────────────────────────────────
+• Bug Fixes & Minor Updates (included)..................$12,000
+• Monthly Maintenance (6 months @ $1,500)...............$9,000
+• Performance Monitoring Setup (1 unit).................$2,000
+• Monthly Progress Reports (6 reports @ $300)...........$1,800
+                                          Subtotal: $24,800
+
+═══════════════════════════════════════════════════════════════════
+
+ADDITIONAL DELIVERABLES
+───────────────────────────────────────────────────────────────────
+• Source Code (Complete repositories)...................Included
+• Database Backup & Recovery Scripts (1 set)............Included
+• System Documentation (Technical + User manuals).......Included
+• Deployment Guide (1 document).........................Included
+• System Architecture Diagrams (Complete set)...........Included
+
+═══════════════════════════════════════════════════════════════════
+
+TOTAL PROJECT COST BREAKDOWN
+───────────────────────────────────────────────────────────────────
+Phase 1: Discovery & Planning.........................$19,000
+Phase 2: UI/UX Design.................................$25,250
+Phase 3: Frontend Development........................$109,000
+Phase 4: Backend Development..........................$68,000
+Phase 5: Testing & QA.................................$38,600
+Phase 6: Deployment & Training........................$25,300
+Phase 7: Post-Launch Support (6 months)...............$24,800
+───────────────────────────────────────────────────────────────────
+                                    TOTAL: $309,950
+
+Early Payment Discount (-5% if paid upfront)..........(-$15,498)
+                           DISCOUNTED TOTAL: $294,452
+
+═══════════════════════════════════════════════════════════════════
+
+PAYMENT SCHEDULE
+───────────────────────────────────────────────────────────────────
+• Initial Deposit (25%)................................$77,488
+• Phase 2 Completion (20%).............................$61,990
+• Phase 4 Completion (25%).............................$77,488
+• Final Delivery (20%).................................$61,990
+• Post-Launch (10% - distributed over 6 months)........$15,496
+
+═══════════════════════════════════════════════════════════════════
+
+PROJECT TIMELINE: 9 months (including 6 months support)
+COMPLEXITY: Complex (Enterprise ERP System)
+LICENSING: Exclusive License (Full ownership transfer)
+USAGE RIGHTS: Commercial Use (Unlimited internal use + modifications)
+
+DELIVERABLE SUMMARY:
+• Total Screens/Pages: 25 designed + developed
+• API Endpoints: 50 complete with documentation
+• Modules: 8 complete functional modules
+• Training Materials: 8 video tutorials + knowledge base
+• Documentation: Technical + User + Deployment guides
+• Source Code: Complete repositories with version control
+• Testing: Comprehensive test suite with 80%+ coverage
+
+Notes:
+- All prices in USD
+- Includes unlimited revisions during each phase
+- All source files and intellectual property transferred
+- Hosting and infrastructure costs not included
+- Third-party software licenses billed separately
