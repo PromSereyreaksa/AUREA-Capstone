@@ -10,7 +10,7 @@ export const CalloutBanner = () => {
           viewport={{ once: true }}
           transition={{ duration: 0.8 }}
           className="bg-white rounded-4xl overflow-hidden brutal-shadow-lg"
-        >
+        > 
           {/* Header */}
           <div className="bg-white py-4 text-center">
             <h2 className="text-4xl font-bold">
