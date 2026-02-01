@@ -4,7 +4,22 @@ import { IPricingProfileRepository } from '../../domain/repositories/IPricingPro
 import { ProjectPrice } from '../../domain/entities/ProjectPrice';
 import { ProjectDeliverable } from '../../domain/entities/ProjectDeliverable';
 import { GeminiService } from '../../infrastructure/services/GeminiService';
+import { ProjectValidator } from '../../shared/validators';
 import { CalculateProjectRate } from './CalculateProjectRate';
+
+interface ExtractOptions {
+  autoSummarize?: boolean;        // Auto-condense large extractions (default: true)
+  auto_calculate_rate?: boolean;  // Calculate pricing if user has profile
+  client_type?: string;           // For rate calculation
+  client_region?: string;         // For rate calculation
+}
+
+interface ExtractResult {
+  project: ProjectPrice;
+  deliverables: ProjectDeliverable[];
+  metadata?: { model: string; summarized?: boolean };
+  calculated_rate?: number;
+}
 
 export class ExtractProjectFromPdf {
   private calculateProjectRateUseCase?: CalculateProjectRate;
@@ -27,51 +42,72 @@ export class ExtractProjectFromPdf {
   async execute(
     pdfBuffer: Buffer,
     userId: number,
-    options?: {
-      auto_calculate_rate?: boolean;
-      client_type?: string;
-      client_region?: string;
-    }
-  ): Promise<{ project: ProjectPrice; deliverables: ProjectDeliverable[]; calculated_rate?: number }> {
-    // Use Gemini AI to extract and analyze PDF content directly
-    const { projectDetails, deliverables } = await this.geminiService.extractFromPdf(pdfBuffer);
+    options: ExtractOptions = {}
+  ): Promise<ExtractResult> {
+    // Use Gemini AI to extract and analyze PDF content
+    // If autoSummarize is true (default), automatically condense large extractions
+    const shouldAutoSummarize = options.autoSummarize !== false;
 
-    // Create project price entity with extracted data
+    const { projectDetails, deliverables, metadata } = shouldAutoSummarize
+      ? await this.geminiService.extractFromPdfWithSummarization(pdfBuffer)
+      : await this.geminiService.extractFromPdf(pdfBuffer);
+
+    // Sanitize extracted data to prevent DB field overflow errors
+    const sanitizedData = ProjectValidator.sanitizeProjectData({
+      project_name: projectDetails.project_name,
+      title: projectDetails.title,
+      description: projectDetails.description,
+      duration: projectDetails.duration,
+      difficulty: projectDetails.difficulty,
+      licensing: projectDetails.licensing,
+      usage_rights: projectDetails.usage_rights,
+      result: projectDetails.result,
+      deliverables: deliverables
+    });
+
+    // Create project price entity with sanitized data
     const projectPrice = new ProjectPrice(
-      0, 
+      0,
       userId,
-      projectDetails.project_name,
-      projectDetails.title,
-      projectDetails.description,
-      projectDetails.duration,
-      projectDetails.difficulty,
-      projectDetails.licensing,
-      projectDetails.usage_rights,
-      projectDetails.result
+      sanitizedData.project_name,
+      sanitizedData.title,
+      sanitizedData.description,
+      sanitizedData.duration,
+      sanitizedData.difficulty,
+      sanitizedData.licensing,
+      sanitizedData.usage_rights,
+      sanitizedData.result
     );
 
     // Save the project first to get the project_id
     const savedProject = await this.projectPriceRepo.create(projectPrice);
 
-    // Create and save project deliverables
+    // Create and save project deliverables with sanitized data
     const savedDeliverables: ProjectDeliverable[] = [];
-    for (const deliverable of deliverables) {
+    for (const deliverable of sanitizedData.deliverables) {
       const projectDeliverable = new ProjectDeliverable(
-        0, 
+        0,
         savedProject.project_id,
         deliverable.deliverable_type,
-        deliverable.quantity
+        deliverable.quantity,
+        deliverable.items || []
       );
       const saved = await this.projectDeliverableRepo.create(projectDeliverable);
       savedDeliverables.push(saved);
     }
 
+    // Build result
+    const result: ExtractResult = {
+      project: savedProject,
+      deliverables: savedDeliverables,
+      metadata
+    };
+
     // OPTIONAL: Auto-calculate project rate if user has pricing profile
-    let calculatedRate: number | undefined;
-    if (options?.auto_calculate_rate && this.calculateProjectRateUseCase) {
+    if (options.auto_calculate_rate && this.calculateProjectRateUseCase) {
       try {
-        const clientType = options.client_type || projectDetails.client_type || 'sme';
-        const clientRegion = options.client_region || projectDetails.client_region || 'cambodia';
+        const clientType = options.client_type || (projectDetails as any).client_type || 'sme';
+        const clientRegion = options.client_region || (projectDetails as any).client_region || 'cambodia';
 
         const rateResult = await this.calculateProjectRateUseCase.execute({
           user_id: userId,
@@ -80,17 +116,13 @@ export class ExtractProjectFromPdf {
           client_region: clientRegion
         });
 
-        calculatedRate = rateResult.final_hourly_rate;
+        result.calculated_rate = rateResult.final_hourly_rate;
       } catch (error: any) {
         // Expected if user hasn't completed pricing onboarding
         console.log('[ExtractProject] Auto rate calculation skipped:', error.message);
       }
     }
 
-    return {
-      project: savedProject,
-      deliverables: savedDeliverables,
-      calculated_rate: calculatedRate
-    };
+    return result;
   }
 }

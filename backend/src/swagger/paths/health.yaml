@@ -1,5 +1,5 @@
 paths:
-  /health:
+  /api/v1/health:
     get:
       summary: Health check
       description: |

@@ -34,7 +34,8 @@ export class GeminiService {
     // Configure API keys with their models
     this.apiConfigs = rawApiKeys.map((apiKey) => ({
       apiKey,
-      models: ["gemini-2.5-flash-lite", "gemini-3-flash-preview"],
+      models: ["gemini-3-flash-preview", "gemini-2.5-flash"],
+      // models:["gemini-2.5-flash"],
     }));
 
     // Initialize clients for each API key
@@ -126,6 +127,7 @@ export class GeminiService {
   async extractFromPdf(pdfBuffer: Buffer): Promise<{
     projectDetails: any;
     deliverables: any[];
+    metadata?: { model: string };
   }> {
     if (this.apiConfigs.length === 0) {
       throw new ExternalServiceError("Gemini", "No API keys configured");
@@ -191,11 +193,75 @@ Return ONLY a valid JSON object (no markdown, no explanations) with this exact s
   },
   "deliverables": [
     {
-      "deliverable_type": string (REQUIRED: Specific deliverable name like "Logo Design", "Mobile App", "Marketing Brochure", "API Documentation"),
-      "quantity": number (REQUIRED: Positive integer. Default to 1 if quantity not specified but deliverable exists)
+      "deliverable_type": string (REQUIRED: Category/group name like "Brand Identity System", "Website Development", "Marketing Collateral"),
+      "quantity": number (REQUIRED: How many of this deliverable category. Usually 1 for a grouped deliverable),
+      "items": string[] (REQUIRED: List of specific sub-items/components included in this deliverable. E.g., ["Primary logo", "Secondary logo", "Color palette", "Typography system"])
     }
   ]
 }
+
+# DELIVERABLE GROUPING STRATEGY (CRITICAL)
+Group related items into DELIVERABLE CATEGORIES, not individual items:
+
+## CORRECT Approach (Group by Category):
+- "Brand Identity System" (quantity: 1) with items: ["Primary logo", "Secondary logo", "Logo icon/mark", "Color palette", "Typography system", "Visual elements"]
+- "Brand Guidelines" (quantity: 1) with items: ["Logo usage rules", "Color usage guidelines", "Typography hierarchy", "Brand tone & personality", "Application examples"]
+- "Marketing Collateral" (quantity: 1) with items: ["Business card design", "Email signature", "Letterhead"]
+- "Social Media Kit" (quantity: 1) with items: ["Reusable post templates", "Editable story templates", "Profile images"]
+- "Final Asset Delivery" (quantity: 1) with items: ["Source files (AI/Figma)", "Exported assets (PNG/SVG/PDF)", "Guidelines document"]
+
+## WRONG Approach (Individual Items):
+❌ Don't create separate deliverables for each item:
+- "Primary logo" (quantity: 1)
+- "Secondary logo" (quantity: 1)  
+- "Color palette" (quantity: 1)
+
+## AVOID THIN DELIVERABLES (IMPORTANT)
+❌ Don't create deliverables with only 1-2 items. Either:
+- Merge small deliverables into related categories
+- Expand with implied/standard items that professionals would include
+
+Example: "Favicon" alone is too thin → merge into "Brand Identity System" or expand "Digital Assets" to include: ["Favicon", "App icon", "Social preview image (OG image)"]
+
+## Grouping Rules:
+1. **Visual Identity items** → group under "Brand Identity"
+   - Logos (primary, secondary, icon/mark), colors, typography, patterns, visual elements
+   - Include favicon, app icons here if no separate digital assets category
+2. **Guidelines/Documentation** → group under "/* The above code is a comment in TypeScript, indicating
+that it is related to Brand Guidelines. It also
+includes a question asking what the code is doing. */
+Brand Guidelines" or "Style Guide"
+   - Logo usage rules (sizing, spacing, do's & don'ts)
+   - Color usage guidelines
+   - Typography hierarchy (headings, body, captions)
+   - Brand tone & personality
+   - Application examples (social, print, digital previews)
+   - Even if client doesn't explicitly list all these, INCLUDE them - they're implied for any brand guidelines
+3. **Marketing materials** → group under "Marketing Collateral"
+   - Business cards, letterhead, email signatures, presentations
+4. **Social media** → group under "Social Media Kit" or "Social Media Assets"
+   - Use "Reusable" or "Editable" prefix for templates (shows value)
+   - Post templates, story templates, profile images, cover images
+5. **Digital assets** → group under "Digital Assets" or "Web Assets"
+   - Only create if 3+ items; otherwise merge into Brand Identity
+   - Favicon, app icons, OG images, email headers
+6. **Final files/exports** → ALWAYS include "Final Asset Delivery" deliverable
+   - Source files (AI, PSD, Figma, etc.)
+   - Exported assets (PNG, JPG, SVG, PDF)
+   - Guidelines/documentation PDF
+   - This protects freelancers and sets clear expectations
+
+## Quantity Rules for Grouped Deliverables:
+- If the category appears once → quantity: 1
+- If explicitly multiple packages (e.g., "3 brand identity packages") → quantity: 3
+- The items array captures WHAT is included, not HOW MANY
+
+## SMART INFERENCE (Be a Helpful AI, Not Just Literal)
+When client implies something but doesn't explicitly list it, INCLUDE it:
+- "so we don't mess it up later" → implies they need Brand Guidelines with usage rules
+- "something we can reuse easily" → templates should be labeled "Reusable" or "Editable"
+- "clean and professional" → implies they want organized final file delivery
+- Any branding project → ALWAYS include "Final Asset Delivery" even if not mentioned
 
 # EXTRACTION RULES
 
@@ -211,6 +277,22 @@ Return ONLY a valid JSON object (no markdown, no explanations) with this exact s
 - "1 year" → 365 (days)
 - "Q1 delivery" → estimate based on quarter length (90 days)
 - If range given ("4-6 weeks") → use average (35 days)
+
+## Duration Inference for Vague Timelines (IMPORTANT)
+When timeline is vague, INFER a reasonable duration based on context:
+- "ASAP" or "urgent" → 7 days (minimum viable timeline)
+- "soon" or "quickly" → 14 days
+- "flexible" or "when ready" → 30 days (standard project)
+- "a couple weeks" → 14 days
+- "a few weeks" → 21 days
+- "a couple months" → 60 days
+- "depends on scope" → infer from deliverable count:
+  * 1-2 deliverables → 14 days
+  * 3-5 deliverables → 30 days
+  * 6-10 deliverables → 60 days
+  * 10+ deliverables → 90 days
+- NO explicit timeline but has deliverables → estimate based on complexity and deliverable count
+- Only use null if absolutely no timeline hints AND cannot infer from scope
 
 ## Difficulty Inference
 - "Easy": Simple tasks, 1-2 deliverables, < 2 weeks, junior-level
@@ -229,12 +311,74 @@ Return ONLY a valid JSON object (no markdown, no explanations) with this exact s
   * Content: "Blog Posts", "Marketing Copy", "Documentation", "Video Scripts"
   * Marketing: "Social Media Posts", "Ad Campaigns", "Email Templates", "Presentations"
 
+## BUDGET & ITEMIZED LIST EXTRACTION (CRITICAL)
+When the document contains budget tables, cost breakdowns, or itemized lists:
+
+1. **Extract EVERY line item as a deliverable** - each row in a budget table is a deliverable
+2. **Look for quantity indicators:**
+   - "5x screens" → quantity: 5
+   - "Set of 10 icons" → quantity: 10
+   - "8 API endpoints" → quantity: 8
+   - "Phase 1, Phase 2, Phase 3" → 3 separate deliverables OR one with quantity: 3
+   - "Module A, Module B, Module C" → count each module
+
+3. **Budget table patterns to extract:**
+   - Each "Description" or "Item" column entry = 1 deliverable
+   - "Qty" or "Quantity" column = quantity value
+   - Sum up sub-items under each category
+
+4. **Phase-based documents:**
+   - Count deliverables in EACH phase separately
+   - Phase 1 deliverables + Phase 2 deliverables + ... = total
+   - Example: "Phase 1: 5 screens, Phase 2: 8 screens" → [{"deliverable_type": "Phase 1 Screens", "quantity": 5}, {"deliverable_type": "Phase 2 Screens", "quantity": 8}]
+
+5. **Training & Documentation:**
+   - "Training materials" = count individual items (manuals, videos, guides)
+   - "User guides (3)" → quantity: 3
+   - "Video tutorials x5" → quantity: 5
+
+6. **Module/Component counting:**
+   - "Inventory Module" = 1 deliverable
+   - "Reporting Dashboard" = 1 deliverable
+   - "Admin Panel" = 1 deliverable
+   - Count EACH named module/component separately
+
+7. **BE EXHAUSTIVE with budget documents:**
+   - When in doubt, INCLUDE the item as a deliverable
+   - Better to over-extract than under-extract for budget docs
+   - If a document has 50+ line items, expect 30-50 deliverables
+
+## CRITICAL: Handling Vague/Incomplete Documents
+- DO NOT invent deliverables that aren't explicitly mentioned
+- If the document only has vague descriptions like "something for our company" or "similar to competitor", return empty deliverables array []
+- Generic phrases like "design", "development", "solution" are NOT deliverables unless they specify WHAT is being designed/developed
+- If you cannot identify specific, concrete deliverables, return []
+- Better to return fewer accurate deliverables than many guessed ones
+
 ## Handling Edge Cases
 - Missing project name: Use "Untitled Project" or derive from document metadata
 - No deliverables found: Return empty array []
-- Ambiguous duration: Use null rather than guessing
+- Ambiguous duration: Infer from scope/deliverables rather than using null (see Duration Inference section)
 - Multiple license types: Concatenate with " / " separator
 - Conflicting information: Prefer explicit statements over implied context
+
+## Default Values (when not explicitly mentioned)
+- licensing: If no license mentioned AND project is clearly commercial with defined scope → "Standard License". For vague/undefined projects → null
+- usage_rights: If no usage rights mentioned, infer from context:
+  * Business/commercial project with clear scope → "Commercial Use"
+  * Personal project → "Personal Use"
+  * Client work → "Client Ownership"
+  * Vague/undefined projects → null
+- difficulty: Try to infer from scope, but use null if document is too vague to determine
+- duration: Try to infer from context, but use null if no timeline hints exist
+
+## IMPORTANT: Conservative Extraction for Vague Documents
+If a document lacks specific details, prefer returning null/empty over guessing:
+- No clear project name → use document title or "Untitled Project"
+- No specific deliverables listed → return empty array []
+- No timeline mentioned → null (don't guess)
+- Vague scope description → null for difficulty
+- No licensing terms → null
 
 ## Data Quality
 - All string values must be trimmed (no leading/trailing whitespace)
@@ -242,6 +386,11 @@ Return ONLY a valid JSON object (no markdown, no explanations) with this exact s
 - Use null (not empty strings) for missing optional fields
 - Ensure JSON is valid and parseable
 - No HTML tags or markdown formatting in text fields
+- IMPORTANT: deliverable_type MUST be 100 characters or less - use concise names
+  * Bad: "Complete Brand Identity Package Including Logo, Business Cards, and Letterhead Design"
+  * Good: "Brand Identity Package"
+  * Bad: "Custom E-commerce Website with Shopping Cart and Payment Integration"
+  * Good: "E-commerce Website"
 
 # EXAMPLES OF HANDLING VARIOUS FORMATS
 
@@ -253,9 +402,15 @@ Example 2 - Informal Brief:
 Input: "Need a simple logo + business card design. Quick turnaround - about a week"
 Output: duration: 7, difficulty: "Easy", deliverables: [{"deliverable_type": "Logo Design", "quantity": 1}, {"deliverable_type": "Business Card Design", "quantity": 1}]
 
-Example 3 - Incomplete Data:
-Input: "Brand refresh project. Modern, minimalist aesthetic."
-Output: duration: null, difficulty: null, description: "Brand refresh project with modern, minimalist aesthetic", deliverables: []
+Example 3 - Incomplete/Vague Data (BE CONSERVATIVE):
+Input: "We need something for our company. It should be modern and professional. Similar to what our competitor has but better."
+Output: project_name: "Company Project", title: "Project Proposal", duration: null, difficulty: null, licensing: null, usage_rights: null, deliverables: []
+Note: No specific deliverables mentioned, so return empty array. Don't invent "Website" or "Design" from vague descriptions.
+
+Example 4 - Partially Defined:
+Input: "Brand refresh project. Modern, minimalist aesthetic. Need new logo and business cards."
+Output: duration: null, difficulty: "Easy", deliverables: [{"deliverable_type": "Logo Design", "quantity": 1}, {"deliverable_type": "Business Cards", "quantity": 1}]
+Note: Only extract explicitly mentioned deliverables (logo, business cards), not inferred ones.
 
 Now analyze the provided PDF document and extract the project information following these rules exactly.`;
 
@@ -309,16 +464,22 @@ Now analyze the provided PDF document and extract the project information follow
               .map((item: any) => ({
                 deliverable_type: item.deliverable_type || "Other",
                 quantity: parseInt(item.quantity) || 1,
+                items: Array.isArray(item.items) ? item.items.filter((i: any) => i && typeof i === 'string') : []
               }))
               .filter((item: any) => item.deliverable_type && item.quantity > 0)
           : [
               {
                 deliverable_type: "Project Deliverable",
                 quantity: 1,
+                items: []
               },
             ];
 
-        return { projectDetails, deliverables };
+        return { 
+          projectDetails, 
+          deliverables,
+          metadata: { model }
+        };
       } catch (error: any) {
         lastError = error;
 
@@ -748,5 +909,171 @@ Now validate the user's answer and return the JSON response.`;
     // If all attempts failed, throw error to trigger fallback
     const safeMessage = handleAndLogError(lastError, 'Answer validation', '[GeminiService]');
     throw new ExternalServiceError("Gemini", safeMessage);
+  }
+
+  /**
+   * Summarize extracted data when it's too large for database constraints.
+   * Use this when:
+   * - Too many deliverables (consolidate similar items)
+   * - Field values exceed character limits
+   * - Need to condense complex extractions
+   */
+  async summarizeExtraction(data: {
+    projectDetails: any;
+    deliverables: any[];
+  }): Promise<{
+    projectDetails: any;
+    deliverables: any[];
+    metadata?: { model: string; summarized: boolean };
+  }> {
+    const { apiKey, model } = this.getCurrentConfig();
+    const client = this.clients.get(apiKey);
+
+    if (!client) {
+      throw new ExternalServiceError("Gemini", "Failed to initialize client");
+    }
+
+    const summarizePrompt = `# TASK: Summarize and Condense Project Data
+
+You are given extracted project data that may be too large or detailed for database storage.
+Your job is to SUMMARIZE and CONDENSE this data while preserving the essential information.
+
+# INPUT DATA
+${JSON.stringify(data, null, 2)}
+
+# CONSTRAINTS (MUST FOLLOW)
+- project_name: MAX 100 characters
+- title: MAX 100 characters  
+- description: MAX 500 characters
+- licensing: MAX 100 characters
+- usage_rights: MAX 100 characters
+- result: MAX 255 characters
+- deliverable_type: MAX 100 characters each
+- items: MAX 100 characters each item
+- deliverables array: MAX 25 categories (consolidate if more)
+
+# SUMMARIZATION RULES
+
+## CRITICAL: Preserve Sub-Items in "items" Array
+When consolidating deliverables, ALWAYS preserve the detailed sub-items:
+- The "items" array stores WHAT is included in each deliverable category
+- When merging similar deliverables, MERGE their items arrays
+- Never lose track of specific components/sub-items
+
+## For Long Text Fields
+- Truncate intelligently at sentence/phrase boundaries
+- Keep the most important information at the beginning
+- Remove redundant words and filler content
+
+## For Too Many Deliverables (>25 categories)
+Consolidate into grouped categories WITH their items:
+
+Example Input:
+- "Logo Design" (qty: 1)
+- "Color Palette" (qty: 1)
+- "Typography" (qty: 1)
+- "Business Card" (qty: 1)
+
+Example Output:
+- "Brand Identity System" (qty: 1, items: ["Logo Design", "Color Palette", "Typography"])
+- "Marketing Collateral" (qty: 1, items: ["Business Card"])
+
+## Consolidation Priority
+1. Group visual identity items → "Brand Identity System"
+2. Group marketing materials → "Marketing Collateral"  
+3. Group digital/web assets → "Digital Assets"
+4. Group documentation → "Documentation Package"
+5. Keep unique items separate if they don't fit a category
+
+# OUTPUT FORMAT
+Return ONLY valid JSON (no markdown):
+{
+  "projectDetails": {
+    "project_name": string (max 100 chars),
+    "title": string (max 100 chars),
+    "description": string | null (max 500 chars),
+    "duration": number | null,
+    "difficulty": "Easy" | "Medium" | "Hard" | "Complex" | null,
+    "licensing": string | null (max 100 chars),
+    "usage_rights": string | null (max 100 chars),
+    "result": string | null (max 255 chars)
+  },
+  "deliverables": [
+    {"deliverable_type": string (max 100 chars), "quantity": number, "items": string[] (sub-components included)}
+  ],
+  "summary": {
+    "original_deliverable_count": number,
+    "condensed_deliverable_count": number,
+    "consolidation_notes": string
+  }
+}`;
+
+    try {
+      const response = await client.models.generateContent({
+        model,
+        contents: [{ text: summarizePrompt }],
+      });
+
+      let responseText =
+        response.text ||
+        response.candidates?.[0]?.content?.parts?.[0]?.text ||
+        '{}';
+
+      responseText = responseText
+        .replace(/^```json\s*\n?/, "")
+        .replace(/\n?```\s*$/, "")
+        .trim();
+
+      const summarized = JSON.parse(responseText);
+
+      console.log(`Summarization: ${data.deliverables.length} → ${summarized.deliverables?.length || 0} deliverables`);
+      if (summarized.summary?.consolidation_notes) {
+        console.log(`Notes: ${summarized.summary.consolidation_notes}`);
+      }
+
+      return {
+        projectDetails: summarized.projectDetails || data.projectDetails,
+        deliverables: summarized.deliverables || data.deliverables,
+        metadata: { model, summarized: true }
+      };
+    } catch (error: any) {
+      console.warn(`Summarization failed: ${error.message}. Returning original data.`);
+      return {
+        projectDetails: data.projectDetails,
+        deliverables: data.deliverables,
+        metadata: { model, summarized: false }
+      };
+    }
+  }
+
+  /**
+   * Extract from PDF with automatic summarization if needed.
+   * Automatically triggers summarization when:
+   * - More than 30 deliverables extracted
+   * - Any field exceeds database limits
+   */
+  async extractFromPdfWithSummarization(pdfBuffer: Buffer): Promise<{
+    projectDetails: any;
+    deliverables: any[];
+    metadata?: { model: string; summarized?: boolean };
+  }> {
+    const result = await this.extractFromPdf(pdfBuffer);
+    
+    // Check if summarization is needed
+    const needsSummarization = 
+      result.deliverables.length > 30 ||
+      (result.projectDetails.project_name?.length || 0) > 100 ||
+      (result.projectDetails.title?.length || 0) > 100 ||
+      (result.projectDetails.description?.length || 0) > 500 ||
+      (result.projectDetails.licensing?.length || 0) > 100 ||
+      (result.projectDetails.usage_rights?.length || 0) > 100 ||
+      result.deliverables.some((d: any) => (d.deliverable_type?.length || 0) > 100);
+
+    if (needsSummarization) {
+      console.log(`Large extraction detected (${result.deliverables.length} deliverables). Summarizing...`);
+      return this.summarizeExtraction(result);
+    }
+
+    return result;
   }
 }

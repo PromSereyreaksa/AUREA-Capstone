@@ -1,5 +1,5 @@
 paths:
-  /pdf/test-gemini:
+  /api/v1/pdf/test-gemini:
     get:
       summary: Test Gemini AI connection
       description: |
@@ -27,7 +27,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 
-  /pdf/extract:
+  /api/v1/pdf/extract:
     post:
       summary: Extract project details from PDF
       description: |
@@ -122,7 +122,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 
-  /pdf/create-project:
+  /api/v1/pdf/create-project:
     post:
       summary: Create project manually
       description: |

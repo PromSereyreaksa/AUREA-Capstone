@@ -1,5 +1,5 @@
 paths:
-  /pdf/projects/{userId}:
+  /api/v1/pdf/projects/{userId}:
     get:
       summary: Get all projects for a user
       description: |
@@ -76,7 +76,7 @@ paths:
                     type: array
                     example: []
 
-  /pdf/projects/{userId}/{projectId}:
+  /api/v1/pdf/projects/{userId}/{projectId}:
     get:
       summary: Get single project with deliverables
       description: |
