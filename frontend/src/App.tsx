@@ -10,12 +10,11 @@ import {
   SignInPage,
   VerifyEmailPage,
   ForgotPasswordPage,
+  AuthCallbackPage,
 } from './features/auth';
 import { 
   DesignerProfilePage
 } from './features/profile';
-import './App.css';
-} from "./features/auth";
 
 import {
   Header,
@@ -42,6 +41,7 @@ function App() {
           <Route path="/signin" element={<SignInPage />} />
           <Route path="/verify-email" element={<VerifyEmailPage />} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="/auth/callback" element={<AuthCallbackPage />} />
 
           {/* Designer profile route */}
           <Route path="/designer-profile/:designerId" element={<DesignerProfilePage />} />

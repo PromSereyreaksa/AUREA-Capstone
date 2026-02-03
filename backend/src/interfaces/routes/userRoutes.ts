@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { signUpUserController, verifyOTPController, resendOTPController, getCurrentUserController } from '../controllers/UserController';
+import { signUpUserController, verifyOTPController, resendOTPController, getCurrentUserController, googleAuthController } from '../controllers/UserController';
 import { authMiddleware } from '../../shared/middleware/authMiddleware';
 
 const router = Router();
@@ -7,6 +7,9 @@ const router = Router();
 // Public routes (no auth required)
 // POST /api/users/signup - Create a new user (sign up)
 router.post('/signup', signUpUserController);
+
+// POST /api/users/google - Authenticate with Google OAuth
+router.post('/google', googleAuthController);
 
 // POST /api/users/verify-otp - Verify email with OTP (returns JWT token)
 router.post('/verify-otp', verifyOTPController);
