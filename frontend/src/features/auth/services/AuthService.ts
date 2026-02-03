@@ -1,22 +1,28 @@
 import type { IAuthService } from './IAuthService';
 import type { User } from '../../../shared/types';
 import { httpClient } from '../../../shared/api/client';
+import { supabase } from '../../../shared/api/supabaseClient';
+
+// Backend API response wrapper
+interface ApiResponse<T> {
+  success: boolean;
+  message?: string;
+  data: T;
+}
 
 export class AuthService implements IAuthService {
   async signUp(email: string, password: string): Promise<User> {
     try {
-      const response = await httpClient.post<{ user: User; token: string }>('/users/signup', {
+      const response = await httpClient.post<ApiResponse<{ user: User; otp?: string }>>('/users/signup', {
         email,
         password,
         role: 'designer',
       });
       
-      // Store token in localStorage
-      if (response.token) {
-        localStorage.setItem('auth_token', response.token);
-      }
+      // Store email for OTP verification
+      localStorage.setItem('pending_verification_email', email);
       
-      return response.user;
+      return response.data.user;
     } catch (error: any) {
       throw new Error(error.message || 'Sign up failed');
     }
@@ -24,17 +30,17 @@ export class AuthService implements IAuthService {
 
   async signIn(email: string, password: string): Promise<User> {
     try {
-      const response = await httpClient.post<{ user: User; token: string }>('/users/signin', {
+      const response = await httpClient.post<ApiResponse<{ user: User; token: string }>>('/users/signin', {
         email,
         password,
       });
       
       // Store token in localStorage
-      if (response.token) {
-        localStorage.setItem('auth_token', response.token);
+      if (response.data.token) {
+        localStorage.setItem('auth_token', response.data.token);
       }
       
-      return response.user;
+      return response.data.user;
     } catch (error: any) {
       throw new Error(error.message || 'Sign in failed');
     }
@@ -53,9 +59,21 @@ export class AuthService implements IAuthService {
   }
 
   async signInWithGoogle(): Promise<User> {
-    // Redirect to backend OAuth endpoint
-    window.location.href = `${httpClient.baseUrl}/auth/google`;
-    
+    // Use Supabase OAuth to sign in with Google
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+        queryParams: {
+          prompt: 'select_account',  // Force Google to show account picker
+        },
+      },
+    });
+
+    if (error) {
+      throw new Error(error.message || 'Failed to initiate Google sign in');
+    }
+
     // Return placeholder (actual user will be set after redirect)
     return {
       user_id: 0,
@@ -117,40 +135,92 @@ export class AuthService implements IAuthService {
 
   async verifyEmail(code: string): Promise<void> {
     try {
-      await httpClient.post('/users/verify-email', { code });
+      // Get the email stored during signup
+      const email = localStorage.getItem('pending_verification_email');
+      if (!email) {
+        throw new Error('No email found for verification. Please sign up again.');
+      }
+      
+      const response = await httpClient.post<ApiResponse<{ user: User; token: string }>>('/users/verify-otp', { 
+        email, 
+        otp: code 
+      });
+      
+      // Store the token after successful verification
+      if (response.data?.token) {
+        localStorage.setItem('auth_token', response.data.token);
+      }
+      
+      // Clear the pending email
+      localStorage.removeItem('pending_verification_email');
     } catch (error: any) {
       throw new Error(error.message || 'Email verification failed');
+    }
+  }
+
+  async resendOtp(): Promise<void> {
+    try {
+      const email = localStorage.getItem('pending_verification_email');
+      if (!email) {
+        throw new Error('No email found. Please sign up again.');
+      }
+      
+      await httpClient.post<ApiResponse<{ message: string }>>('/users/resend-otp', { email });
+    } catch (error: any) {
+      throw new Error(error.message || 'Failed to resend OTP');
     }
   }
 
   async getCurrentUser(): Promise<User | null> {
     const token = localStorage.getItem('auth_token');
     
-    if (!token) return null;
+    // First check if there's a Supabase session (for Google OAuth users)
+    const { data: { session } } = await supabase.auth.getSession();
 
-    // Check if this is a Google user
-    if (session.user.app_metadata?.provider === 'google') {
+    // If we have a Supabase session (Google user)
+    if (session?.user) {
       try {
         // Try to get user from backend using stored token
-        const token = localStorage.getItem('auth_token');
         if (token) {
           const userData = await httpClient.get<{ data: { user: User } }>('/users/me', {
             headers: { Authorization: `Bearer ${token}` }
           });
           return userData.data?.user || null;
         }
+        
+        // Sync with backend if no token yet
+        const response = await httpClient.post<{ data: { user: User; token: string } }>('/users/google', {
+          google_id: session.user.id,
+          email: session.user.email,
+          name: session.user.user_metadata?.full_name || session.user.user_metadata?.name,
+          avatar_url: session.user.user_metadata?.avatar_url,
+          role: 'designer',
+        });
+
+        if (response.data?.token) {
+          localStorage.setItem('auth_token', response.data.token);
+        }
+
+        return response.data?.user || {
+          user_id: 0,
+          email: session.user.email || '',
+          role: 'designer',
+          email_verified: true,
+        };
       } catch (err) {
         console.error('Error fetching Google user from backend:', err);
+        // Fallback: return Supabase user data
+        return {
+          user_id: 0,
+          email: session.user.email || '',
+          role: 'designer',
+          email_verified: true,
+        };
       }
-      
-      // Fallback: return Supabase user data
-      return {
-        user_id: 0,
-        email: session.user.email || '',
-        role: 'designer',
-        email_verified: true,
-      };
     }
+
+    // No token and no session
+    if (!token) return null;
 
     try {
       const user = await httpClient.get<User>('/users/me');

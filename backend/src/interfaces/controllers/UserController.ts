@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { UserRepository } from '../../infrastructure/repositories/UserRepository';
 import { SignUpUser } from '../../application/use_cases/SignUpUser';
+import { SignInUser } from '../../application/use_cases/SignInUser';
 import { SignUpWithGoogle } from '../../application/use_cases/SignUpWithGoogle';
 import { VerifyOTP } from '../../application/use_cases/VerifyOTP';
 import { ResendOTP } from '../../application/use_cases/ResendOTP';
@@ -12,6 +13,7 @@ import { asyncHandler } from '../../shared/middleware';
 const userRepo = new UserRepository();
 const emailService = new EmailService();
 const signUpUser = new SignUpUser(userRepo, emailService);
+const signInUser = new SignInUser(userRepo);
 const signUpWithGoogle = new SignUpWithGoogle(userRepo);
 const verifyOTP = new VerifyOTP(userRepo);
 const resendOTP = new ResendOTP(userRepo, emailService);
@@ -37,6 +39,21 @@ export const signUpUserController = asyncHandler(async (req: Request, res: Respo
     
     otp: user.verification_otp
   }, 'User registered successfully. Please verify your email.');
+});
+
+export const signInUserController = asyncHandler(async (req: Request, res: Response) => {
+  const { email, password } = req.body;
+
+  // Validate inputs
+  UserValidator.validateEmail(email);
+  UserValidator.validatePassword(password);
+
+  const result = await signInUser.execute(email, password);
+
+  return ResponseHelper.success(res, {
+    user: result.user,
+    token: result.token
+  }, 'Sign in successful');
 });
 
 export const verifyOTPController = asyncHandler(async (req: Request, res: Response) => {
