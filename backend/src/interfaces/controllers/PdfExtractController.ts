@@ -7,6 +7,7 @@ import { CreateProjectManually } from '../../application/use_cases/CreateProject
 import { ProjectValidator, UserValidator, PdfValidator } from '../../shared/validators';
 import { ResponseHelper } from '../../shared/utils/responseHelper';
 import { asyncHandler } from '../../shared/middleware';
+import { ProjectDeliverable } from '../../domain/entities/ProjectDeliverable';
 import multer from 'multer';
 
 // Multer configuration
@@ -68,4 +69,96 @@ export const getProjectHistoryController = asyncHandler(async (req: Request, res
   const userId = UserValidator.validateUserId(req.params.userId);
   const projects = await projectPriceRepo.findByUserId(userId);
   return ResponseHelper.success(res, projects);
+});
+
+// Get single project by ID with deliverables
+export const getProjectByIdController = asyncHandler(async (req: Request, res: Response) => {
+  const userId = UserValidator.validateUserId(req.params.userId);
+  const projectId = ProjectValidator.validateProjectId(req.params.projectId);
+
+  const project = await projectPriceRepo.findById(projectId);
+  
+  if (!project) {
+    return ResponseHelper.notFound(res, 'Project not found');
+  }
+
+  // Verify ownership
+  if (project.user_id !== userId) {
+    return ResponseHelper.forbidden(res, 'You do not have access to this project');
+  }
+
+  const deliverables = await projectDeliverableRepo.findByProjectId(projectId);
+  
+  return ResponseHelper.success(res, {
+    ...project,
+    deliverables
+  });
+});
+
+// Update project
+export const updateProjectController = asyncHandler(async (req: Request, res: Response) => {
+  const userId = UserValidator.validateUserId(req.params.userId);
+  const projectId = ProjectValidator.validateProjectId(req.params.projectId);
+  ProjectValidator.validateUpdateProjectInput(req.body);
+
+  const project = await projectPriceRepo.findById(projectId);
+  
+  if (!project) {
+    return ResponseHelper.notFound(res, 'Project not found');
+  }
+
+  // Verify ownership
+  if (project.user_id !== userId) {
+    return ResponseHelper.forbidden(res, 'You do not have access to this project');
+  }
+
+  const sanitizedData = ProjectValidator.sanitizeProjectData(req.body);
+  const updatedProject = await projectPriceRepo.update(projectId, sanitizedData as any);
+
+  // If deliverables are provided, add them (new deliverables only)
+  if (req.body.deliverables && Array.isArray(req.body.deliverables)) {
+    const newDeliverables = await Promise.all(
+      req.body.deliverables.map((del: any) => {
+        const deliverable = new ProjectDeliverable(0, projectId, del.deliverable_type, del.quantity);
+        return projectDeliverableRepo.create(deliverable);
+      })
+    );
+    
+    return ResponseHelper.success(res, {
+      ...updatedProject,
+      deliverables: newDeliverables
+    }, 'Project updated successfully');
+  }
+
+  const deliverables = await projectDeliverableRepo.findByProjectId(projectId);
+  
+  return ResponseHelper.success(res, {
+    ...updatedProject,
+    deliverables
+  }, 'Project updated successfully');
+});
+
+// Delete project and associated deliverables
+export const deleteProjectController = asyncHandler(async (req: Request, res: Response) => {
+  const userId = UserValidator.validateUserId(req.params.userId);
+  const projectId = ProjectValidator.validateProjectId(req.params.projectId);
+
+  const project = await projectPriceRepo.findById(projectId);
+  
+  if (!project) {
+    return ResponseHelper.notFound(res, 'Project not found');
+  }
+
+  // Verify ownership
+  if (project.user_id !== userId) {
+    return ResponseHelper.forbidden(res, 'You do not have access to this project');
+  }
+
+  // Delete all deliverables first
+  await projectDeliverableRepo.deleteByProjectId(projectId);
+  
+  // Delete the project
+  await projectPriceRepo.delete(projectId);
+
+  return ResponseHelper.success(res, { projectId }, 'Project deleted successfully');
 });

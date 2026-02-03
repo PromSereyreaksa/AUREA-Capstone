@@ -1,0 +1,670 @@
+:root {
+  --primary-orange: #FF6B35;
+  --secondary-orange: #FF8C42;
+  --primary-black: #000000;
+  --primary-white: #ffffff;
+  --secondary-gray: #f0f0f0;
+  --light-orange: #FFF5F0;
+  --text-gray: #666666;
+  --border-thick: 3px;
+  --border-medium: 2px;
+  --shadow-offset: 8px;
+  --font-mono: 'Courier New', monospace;
+  --font-bold: 900;
+}
+
+/* ===== Profile Container ===== */
+.profile-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  min-height: 100vh;
+  width: 100vw;
+  background: linear-gradient(to bottom, #FF6B35 0%, #FFAD85 40%, #FFD4C2 70%, #FFF5F0 85%, #ffffff 100%) !important;
+  font-family: var(--font-mono);
+  padding: 2rem;
+  margin: 0;
+  overflow-y: auto;
+  box-sizing: border-box;
+  z-index: 1;
+}
+
+/* ===== Profile Header - Neobrutalism Card ===== */
+.profile-header {
+  background: var(--primary-white);
+  border: var(--border-thick) solid var(--primary-black);
+  border-radius: 0px;
+  box-shadow: var(--shadow-offset) var(--shadow-offset) 0px rgba(0, 0, 0, 0.4);
+  padding: 2.5rem;
+  margin-bottom: 2rem;
+  max-width: 1400px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.profile-header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 2rem;
+}
+
+.profile-avatar-section {
+  display: flex;
+  gap: 2rem;
+  align-items: center;
+}
+
+.profile-avatar {
+  width: 120px;
+  height: 120px;
+  border: var(--border-thick) solid var(--primary-black);
+  border-radius: 0px;
+  overflow: hidden;
+  flex-shrink: 0;
+  box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.3);
+}
+
+.profile-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.profile-basic-info h1 {
+  font-size: 2rem;
+  font-weight: var(--font-bold);
+  color: var(--primary-orange);
+  margin: 0 0 0.5rem 0;
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  font-family: var(--font-mono);
+}
+
+.profile-location {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--primary-black);
+  font-size: 0.9rem;
+  margin: 0;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.profile-location svg {
+  color: var(--primary-orange);
+}
+
+/* ===== Edit Profile Button - Neobrutalism ===== */
+.edit-profile-button {
+  padding: 1rem 1.5rem;
+  background: var(--primary-orange);
+  color: var(--primary-white);
+  border: var(--border-medium) solid var(--primary-black);
+  border-radius: 0px;
+  font-size: 0.9rem;
+  font-weight: var(--font-bold);
+  cursor: pointer;
+  transition: all 0.1s;
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 3px 3px 0px rgba(0, 0, 0, 0.2);
+}
+
+.edit-profile-button:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.3);
+}
+
+.edit-profile-button:active {
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0px rgba(0, 0, 0, 0.2);
+}
+
+.edit-actions {
+  display: flex;
+  gap: 1rem;
+}
+
+.cancel-button,
+.save-button {
+  padding: 1rem 1.5rem;
+  border: var(--border-medium) solid var(--primary-black);
+  border-radius: 0px;
+  font-size: 0.9rem;
+  font-weight: var(--font-bold);
+  cursor: pointer;
+  transition: all 0.1s;
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 3px 3px 0px rgba(0, 0, 0, 0.2);
+}
+
+.cancel-button {
+  background: var(--primary-white);
+  color: var(--primary-black);
+}
+
+.save-button {
+  background: var(--primary-orange);
+  color: var(--primary-white);
+}
+
+.cancel-button:hover,
+.save-button:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.3);
+}
+
+.cancel-button:active,
+.save-button:active {
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0px rgba(0, 0, 0, 0.2);
+}
+
+/* ===== Profile Content ===== */
+.profile-content {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 350px;
+  gap: 2rem;
+}
+
+.profile-main {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* ===== Profile Sections - Neobrutalism Cards ===== */
+.profile-section {
+  background: var(--primary-white);
+  padding: 2rem;
+  border: var(--border-thick) solid var(--primary-black);
+  border-radius: 0px;
+  box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.3);
+}
+
+.profile-section h2 {
+  font-size: 1.25rem;
+  font-weight: var(--font-bold);
+  color: var(--primary-orange);
+  margin: 0 0 1.25rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-family: var(--font-mono);
+}
+
+.profile-section h2::before {
+  content: '';
+  width: 6px;
+  height: 24px;
+  background: var(--primary-black);
+  border-radius: 0px;
+}
+
+.profile-bio {
+  color: var(--primary-black);
+  font-size: 0.9rem;
+  line-height: 1.7;
+  margin: 0;
+  font-weight: 500;
+  font-family: var(--font-mono);
+}
+
+/* ===== Skills - Neobrutalism Pills ===== */
+.skills-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.skill-tag {
+  background: var(--light-orange);
+  color: var(--primary-black);
+  padding: 0.5rem 1rem;
+  border: var(--border-medium) solid var(--primary-black);
+  border-radius: 0px;
+  font-size: 0.8rem;
+  font-weight: var(--font-bold);
+  transition: all 0.1s;
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.2);
+}
+
+.skill-tag:hover {
+  background: var(--primary-orange);
+  color: var(--primary-white);
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0px rgba(0, 0, 0, 0.3);
+}
+
+/* ===== Projects Grid - Neobrutalism Cards ===== */
+.projects-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.project-card {
+  background: var(--primary-white);
+  border: var(--border-thick) solid var(--primary-black);
+  border-radius: 0px;
+  overflow: hidden;
+  box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.3);
+  transition: all 0.1s;
+  cursor: pointer;
+}
+
+.project-card:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.4);
+}
+
+.project-card:active {
+  transform: translate(1px, 1px);
+  box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.2);
+}
+
+.project-image {
+  position: relative;
+  width: 100%;
+  padding-top: 66.67%;
+  overflow: hidden;
+  background: var(--secondary-gray);
+  border-bottom: var(--border-medium) solid var(--primary-black);
+}
+
+.project-image img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.project-overlay {
+  padding: 1.25rem;
+  background: var(--primary-white);
+}
+
+.project-overlay h3 {
+  color: var(--primary-black);
+  font-size: 1rem;
+  font-weight: var(--font-bold);
+  margin: 0 0 0.5rem 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-family: var(--font-mono);
+}
+
+.project-overlay p {
+  color: var(--text-gray);
+  font-size: 0.85rem;
+  margin: 0;
+  font-weight: 500;
+  line-height: 1.5;
+  font-family: var(--font-mono);
+}
+
+/* ===== Sidebar - Neobrutalism Cards ===== */
+.profile-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.sidebar-section {
+  background: var(--primary-white);
+  padding: 1.5rem;
+  border: var(--border-thick) solid var(--primary-black);
+  border-radius: 0px;
+  box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.3);
+}
+
+.sidebar-section h3 {
+  font-size: 1rem;
+  font-weight: var(--font-bold);
+  color: var(--primary-orange);
+  margin: 0 0 1rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-family: var(--font-mono);
+}
+
+.sidebar-section h3::before {
+  content: '';
+  width: 4px;
+  height: 16px;
+  background: var(--primary-black);
+  border-radius: 0px;
+}
+
+/* ===== Contact Links - Neobrutalism Style ===== */
+.contact-link,
+.social-link {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--primary-black);
+  text-decoration: none;
+  padding: 0.75rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  transition: all 0.1s;
+  border: var(--border-medium) solid transparent;
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.contact-link svg,
+.social-link svg {
+  color: var(--primary-orange);
+  flex-shrink: 0;
+}
+
+.contact-link:hover,
+.social-link:hover {
+  background: var(--primary-orange);
+  color: var(--primary-white);
+  border-color: var(--primary-black);
+  box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.2);
+}
+
+.contact-link:hover svg,
+.social-link:hover svg {
+  color: var(--primary-white);
+}
+
+/* ===== Statistics - Neobrutalism Grid ===== */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+}
+
+.stat-item {
+  text-align: center;
+  padding: 1rem 0.5rem;
+  border: var(--border-medium) solid var(--primary-black);
+  background: var(--light-orange);
+  border-radius: 0px;
+  transition: all 0.1s;
+  min-width: 0;
+  overflow: hidden;
+  box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.2);
+}
+
+.stat-item:hover {
+  background: var(--primary-orange);
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0px rgba(0, 0, 0, 0.3);
+}
+
+.stat-item:hover .stat-value,
+.stat-item:hover .stat-label {
+  color: var(--primary-white);
+}
+
+.stat-value {
+  display: block;
+  font-size: 1.5rem;
+  font-weight: var(--font-bold);
+  color: var(--primary-orange);
+  margin-bottom: 0.25rem;
+  transition: color 0.1s;
+  font-family: var(--font-mono);
+}
+
+.stat-label {
+  display: block;
+  font-size: 0.6rem;
+  color: var(--primary-black);
+  font-weight: var(--font-bold);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  transition: color 0.1s;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--font-mono);
+}
+
+/* ===== Edit Mode - Neobrutalism ===== */
+.edit-textarea {
+  width: 100%;
+  padding: 1rem;
+  border: var(--border-medium) solid var(--primary-black);
+  border-radius: 0px;
+  font-size: 0.9rem;
+  font-family: var(--font-mono);
+  line-height: 1.6;
+  resize: vertical;
+  background: var(--primary-white);
+  font-weight: 500;
+  transition: all 0.1s;
+}
+
+.edit-textarea:focus {
+  outline: none;
+  border-color: var(--primary-orange);
+  border-width: var(--border-thick);
+  box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.2);
+  transform: translate(-1px, -1px);
+  background: var(--light-orange);
+}
+
+.edit-input {
+  width: 100%;
+  padding: 1rem;
+  border: var(--border-medium) solid var(--primary-black);
+  border-radius: 0px;
+  font-size: 0.9rem;
+  background: var(--primary-white);
+  font-weight: 500;
+  transition: all 0.1s;
+  font-family: var(--font-mono);
+}
+
+.edit-input:focus {
+  outline: none;
+  border-color: var(--primary-orange);
+  border-width: var(--border-thick);
+  box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.2);
+  transform: translate(-1px, -1px);
+  background: var(--light-orange);
+}
+
+.edit-field {
+  margin-bottom: 1.5rem;
+}
+
+.edit-field label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: var(--font-bold);
+  color: var(--primary-black);
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-family: var(--font-mono);
+}
+
+/* ===== Loading - Neobrutalism ===== */
+.profile-loading {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--primary-white);
+}
+
+.loading-spinner {
+  width: 60px;
+  height: 60px;
+  border: var(--border-thick) solid var(--primary-black);
+  border-top-color: var(--primary-orange);
+  border-radius: 0px;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 1024px) {
+  .profile-content {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .profile-container {
+    padding: 1rem;
+  }
+
+  .profile-header {
+    padding: 1.5rem;
+    box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.3);
+  }
+
+  .profile-header-content {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .profile-avatar-section {
+    width: 100%;
+  }
+
+  .edit-profile-button {
+    width: 100%;
+  }
+
+  .profile-content {
+    gap: 1rem;
+  }
+
+  .stats {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5rem;
+  }
+
+  .stat-value {
+    font-size: 1.25rem;
+  }
+
+  .stat-label {
+    font-size: 0.55rem;
+  }
+}
+
+/* ===== Profile Container - Orange Page Background ===== */
+/* Background gradient is defined in the main .profile-container rule above */
+
+/* ===== Top Bar (Back Button Row) ===== */
+.profile-top-bar {
+  margin-bottom: 1.5rem;
+  display: flex;
+  justify-content: flex-start;
+}
+
+/* ===== Back Button - Neobrutalism ===== */
+.back-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  background: var(--primary-white);
+  color: var(--primary-black);
+  border: var(--border-medium) solid var(--primary-black);
+  border-radius: 0px;
+  font-size: 0.9rem;
+  font-weight: var(--font-bold);
+  cursor: pointer;
+  transition: all 0.1s;
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 3px 3px 0px rgba(0, 0, 0, 0.2);
+}
+
+.back-button svg {
+  color: var(--primary-orange);
+}
+
+.back-button:hover {
+  background: var(--primary-orange);
+  color: var(--primary-white);
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.3);
+}
+
+.back-button:hover svg {
+  color: var(--primary-white);
+}
+
+.back-button:active {
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0px rgba(0, 0, 0, 0.2);
+}
+
+/* ===== Edit Profile Button Override - Transparent with black stroke ===== */
+.edit-profile-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  background: transparent;
+  color: var(--primary-orange);
+  border: var(--border-medium) solid var(--primary-black);
+  border-radius: 0px;
+  font-size: 0.9rem;
+  font-weight: var(--font-bold);
+  cursor: pointer;
+  transition: all 0.1s;
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 3px 3px 0px rgba(0, 0, 0, 0.2);
+}
+
+.edit-profile-button svg {
+  color: var(--primary-orange);
+  display: block;
+}
+
+.edit-profile-button:hover {
+  background: var(--primary-orange);
+  color: var(--primary-white);
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.3);
+}
+
+.edit-profile-button:hover svg {
+  color: var(--primary-white);
+}
+
+.edit-profile-button:active {
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0px rgba(0, 0, 0, 0.2);
+}

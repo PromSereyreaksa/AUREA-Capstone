@@ -33,12 +33,7 @@ export const ForgotPasswordPage = () => {
             ← Back to Sign In
           </Link>
           <div className="logo">
-            <img 
-              src="/AUREA - Logo.png" 
-              alt="AUREA Logo" 
-              width="48" 
-              height="48"
-            />
+            <img src="/AUREA - Logo.png" alt="AUREA Logo" />
           </div>
         </div>
 

@@ -37,7 +37,8 @@ export const authMiddleware = (req: Request, res: Response, next: NextFunction) 
     req.user = decoded;
     
     next();
-  } catch (error) {
+  } catch (error: any) {
+    console.warn('[Auth] Authentication failed:', error.message);
     return res.status(401).json({ error: 'Authentication failed.' });
   }
 };
@@ -58,6 +59,23 @@ export const optionalAuthMiddleware = (req: Request, res: Response, next: NextFu
     
     next();
   } catch (error) {
+    next();
+  }
+};
+
+export const conditionalAuth = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const pathParts = req.baseUrl.split('/');
+  const isV1 = pathParts.includes('v1');
+
+  if (isV1) {
+    // Apply authentication for v1 routes (required)
+    authMiddleware(req, res, next);
+  } else {
+    // Skip authentication for v0 routes (optional)
     next();
   }
 };

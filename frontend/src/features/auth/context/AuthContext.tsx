@@ -2,7 +2,6 @@ import { createContext, useContext, useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
 import type { IAuthService, AuthState } from '../services/IAuthService';
 import { AuthService } from '../services/AuthService';
-import { supabase } from '../../../shared/api/client';
 
 interface AuthContextValue extends AuthState {
   authService: IAuthService;
@@ -18,11 +17,10 @@ const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 interface AuthProviderProps {
   children: ReactNode;
-  authService?: IAuthService; // Allow injection for testing
+  authService?: IAuthService;
 }
 
 export const AuthProvider = ({ children, authService }: AuthProviderProps) => {
-  // Use injected service or default to real implementation
   const service = authService || new AuthService();
   
   const [state, setState] = useState<AuthState>({
@@ -32,38 +30,18 @@ export const AuthProvider = ({ children, authService }: AuthProviderProps) => {
   });
 
   useEffect(() => {
-    // Check for existing session
+    // Check for existing session on mount
     const initAuth = async () => {
       try {
         const user = await service.getCurrentUser();
         setState({ user, loading: false, error: null });
       } catch (error) {
         console.error('Error initializing auth:', error);
-        setState({ user: null, loading: false, error: 'Failed to initialize auth' });
+        setState({ user: null, loading: false, error: null });
       }
     };
 
     initAuth();
-
-    // Listen for auth state changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        if (session?.user) {
-          try {
-            const user = await service.getCurrentUser();
-            setState({ user, loading: false, error: null });
-          } catch (error) {
-            console.error('Error on auth state change:', error);
-          }
-        } else {
-          setState({ user: null, loading: false, error: null });
-        }
-      }
-    );
-
-    return () => {
-      subscription.unsubscribe();
-    };
   }, []);
 
   const signUp = async (email: string, password: string) => {
@@ -103,7 +81,7 @@ export const AuthProvider = ({ children, authService }: AuthProviderProps) => {
     try {
       setState({ ...state, loading: true, error: null });
       await service.signInWithGoogle();
-      // User will be redirected, state will update via onAuthStateChange
+      // User will be redirected, state will update when they return
     } catch (error: any) {
       setState({ ...state, loading: false, error: error.message });
       throw error;

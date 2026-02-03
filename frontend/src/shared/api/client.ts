@@ -1,11 +1,3 @@
-import { createClient } from '@supabase/supabase-js';
-
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
-const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
-
-export const supabase = createClient(supabaseUrl, supabaseKey);
-
-// HTTP Client for backend API
 export const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
 
 interface RequestOptions {
@@ -13,7 +5,7 @@ interface RequestOptions {
 }
 
 export class HttpClient {
-  private baseUrl: string;
+  public baseUrl: string;
 
   constructor(baseUrl: string = API_BASE_URL) {
     this.baseUrl = baseUrl;
@@ -43,7 +35,12 @@ export class HttpClient {
       method: 'GET',
       headers: this.getHeaders(options),
     });
-    if (!response.ok) throw new Error(`GET ${endpoint} failed`);
+    
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ message: 'Request failed' }));
+      throw new Error(error.message || `GET ${endpoint} failed`);
+    }
+    
     return response.json();
   }
 
@@ -53,7 +50,12 @@ export class HttpClient {
       headers: this.getHeaders(options),
       body: JSON.stringify(data),
     });
-    if (!response.ok) throw new Error(`POST ${endpoint} failed`);
+    
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ message: 'Request failed' }));
+      throw new Error(error.message || `POST ${endpoint} failed`);
+    }
+    
     return response.json();
   }
 
@@ -63,7 +65,12 @@ export class HttpClient {
       headers: this.getHeaders(options),
       body: JSON.stringify(data),
     });
-    if (!response.ok) throw new Error(`PUT ${endpoint} failed`);
+    
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ message: 'Request failed' }));
+      throw new Error(error.message || `PUT ${endpoint} failed`);
+    }
+    
     return response.json();
   }
 
@@ -72,7 +79,12 @@ export class HttpClient {
       method: 'DELETE',
       headers: this.getHeaders(options),
     });
-    if (!response.ok) throw new Error(`DELETE ${endpoint} failed`);
+    
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ message: 'Request failed' }));
+      throw new Error(error.message || `DELETE ${endpoint} failed`);
+    }
+    
     return response.json();
   }
 }

@@ -24,6 +24,14 @@ export class ResponseHelper {
     });
   }
 
+  static forbidden(res: Response, message: string = 'Access denied') {
+    return this.error(res, message, 403);
+  }
+
+  static notFound(res: Response, message: string = 'Not found') {
+    return this.error(res, message, 404);
+  }
+
   static paginated<T>(
     res: Response,
     data: T[],

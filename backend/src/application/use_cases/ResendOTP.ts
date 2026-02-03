@@ -48,9 +48,12 @@ export class ResendOTP {
     // Send OTP email
     try {
       await this.emailService.sendOTPEmail(email, newOTP);
-    } catch (error) {
-      console.error('Failed to send OTP email:', error);
-      throw new Error('Failed to send verification email');
+    } catch (error: any) {
+      console.error('[ResendOTP] Failed to send OTP email:', {
+        email: email.replace(/(.{2}).*(@.*)/, '$1***$2'), // Mask email for privacy
+        error: error.message
+      });
+      throw new Error('Failed to send verification email. Please try again.');
     }
 
     return { 

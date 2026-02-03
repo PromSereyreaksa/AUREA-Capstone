@@ -1,0 +1,248 @@
+paths:
+  /api/v1/pdf/test-gemini:
+    get:
+      summary: Test Gemini AI connection
+      description: |
+        Tests the connection to Google Gemini AI service.
+        Useful for verifying that the AI service is configured correctly and accessible.
+      tags:
+        - AI Extraction
+      responses:
+        '200':
+          description: Gemini connection successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+              example:
+                success: true
+                data:
+                  message: Gemini API is working
+                  model: gemini-1.5-flash
+                  status: connected
+        '500':
+          description: Gemini service unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/v1/pdf/extract:
+    post:
+      summary: Extract project details from PDF
+      description: |
+        Uploads a PDF file and uses Google Gemini AI to extract project information.
+        The AI analyzes the PDF content and extracts:
+        - Project name and title
+        - Description
+        - Duration (converted to days)
+        - Difficulty level (inferred)
+        - Deliverables with quantities
+        - Licensing and usage rights
+        
+        Maximum file size: 10MB
+      tags:
+        - AI Extraction
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - pdf
+                - user_id
+              properties:
+                pdf:
+                  type: string
+                  format: binary
+                  description: PDF file to extract (max 10MB)
+                user_id:
+                  type: integer
+                  description: ID of the user creating the project
+                  example: 1
+            encoding:
+              pdf:
+                contentType: application/pdf
+      responses:
+        '201':
+          description: PDF extracted and project created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: PDF extracted and project created successfully
+                  data:
+                    type: object
+                    properties:
+                      project:
+                        $ref: '#/components/schemas/Project'
+                      deliverables:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Deliverable'
+        '400':
+          description: Validation error or invalid PDF
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                noFile:
+                  summary: No PDF file provided
+                  value:
+                    success: false
+                    error:
+                      message: No PDF file uploaded
+                      code: MISSING_FILE
+                invalidFile:
+                  summary: Invalid file type
+                  value:
+                    success: false
+                    error:
+                      message: Only PDF files are allowed
+                      code: INVALID_FILE_TYPE
+                fileTooLarge:
+                  summary: File size exceeds limit
+                  value:
+                    success: false
+                    error:
+                      message: File size exceeds 10MB limit
+                      code: FILE_TOO_LARGE
+        '500':
+          description: AI extraction failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/v1/pdf/create-project:
+    post:
+      summary: Create project manually
+      description: |
+        Creates a project with manually provided details (without PDF upload).
+        Useful when you have project information but no PDF document.
+      tags:
+        - Project Management
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - user_id
+                - project_name
+                - title
+                - description
+                - duration
+                - difficulty
+                - deliverables
+              properties:
+                user_id:
+                  type: integer
+                  description: ID of the user creating the project
+                  example: 1
+                project_name:
+                  type: string
+                  description: Short project name
+                  example: Website Redesign
+                title:
+                  type: string
+                  description: Project title
+                  example: Complete Website Overhaul
+                description:
+                  type: string
+                  description: Detailed project description
+                  example: Full website redesign and modernization with responsive design
+                duration:
+                  type: integer
+                  description: Project duration in days
+                  minimum: 1
+                  example: 30
+                difficulty:
+                  type: string
+                  enum: [Easy, Medium, Hard, Complex]
+                  description: Project difficulty level
+                  example: Medium
+                licensing:
+                  type: string
+                  description: Licensing type
+                  example: Exclusive
+                  default: One-Time Used
+                usage_rights:
+                  type: string
+                  description: Usage rights
+                  example: Commercial
+                  default: Personal Use
+                result:
+                  type: string
+                  description: Expected deliverable result
+                  example: Production-ready website
+                deliverables:
+                  type: array
+                  description: List of project deliverables
+                  minItems: 1
+                  items:
+                    type: object
+                    required:
+                      - deliverable_type
+                      - quantity
+                    properties:
+                      deliverable_type:
+                        type: string
+                        description: Type of deliverable
+                        example: UI Design
+                      quantity:
+                        type: integer
+                        description: Number of deliverables
+                        minimum: 1
+                        example: 5
+            example:
+              user_id: 1
+              project_name: Logo Design
+              title: Brand Logo Creation
+              description: Modern minimalist logo design for tech startup
+              duration: 14
+              difficulty: Medium
+              licensing: Exclusive
+              usage_rights: Commercial
+              result: Logo files in various formats (PNG, SVG, EPS)
+              deliverables:
+                - deliverable_type: Logo Concept
+                  quantity: 3
+                - deliverable_type: Final Logo Files
+                  quantity: 1
+                - deliverable_type: Brand Guidelines
+                  quantity: 1
+      responses:
+        '201':
+          description: Project created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Project created successfully
+                  data:
+                    type: object
+                    properties:
+                      project:
+                        $ref: '#/components/schemas/Project'
+                      deliverables:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Deliverable'
+        '400':
+          $ref: '#/components/responses/ValidationError'

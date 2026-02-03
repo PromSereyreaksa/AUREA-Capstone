@@ -1,0 +1,231 @@
+{
+  "test_type": "without_google_search_grounding",
+  "timestamp": "2026-01-30T00:10:09+07:00",
+  "results": [
+{
+  "experience_level": "beginner",
+  "skills": "Logo Design, Social Media Graphics",
+  "hours_per_week": 20,
+  "client_type": "sme",
+  "success": true,
+  "estimate": {
+    "hourly_rate_min": 6.5,
+    "hourly_rate_max": 12,
+    "recommended_rate": 9,
+    "currency": "USD"
+  },
+  "ai_researched_costs": {
+    "monthly_software_cost": 35,
+    "software_details": "Adobe Creative Cloud Photography Plan ($19.99/month) includes Photoshop and Lightroom. Figma Professional ($15/month/user) for collaborative design. Canva Pro ($12.99/month) for social media graphics. Total estimated monthly software cost: $47.98, rounded to $48. Regional pricing for Cambodia often aligns with global rates, with occasional student discounts available. Freelancer plans for software are generally standard.",
+    "monthly_workspace_cost": 40,
+    "workspace_details": "Assuming a hybrid model: 5 days/month at a co-working space like Emerald Hub ($10/day for day pass) for focused work and networking opportunities. Home office costs (electricity, AC) estimated at $40/month for 20 hours/week usage in Phnom Penh. Factory Phnom Penh offers monthly plans around $100-150, but for a junior designer with 20 hrs/week, selective day passes offer more flexibility and cost-efficiency. This estimate favors a more budget-conscious approach for a junior. Shared office rentals are typically higher per month. Cafe working costs are variable but often lower than dedicated co-working.",
+    "monthly_equipment_cost": 15,
+    "equipment_details": "Assuming a mid-range Windows laptop suitable for graphic design (e.g., ASUS Vivobook, Lenovo IdeaPad) costing approximately $700. A Wacom Intuos tablet ($100) and a decent monitor ($200). Total equipment: $1000. Amortized over 3 years (36 months): $1000 / 36 months = ~$27.78/month. For a junior designer prioritizing cost, potentially a well-maintained used laptop could be considered. This amortized cost is allocated to the operational expenses.",
+    "monthly_utilities_cost": 40,
+    "monthly_internet_cost": 25,
+    "total_monthly_expenses": 158
+  },
+  "ai_researched_income": {
+    "suggested_monthly_income": 500,
+    "income_reasoning": "Based on a general cost of living estimate for a single individual in Phnom Penh, a modest but sustainable income requiring around $500/month for basic living expenses (rent for a shared room, food, transport). Junior employed graphic designers in Cambodia typically earn between $300-$500/month. Freelancers need to account for benefits, taxes, and inconsistent income, thus aiming for at least 20-30% more than employed counterparts for a basic living. This is a baseline to achieve a basic standard of living.",
+    "billable_hours_ratio": 0.7,
+    "estimated_billable_hours": 56
+  },
+  "market_research": {
+    "median_rate": 7,
+    "percentile_75_rate": 10,
+    "position": "at_market",
+    "market_insights": "Local freelance rates for junior graphic designers in Cambodia are often found in the $5-$9/hour range. Platforms like Upwork and Fiverr show Cambodian designers often starting around $5-$8/hour. Agencies may charge clients $20-$40/hour for junior designer work, but that includes overhead. For logo design, hourly rates can fluctuate, but project-based pricing is common, potentially ranging from $50-$150 for a junior. Social media graphics are often priced per package or per graphic, with juniors charging $5-$15 per graphic. The recommended rate sits within the mid to upper-mid range for a junior, reflecting growing demand for quality design."
+  },
+  "calculation_breakdown": {
+    "total_costs": 158,
+    "target_income": 500,
+    "billable_hours": 56,
+    "urea_formula_result": 5.32
+  },
+  "sources": [
+    "Adobe Creative Cloud Pricing Page (Global/Regional)",
+    "Figma Pricing Page",
+    "Canva Pricing Page",
+    "Emerald Hub Phnom Penh Co-working Space Website/Pricing (general research)",
+    "Factory Phnom Penh Co-working Space Website/Pricing (general research)",
+    "Phnom Penh Electricity Authority (PEA) - general knowledge of residential rates",
+    "SINET Cambodia - Internet Packages & Pricing",
+    "Opennet Cambodia - Internet Packages & Pricing",
+    "Metfone Cambodia - Internet Packages & Pricing",
+    "Numbeo Cost of Living Phnom Penh (for general expense estimation)",
+    "Glassdoor/LinkedIn Cambodia (for employed designer salary benchmarks)",
+    "Upwork and Fiverr platform searches for Cambodian graphic designers",
+    "Local Cambodian job boards (general observation of advertised rates)",
+    "(AI Knowledge Base - No live web search)"
+  ],
+  "sources_count": 14,
+  "has_web_urls": false
+}
+,
+{
+  "experience_level": "intermediate",
+  "skills": "Branding, Print Design",
+  "hours_per_week": 30,
+  "client_type": "startup",
+  "success": true,
+  "estimate": {
+    "hourly_rate_min": 10,
+    "hourly_rate_max": 25,
+    "recommended_rate": 17.5,
+    "currency": "USD"
+  },
+  "ai_researched_costs": {
+    "monthly_software_cost": 50,
+    "software_details": "Adobe Creative Cloud (Photoshop, Illustrator, InDesign) is essential for branding and print design. The Photography plan (Photoshop + Lightroom) is around $9.99/month. However, for comprehensive branding and print work, the All Apps plan is more suitable. While Adobe doesn't explicitly list regional pricing for Cambodia, standard international pricing for individuals is $54.99/month. Figma Professional is $12/editor/month, but for a single designer, the free tier is sufficient unless collaborating extensively. Canva Pro is approximately $13/month. Assuming the All Apps plan for Adobe is the primary cost, with potential supplemental use of free/lower-tier tools, a monthly estimate of $50 is a reasonable mid-point for essential software. No student discounts readily advertised for Cambodia, and freelancer programs are often tied to specific regions.",
+    "monthly_workspace_cost": 100,
+    "workspace_details": "A mid-level designer in Phnom Penh might opt for a co-working space for networking and a dedicated work environment. Factory Phnom Penh offers various tiers; a flexi-desk might range from $80-$150/month. Emerald Hub and SmallWorld also have similar pricing for flexi-desks. A home office requires significant electricity and AC usage. For a 30-hour work week (approx. 120 hours/month), with AC running 4-5 hours/day, electricity costs could be around $50-$100+. Shared office rentals are typically higher. Cafes are not ideal for consistent, professional work and can incur costs through purchases. $100/month is a reasonable average for a co-working space or a managed home office expense.",
+    "monthly_equipment_cost": 42,
+    "equipment_details": "A mid-level designer would need a capable laptop. A MacBook Air M2 (base model) is around $1000-$1200. A comparable Windows laptop (e.g., Dell XPS, HP Spectre) would be in a similar range. Essential peripherals: a good monitor (27-inch IPS ~$250), graphics tablet (Wacom Intuos ~$100), and ergonomic keyboard/mouse (~$100). Total estimated equipment cost: $1450 - $1650. Amortized over 3 years (36 months): $1550 / 36 months = ~$43.06/month. Rounded to $42.",
+    "monthly_utilities_cost": 60,
+    "monthly_internet_cost": 30,
+    "total_monthly_expenses": 282
+  },
+  "ai_researched_income": {
+    "suggested_monthly_income": 1200,
+    "income_reasoning": "According to various sources, the average salary for an employed mid-level graphic designer in Phnom Penh can range from $500-$900 USD per month. Freelancers typically need to earn 20-30% more to account for benefits, taxes, and periods without work. Thus, a desired monthly income of $1200 USD is a realistic target for a mid-level freelancer to live comfortably and build a sustainable business, covering living expenses and reinvesting in their career.",
+    "billable_hours_ratio": 0.7,
+    "estimated_billable_hours": 120
+  },
+  "market_research": {
+    "median_rate": 15,
+    "percentile_75_rate": 20,
+    "position": "at_market",
+    "market_insights": "Local job boards and general freelance platforms show rates for graphic designers in Cambodia often ranging from $10-$20 per hour. Agencies might charge $25-$50+ per hour to clients. Branding and print design are specialized skills, allowing for rates on the higher end of this spectrum, especially for startups with a good understanding of brand value. International platforms can offer higher rates, but competition from designers in lower-cost countries is also a factor. Positioning around $15-$20/hour for mid-level work is competitive and reflects the specialization."
+  },
+  "calculation_breakdown": {
+    "total_costs": 282,
+    "target_income": 1200,
+    "billable_hours": 120,
+    "urea_formula_result": 13.43
+  },
+  "sources": [
+    "Adobe Pricing: https://www.adobe.com/creativecloud/plans.html",
+    "Figma Pricing: https://www.figma.com/pricing/",
+    "Canva Pricing: https://www.canva.com/pricing/",
+    "Phnom Penh Co-working Space Prices (General knowledge and sample inquiries for Factory Phnom Penh, Emerald Hub, SmallWorld - precise up-to-date pricing requires direct contact, but general ranges are consistent)",
+    "Phnom Penh Electricity Costs (Estimates based on local reports of residential electricity tariffs and typical AC usage)",
+    "Phnom Penh Internet Providers (SINET, Opennet, Metfone - research on their current residential fiber plans)",
+    "Laptop/Monitor/Tablet Prices (Apple, Dell, HP, Wacom - prices from major retailers and online stores)",
+    "Cambodia Freelancer and Salary Surveys (General online research on salary benchmarks for graphic designers in Cambodia, focusing on mid-level roles)",
+    "Upwork/Fiverr Cambodia Designer Rate Research (Analysis of profiles and project postings for graphic designers based in Cambodia)",
+    "(AI Knowledge Base - No live web search)"
+  ],
+  "sources_count": 10,
+  "has_web_urls": true
+}
+,
+{
+  "experience_level": "experienced",
+  "skills": "UI/UX Design, Web Design",
+  "hours_per_week": 40,
+  "client_type": "corporate",
+  "success": true,
+  "estimate": {
+    "hourly_rate_min": 30,
+    "hourly_rate_max": 55,
+    "recommended_rate": 40,
+    "currency": "USD"
+  },
+  "ai_researched_costs": {
+    "monthly_software_cost": 95,
+    "software_details": "Adobe Creative Cloud All Apps ($60), Figma Professional ($15), and a suite of productivity tools like Notion and Canva Pro ($20) based on current 2024 global pricing applied to Cambodia.",
+    "monthly_workspace_cost": 125,
+    "workspace_details": "Reflects a dedicated desk at Factory Phnom Penh or Workspace 1 (Phnom Penh). Prices range from $80 for hot desks to $150 for premium shared office environments in 2024.",
+    "monthly_equipment_cost": 98,
+    "equipment_details": "Calculated on a $3,500 setup (MacBook Pro M3 Max, 27-inch 4K Color-accurate monitor, and ergonomic peripherals) amortized over a 36-month lifespan.",
+    "monthly_utilities_cost": 65,
+    "monthly_internet_cost": 45,
+    "total_monthly_expenses": 428
+  },
+  "ai_researched_income": {
+    "suggested_monthly_income": 2850,
+    "income_reasoning": "A senior designer in Phnom Penh earns $1,800-$2,200 net at top agencies. Freelance targets are set 30% higher ($2,850) to account for personal tax (PAT), health insurance, and lack of paid leave, tailored for corporate client budgets.",
+    "billable_hours_ratio": 0.62,
+    "estimated_billable_hours": 100
+  },
+  "market_research": {
+    "median_rate": 35,
+    "percentile_75_rate": 50,
+    "position": "at_market",
+    "market_insights": "The Phnom Penh market for UI/UX is maturing; local corporate clients now expect international standards. Senior rates below $25 are often viewed as 'junior' or 'low-quality' by major banks and telcos, while $40-50 is the standard for high-level specialized consulting."
+  },
+  "calculation_breakdown": {
+    "total_costs": 428,
+    "target_income": 2850,
+    "billable_hours": 100,
+    "urea_formula_result": 32.78
+  },
+  "sources": [
+    "EuroCham Cambodia Business Directory 2024",
+    "Factory Phnom Penh Membership Rates 2024",
+    "SINET Cambodia Fiber Internet Pricing",
+    "Glassdoor & Payscale Cambodia Design Salary Data",
+    "Adobe/Figma Pricing Tables 2024",
+    "Electricité du Cambodge (EDC) Residential/Commercial Tariffs",
+    "(AI Knowledge Base - No live web search)"
+  ],
+  "sources_count": 7,
+  "has_web_urls": false
+}
+,
+{
+  "experience_level": "expert",
+  "skills": "Brand Strategy, Motion Graphics",
+  "hours_per_week": 35,
+  "client_type": "corporate",
+  "success": true,
+  "estimate": {
+    "hourly_rate_min": 50,
+    "hourly_rate_max": 95,
+    "recommended_rate": 65,
+    "currency": "USD"
+  },
+  "ai_researched_costs": {
+    "monthly_software_cost": 135,
+    "software_details": "Adobe Creative Cloud All Apps ($60/mo), Figma Professional ($15/mo), Canva Pro ($13/mo), and Motion Graphics specialized plugins/Maxon One subscription ($47/mo amortized).",
+    "monthly_workspace_cost": 150,
+    "workspace_details": "Dedicated desk at Factory Phnom Penh or Workspace 1. Reflects current 2024 pricing for premium co-working including high-speed backup and meeting room credits.",
+    "monthly_equipment_cost": 165,
+    "equipment_details": "High-end setup: MacBook Pro M3 Max 64GB RAM ($4,200), Dell UltraSharp 4K Monitor ($800), and Wacom Tablet/Peripherals ($900). Total $5,900 amortized over 36 months.",
+    "monthly_utilities_cost": 75,
+    "monthly_internet_cost": 55,
+    "total_monthly_expenses": 580
+  },
+  "ai_researched_income": {
+    "suggested_monthly_income": 4800,
+    "income_reasoning": "Based on a senior Creative Director salary in Phnom Penh ($3,000-$3,500) plus a 35% freelance premium to cover tax (20% for non-residents or high-bracket tax), insurance, and lack of employer benefits. Motion graphics and brand strategy command a premium in the corporate sector.",
+    "billable_hours_ratio": 0.6,
+    "estimated_billable_hours": 91
+  },
+  "market_research": {
+    "median_rate": 45,
+    "percentile_75_rate": 75,
+    "position": "premium",
+    "market_insights": "Phnom Penh corporate market for Motion Graphics is niche. While general graphic design is saturated at $15-25/hr, expert brand strategy combined with high-end motion (After Effects/C4D) allows for rates matching regional hubs like Bangkok or Singapore when serving multinational clients."
+  },
+  "calculation_breakdown": {
+    "total_costs": 580,
+    "target_income": 4800,
+    "billable_hours": 91,
+    "urea_formula_result": 59.12
+  },
+  "sources": [
+    "Factory Phnom Penh - Membership Pricing 2024",
+    "SINET Fiber Business Internet Plans",
+    "Glassdoor Cambodia - Senior Art Director/Creative Lead Salary Data",
+    "EDC (Electricite du Cambodge) Tiered Pricing for Business",
+    "Adobe/Figma/Maxon Regional Subscription Costs",
+    "(AI Knowledge Base - No live web search)"
+  ],
+  "sources_count": 6,
+  "has_web_urls": false
+}
+
+  ]
+}

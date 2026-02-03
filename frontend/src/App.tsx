@@ -1,5 +1,10 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider } from './features/auth';
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
+import { AuthProvider } from "./features/auth";
 import {
   SignUpPage,
   SignInPage,
@@ -7,6 +12,9 @@ import {
   ForgotPasswordPage,
   AuthCallbackPage,
 } from './features/auth';
+import { 
+  DesignerProfilePage
+} from './features/profile';
 
 import {
   Header,
@@ -15,10 +23,13 @@ import {
   CalloutBanner,
   ProductExplanation,
   Footer,
-} from './features/landing-page';
+} from "./features/landing-page";
 
-import './App.css';
+import { GuestAccessViewpage } from "./features/guest-access";
 
+import { DashboardPage } from "./features/dashbard";
+
+import "./App.css";
 
 function App() {
   return (
@@ -31,12 +42,15 @@ function App() {
           <Route path="/verify-email" element={<VerifyEmailPage />} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/auth/callback" element={<AuthCallbackPage />} />
+
+          {/* Designer profile route */}
+          <Route path="/designer-profile/:designerId" element={<DesignerProfilePage />} />
           
           {/* Landing Page Routes */}
           <Route
             path="/"
             element={
-               <>
+              <>
                 <Header />
                 <Hero />
                 <PricingFeature />
@@ -47,9 +61,38 @@ function App() {
             }
           />
 
+          {/* Guest Access / Portfolios Route */}
+          <Route path="/portfolios" element={<GuestAccessViewpage />} />
+
+          {/* Dashboard Route */}
+          <Route path="/dashboard" element={<DashboardPage />} />
+
           {/* Placeholder Routes */}
-          <Route path="/dashboard" element={<div style={{ padding: '2rem' }}>Dashboard - Coming Soon</div>} />
-          
+          <Route
+            path="/projects"
+            element={
+              <div style={{ padding: "2rem" }}>Projects - Coming Soon</div>
+            }
+          />
+          <Route
+            path="/fee-estimator"
+            element={
+              <div style={{ padding: "2rem" }}>Fee Estimator - Coming Soon</div>
+            }
+          />
+          <Route
+            path="/settings"
+            element={
+              <div style={{ padding: "2rem" }}>Settings - Coming Soon</div>
+            }
+          />
+          <Route
+            path="/profile"
+            element={
+              <div style={{ padding: "2rem" }}>Profile - Coming Soon</div>
+            }
+          />
+
           {/* Default Route */}
           <Route path="/" element={<Navigate to="/signup" replace />} />
         </Routes>

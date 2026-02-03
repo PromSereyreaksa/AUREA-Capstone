@@ -30,4 +30,26 @@ export class ProjectDeliverableRepository implements IProjectDeliverableReposito
     }
     return data ? data.map(mapProjectDeliverableFromDb) : [];
   }
+
+  async delete(deliverableId: number): Promise<void> {
+    const { error } = await supabase
+      .from('project_deliverable')
+      .delete()
+      .eq('deliverable_id', deliverableId);
+
+    if (error) {
+      throw new DatabaseError(`Failed to delete deliverable: ${error.message}`);
+    }
+  }
+
+  async deleteByProjectId(projectId: number): Promise<void> {
+    const { error } = await supabase
+      .from('project_deliverable')
+      .delete()
+      .eq('project_id', projectId);
+
+    if (error) {
+      throw new DatabaseError(`Failed to delete deliverables: ${error.message}`);
+    }
+  }
 }

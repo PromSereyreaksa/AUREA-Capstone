@@ -1,0 +1,101 @@
+{
+  "generated_at": "2026-01-30T00:45:34.985680",
+  "comparisons": [
+    {
+      "experience_level": "beginner",
+      "skills": "Logo Design, Social Media Graphics",
+      "with_grounding": {
+        "rate": 15,
+        "sources_count": 44,
+        "has_web_urls": true,
+        "software_cost": 35,
+        "workspace_cost": 120,
+        "suggested_income": 1200
+      },
+      "without_grounding": {
+        "rate": 9,
+        "sources_count": 14,
+        "has_web_urls": false,
+        "software_cost": 35,
+        "workspace_cost": 40,
+        "suggested_income": 500
+      },
+      "difference": {
+        "rate_absolute": 6,
+        "rate_percent": 66.66666666666666
+      }
+    },
+    {
+      "experience_level": "experienced",
+      "skills": "N/A",
+      "with_grounding": {
+        "rate": null,
+        "sources_count": 0,
+        "has_web_urls": false,
+        "software_cost": null,
+        "workspace_cost": null,
+        "suggested_income": null
+      },
+      "without_grounding": {
+        "rate": 40,
+        "sources_count": 7,
+        "has_web_urls": false,
+        "software_cost": 95,
+        "workspace_cost": 125,
+        "suggested_income": 2850
+      },
+      "difference": {
+        "rate_absolute": null,
+        "rate_percent": null
+      }
+    },
+    {
+      "experience_level": "expert",
+      "skills": "N/A",
+      "with_grounding": {
+        "rate": null,
+        "sources_count": 0,
+        "has_web_urls": false,
+        "software_cost": null,
+        "workspace_cost": null,
+        "suggested_income": null
+      },
+      "without_grounding": {
+        "rate": 65,
+        "sources_count": 6,
+        "has_web_urls": false,
+        "software_cost": 135,
+        "workspace_cost": 150,
+        "suggested_income": 4800
+      },
+      "difference": {
+        "rate_absolute": null,
+        "rate_percent": null
+      }
+    },
+    {
+      "experience_level": "intermediate",
+      "skills": "N/A",
+      "with_grounding": {
+        "rate": null,
+        "sources_count": 0,
+        "has_web_urls": false,
+        "software_cost": null,
+        "workspace_cost": null,
+        "suggested_income": null
+      },
+      "without_grounding": {
+        "rate": 17.5,
+        "sources_count": 10,
+        "has_web_urls": true,
+        "software_cost": 50,
+        "workspace_cost": 100,
+        "suggested_income": 1200
+      },
+      "difference": {
+        "rate_absolute": null,
+        "rate_percent": null
+      }
+    }
+  ]
+}

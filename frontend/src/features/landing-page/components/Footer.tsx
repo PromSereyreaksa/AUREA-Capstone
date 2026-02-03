@@ -1,13 +1,13 @@
 export const Footer = () => {
   return (
-    <footer className="bg-[#1a1a1a] text-white py-16">
+    <footer className="bg-[#1a1a1a] text-white py-16 p-12">
       <div className="wide-section">
         <div className="grid md:grid-cols-4 gap-12 mb-12">
           {/* Logo and tagline */}
           <div>
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 bg-[#ff8c00] rounded-full flex items-center justify-center border-3 border-white">
-                <span className="text-white font-bold text-xl font-['Archivo_Black']">A</span>
+              <div className="w-12 h-12 rounded-full flex items-center justify-cente">
+                <img src="AUREA - Logo.png" alt="AUREA Logo" />
               </div>
             </div>
             <p className="text-gray-400 text-sm leading-relaxed">
@@ -27,7 +27,7 @@ export const Footer = () => {
                 </a>
               </li>
               <li>
-                <a href="#portfolios" className="text-gray-400 hover:text-white transition-colors">
+                <a href="/portfolios" className="text-gray-400 hover:text-white transition-colors">
                   Portfolios
                 </a>
               </li>

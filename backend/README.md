@@ -239,34 +239,47 @@ GET  /health              # Health check
 GET  /test/gemini         # Test Gemini API integration
 ```
 
+## 🔌 API Endpoints
+
+### API Versioning
+
+The API supports two versions:
+- **v0**: `http://localhost:3000/api/v0` (🔒 Localhost/development only)
+- **v1**: `http://localhost:3000/api/v1` (✅ Public access - recommended)
+
+**For production use, always use v1 endpoints.**
+
 ### User Management
 ```
-POST /api/users/signup    # Register new user
-
+POST /api/v1/users/signup         # Register new user
+POST /api/v1/users/verify-otp     # Verify email with OTP
+POST /api/v1/users/resend-otp     # Resend OTP
+GET  /api/v1/users/me             # Get current user (protected)
 ```
-
 
 ### Project Management
 
-#### Extract from PDF
+#### AI-Powered PDF Extraction
 ```
-POST /api/projects/extract   # AI-powered PDF extraction
+POST /api/v1/pdf/extract          # Extract project from PDF
+GET  /api/v1/pdf/test-gemini      # Test Gemini API connection
 ```
 
 **Request:** (multipart/form-data)
-- `file`: PDF file (required)
+- `pdf`: PDF file (required, max 10MB)
 - `user_id`: User ID (required)
 
-
-#### Create Project Manually
+#### Manual Project Creation
 ```
-POST /api/projects/manual    # Create project without PDF
+POST /api/v1/pdf/create-project   # Create project manually
 ```
 
-
-#### Get Project History
+#### Project CRUD Operations
 ```
-GET /api/projects/user/:userId   # Get all projects for a user
+GET    /api/v1/pdf/projects/:userId                    # Get all user projects
+GET    /api/v1/pdf/projects/:userId/:projectId         # Get single project
+PUT    /api/v1/pdf/projects/:userId/:projectId         # Update project
+DELETE /api/v1/pdf/projects/:userId/:projectId         # Delete project
 ```
 
 ---

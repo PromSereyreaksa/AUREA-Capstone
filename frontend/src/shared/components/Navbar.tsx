@@ -1,8 +1,9 @@
-// import React from "react";
+import { Link } from "react-router-dom";
+
 export default function Navbar() {
   return (
-    <>
-      <header className="border-3 border-black rounded-3xl bg-white shadow-md p-5">
+    <div className="pt-12 pl-12 pr-12">
+      <header className="border-3 border-black rounded-3xl bg-white shadow-md px-8">
         <div className="flex justify-between items-center py-6">
           {/* Logo */}
           <div className="flex items-center gap-3">
@@ -19,33 +20,39 @@ export default function Navbar() {
           <nav className="hidden md:flex item-center gap-8">
             <a
               href="#"
-              className="font-md text-black! hover:text-[#FB8500] transition"
+              className="font-medium text-black hover:text-[#FB8500] transition"
             >
               About
             </a>
-            <a
-              href="#"
-              className="font-md text-black! hover:text-[#FB8500] transition"
+            <Link
+              to="/portfolios"
+              className="font-medium text-black hover:text-[#FB8500] transition"
             >
               Portfolios
-            </a>
+            </Link>
             <a
               href="#"
-              className="font-md text-black! hover:text-[#FB8500]! transition"
+              className="font-medium text-black hover:text-[#FB8500] transition"
             >
               Contact
             </a>
           </nav>
           <div className="flex items-center gap-4">
-            <button className="font-md text-black hover:text-[#FB8500] transition">
+            <Link
+              to="/signin"
+              className="font-medium text-black hover:text-[#FB8500] transition"
+            >
               Log in
-            </button>
-            <button className="bg-[#FB8500] text-white font-md px-6 py-2 border-2 border-black rounded-lg hover:scale-105 transition-transform">
+            </Link>
+            <Link
+              to="/signup"
+              className="bg-[#FB8500] text-white font-medium px-6 py-2 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all border-2 border-black"
+            >
               TRY AUREA
-            </button>
+            </Link>
           </div>
         </div>
       </header>
-    </>
+    </div>
   );
 }

@@ -4,7 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest --config tests/pricing_test/jest.config.js",
+    "test:unit": "jest --config tests/pricing_test/jest.config.js --selectProjects unit",
+    "test:integration": "jest --config tests/pricing_test/jest.config.js --selectProjects integration",
+    "test:coverage": "jest --config tests/pricing_test/jest.config.js --coverage",
     "dev": "ts-node-dev src/server.ts",
     "build": "esbuild src/server.ts --bundle --outdir=dist --platform=node"
   },
@@ -14,26 +17,36 @@
   "dependencies": {
     "@google/genai": "^1.38.0",
     "@supabase/supabase-js": "^2.91.1",
-    "@types/jsonwebtoken": "^9.0.10",
     "bcrypt": "^6.0.0",
     "cors": "^2.8.6",
     "dotenv": "^17.2.3",
     "express": "^5.2.1",
-    "jsonwebtoken": "^9.0.3",
+    "jsonwebtoken": "^9.0.0",
     "multer": "^2.0.2",
     "nodemailer": "^7.0.13",
     "pdf-parse": "^2.4.5",
-    "resend": "^6.9.0"
+    "resend": "^6.9.0",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1"
   },
   "devDependencies": {
     "@types/bcrypt": "^6.0.0",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
+    "@types/jest": "^30.0.0",
+    "@types/jsonwebtoken": "^9.0.7",
     "@types/multer": "^2.0.0",
+    "@types/node": "^25.1.0",
     "@types/nodemailer": "^7.0.9",
     "@types/pdf-parse": "^1.1.5",
+    "@types/swagger-jsdoc": "^6.0.4",
+    "@types/swagger-ui-express": "^4.1.8",
     "esbuild": "^0.27.2",
+    "jest": "^30.2.0",
     "nodemon": "^3.1.11",
-    "ts-node-dev": "^2.0.0"
+    "ts-jest": "^29.4.6",
+    "ts-node": "^10.9.2",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.9.3"
   }
 }
