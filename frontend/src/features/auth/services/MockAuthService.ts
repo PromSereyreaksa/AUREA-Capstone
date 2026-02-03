@@ -83,6 +83,11 @@ export class MockAuthService implements IAuthService {
     return new Promise((resolve) => setTimeout(resolve, 1000));
   }
 
+  async resendOtp(): Promise<void> {
+    console.log('[Mock] Resend OTP');
+    return new Promise((resolve) => setTimeout(resolve, 1000));
+  }
+
   async getCurrentUser(): Promise<User | null> {
     console.log('[Mock] Get current user');
     return new Promise((resolve) => setTimeout(() => resolve(this.currentUser), 500));

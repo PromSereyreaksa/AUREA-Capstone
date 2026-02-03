@@ -11,6 +11,7 @@ interface AuthContextValue extends AuthState {
   signInWithGoogle: () => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
   verifyEmail: (code: string) => Promise<void>;
+  resendOtp: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
@@ -116,6 +117,17 @@ export const AuthProvider = ({ children, authService }: AuthProviderProps) => {
     }
   };
 
+  const resendOtp = async () => {
+    try {
+      setState({ ...state, loading: true, error: null });
+      await service.resendOtp();
+      setState({ ...state, loading: false, error: null });
+    } catch (error: any) {
+      setState({ ...state, loading: false, error: error.message });
+      throw error;
+    }
+  };
+
   const value: AuthContextValue = {
     ...state,
     authService: service,
@@ -125,6 +137,7 @@ export const AuthProvider = ({ children, authService }: AuthProviderProps) => {
     signInWithGoogle,
     resetPassword,
     verifyEmail,
+    resendOtp,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
