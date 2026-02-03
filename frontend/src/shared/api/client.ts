@@ -1,4 +1,5 @@
-export const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api/v1';
+export const API_BASE_URL =
+  import.meta.env.VITE_API_URL || "http://localhost:3000/api/v1";
 
 interface RequestOptions {
   headers?: Record<string, string>;
@@ -13,78 +14,102 @@ export class HttpClient {
 
   private getHeaders(options?: RequestOptions): Record<string, string> {
     const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
     };
-    
+
     // Add auth token if available
-    const token = localStorage.getItem('auth_token');
+    const token = localStorage.getItem("auth_token");
     if (token) {
-      headers['Authorization'] = `Bearer ${token}`;
+      headers["Authorization"] = `Bearer ${token}`;
     }
-    
+
     // Merge with custom headers
     if (options?.headers) {
       Object.assign(headers, options.headers);
     }
-    
+
     return headers;
   }
 
   async get<T>(endpoint: string, options?: RequestOptions): Promise<T> {
     const response = await fetch(`${this.baseUrl}${endpoint}`, {
-      method: 'GET',
+      method: "GET",
       headers: this.getHeaders(options),
     });
-    
+
     if (!response.ok) {
-      const error = await response.json().catch(() => ({ message: 'Request failed' }));
-      throw new Error(error.message || `GET ${endpoint} failed`);
+      const error = await response
+        .json()
+        .catch(() => ({
+          error: { message: "Network error. Please try again." },
+        }));
+      throw new Error(error.error?.message || "Request failed");
     }
-    
+
     return response.json();
   }
 
-  async post<T>(endpoint: string, data: any, options?: RequestOptions): Promise<T> {
+  async post<T>(
+    endpoint: string,
+    data: any,
+    options?: RequestOptions,
+  ): Promise<T> {
     const response = await fetch(`${this.baseUrl}${endpoint}`, {
-      method: 'POST',
+      method: "POST",
       headers: this.getHeaders(options),
       body: JSON.stringify(data),
     });
-    
+
     if (!response.ok) {
-      const error = await response.json().catch(() => ({ message: 'Request failed' }));
-      throw new Error(error.message || `POST ${endpoint} failed`);
+      const error = await response
+        .json()
+        .catch(() => ({
+          error: { message: "Network error. Please try again." },
+        }));
+      throw new Error(error.error?.message || "Request failed");
     }
-    
+
     return response.json();
   }
 
-  async put<T>(endpoint: string, data: any, options?: RequestOptions): Promise<T> {
+  async put<T>(
+    endpoint: string,
+    data: any,
+    options?: RequestOptions,
+  ): Promise<T> {
     const response = await fetch(`${this.baseUrl}${endpoint}`, {
-      method: 'PUT',
+      method: "PUT",
       headers: this.getHeaders(options),
       body: JSON.stringify(data),
     });
-    
+
     if (!response.ok) {
-      const error = await response.json().catch(() => ({ message: 'Request failed' }));
-      throw new Error(error.message || `PUT ${endpoint} failed`);
+      const error = await response
+        .json()
+        .catch(() => ({
+          error: { message: "Network error. Please try again." },
+        }));
+      throw new Error(error.error?.message || "Request failed");
     }
-    
+
     return response.json();
   }
 
   async delete<T>(endpoint: string, options?: RequestOptions): Promise<T> {
     const response = await fetch(`${this.baseUrl}${endpoint}`, {
-      method: 'DELETE',
+      method: "DELETE",
       headers: this.getHeaders(options),
     });
-    
+
     if (!response.ok) {
-      const error = await response.json().catch(() => ({ message: 'Request failed' }));
-      throw new Error(error.message || `DELETE ${endpoint} failed`);
+      const error = await response
+        .json()
+        .catch(() => ({
+          error: { message: "Network error. Please try again." },
+        }));
+      throw new Error(error.error?.message || "Request failed");
     }
-    
+
     return response.json();
   }
 }
