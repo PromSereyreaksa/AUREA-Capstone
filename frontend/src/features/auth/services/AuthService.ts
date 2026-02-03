@@ -1,6 +1,7 @@
 import type { IAuthService } from './IAuthService';
 import type { User } from '../../../shared/types';
 import { httpClient } from '../../../shared/api/client';
+import { supabase } from '../../../shared/api/supabaseClient';
 
 export class AuthService implements IAuthService {
   async signUp(email: string, password: string): Promise<User> {
@@ -53,9 +54,21 @@ export class AuthService implements IAuthService {
   }
 
   async signInWithGoogle(): Promise<User> {
-    // Redirect to backend OAuth endpoint
-    window.location.href = `${httpClient.baseUrl}/auth/google`;
-    
+    // Use Supabase OAuth to sign in with Google
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+        queryParams: {
+          prompt: 'select_account',  // Force Google to show account picker
+        },
+      },
+    });
+
+    if (error) {
+      throw new Error(error.message || 'Failed to initiate Google sign in');
+    }
+
     // Return placeholder (actual user will be set after redirect)
     return {
       user_id: 0,
@@ -126,31 +139,53 @@ export class AuthService implements IAuthService {
   async getCurrentUser(): Promise<User | null> {
     const token = localStorage.getItem('auth_token');
     
-    if (!token) return null;
+    // First check if there's a Supabase session (for Google OAuth users)
+    const { data: { session } } = await supabase.auth.getSession();
 
-    // Check if this is a Google user
-    if (session.user.app_metadata?.provider === 'google') {
+    // If we have a Supabase session (Google user)
+    if (session?.user) {
       try {
         // Try to get user from backend using stored token
-        const token = localStorage.getItem('auth_token');
         if (token) {
           const userData = await httpClient.get<{ data: { user: User } }>('/users/me', {
             headers: { Authorization: `Bearer ${token}` }
           });
           return userData.data?.user || null;
         }
+        
+        // Sync with backend if no token yet
+        const response = await httpClient.post<{ data: { user: User; token: string } }>('/users/google', {
+          google_id: session.user.id,
+          email: session.user.email,
+          name: session.user.user_metadata?.full_name || session.user.user_metadata?.name,
+          avatar_url: session.user.user_metadata?.avatar_url,
+          role: 'designer',
+        });
+
+        if (response.data?.token) {
+          localStorage.setItem('auth_token', response.data.token);
+        }
+
+        return response.data?.user || {
+          user_id: 0,
+          email: session.user.email || '',
+          role: 'designer',
+          email_verified: true,
+        };
       } catch (err) {
         console.error('Error fetching Google user from backend:', err);
+        // Fallback: return Supabase user data
+        return {
+          user_id: 0,
+          email: session.user.email || '',
+          role: 'designer',
+          email_verified: true,
+        };
       }
-      
-      // Fallback: return Supabase user data
-      return {
-        user_id: 0,
-        email: session.user.email || '',
-        role: 'designer',
-        email_verified: true,
-      };
     }
+
+    // No token and no session
+    if (!token) return null;
 
     try {
       const user = await httpClient.get<User>('/users/me');
