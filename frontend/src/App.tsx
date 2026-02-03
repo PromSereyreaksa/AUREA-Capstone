@@ -28,6 +28,7 @@ import {
 import { GuestAccessViewpage } from "./features/guest-access";
 
 import { DashboardPage } from "./features/dashbard";
+import { ProjectsPage } from "./features/projects";
 
 import "./App.css";
 
@@ -66,6 +67,8 @@ function App() {
 
           {/* Dashboard Route */}
           <Route path="/dashboard" element={<DashboardPage />} />
+          {/* Projects Route */}
+          <Route path="/projects" element={<ProjectsPage />} />
 
           {/* Placeholder Routes */}
           <Route

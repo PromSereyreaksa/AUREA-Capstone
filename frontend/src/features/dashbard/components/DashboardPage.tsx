@@ -51,7 +51,7 @@ const DashboardPage = () => {
     }
     return "User";
   };
-
+  
   // Format current date
   const formatDate = () => {
     const options: Intl.DateTimeFormatOptions = {

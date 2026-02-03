@@ -1,6 +1,9 @@
 import { Link } from "react-router-dom";
+import { useAuth } from "../../features/auth/context/AuthContext";
 
 export default function Navbar() {
+  const { user } = useAuth();
+
   return (
     <div className="pt-12 pl-12 pr-12">
       <header className="border-3 border-black rounded-3xl bg-white shadow-md px-8">
@@ -38,18 +41,31 @@ export default function Navbar() {
             </a>
           </nav>
           <div className="flex items-center gap-4">
-            <Link
-              to="/signin"
-              className="font-medium text-black hover:text-[#FB8500] transition"
-            >
-              Log in
-            </Link>
-            <Link
-              to="/signup"
-              className="bg-[#FB8500] text-white font-medium px-6 py-2 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all border-2 border-black"
-            >
-              TRY AUREA
-            </Link>
+            {user ? (
+              // Logged in state - Show Dashboard button
+              <Link
+                to="/dashboard"
+                className="bg-[#FB8500] text-white font-medium px-6 py-2 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all border-2 border-black"
+              >
+                Dashboard
+              </Link>
+            ) : (
+              // Logged out state - Show Log in and TRY AUREA
+              <>
+                <Link
+                  to="/signin"
+                  className="font-medium text-black hover:text-[#FB8500] transition"
+                >
+                  Log in
+                </Link>
+                <Link
+                  to="/signup"
+                  className="bg-[#FB8500] text-white font-medium px-6 py-2 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all border-2 border-black"
+                >
+                  TRY AUREA
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </header>
