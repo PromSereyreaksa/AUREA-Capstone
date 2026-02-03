@@ -52,6 +52,20 @@ export class UserRepository implements IUserRepository {
     return mapUserFromDb(data);
   }
 
+  async findByGoogleId(google_id: string): Promise<User | null> {
+    const { data, error } = await supabase
+      .from("users")
+      .select("*")
+      .eq("google_id", google_id)
+      .maybeSingle();
+
+    if (error) {
+      throw new DatabaseError(`Failed to find user by Google ID: ${error.message}`);
+    }
+    if (!data) return null;
+    return mapUserFromDb(data);
+  }
+
   async verifyEmail(user_id: number): Promise<void> {
     const { error } = await supabase
       .from("users")
@@ -78,5 +92,32 @@ export class UserRepository implements IUserRepository {
       .eq("user_id", user_id);
 
     if (error) throw error;
+  }
+
+  async updateLastLogin(user_id: number): Promise<void> {
+    const { error } = await supabase
+      .from("users")
+      .update({ 
+        last_login_at: new Date().toISOString().replace('T', ' ').replace('Z', '')
+      })
+      .eq("user_id", user_id);
+
+    if (error) {
+      throw new DatabaseError(`Failed to update last login: ${error.message}`);
+    }
+  }
+
+  async linkGoogleAccount(user_id: number, google_id: string): Promise<void> {
+    const { error } = await supabase
+      .from("users")
+      .update({ 
+        google_id: google_id,
+        auth_provider: 'google'
+      })
+      .eq("user_id", user_id);
+
+    if (error) {
+      throw new DatabaseError(`Failed to link Google account: ${error.message}`);
+    }
   }
 }

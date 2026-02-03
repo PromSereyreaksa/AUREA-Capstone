@@ -13,3 +13,4 @@ export { SignUpPage } from './components/SignUpPage';
 export { SignInPage } from './components/SignInPage';
 export { VerifyEmailPage } from './components/VerifyEmailPage';
 export { ForgotPasswordPage } from './components/ForgotPasswordPage';
+export { AuthCallbackPage } from './components/AuthCallbackPage';

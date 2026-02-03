@@ -5,6 +5,7 @@ import {
   SignInPage,
   VerifyEmailPage,
   ForgotPasswordPage,
+  AuthCallbackPage,
 } from './features/auth';
 
 import {
@@ -29,6 +30,7 @@ function App() {
           <Route path="/signin" element={<SignInPage />} />
           <Route path="/verify-email" element={<VerifyEmailPage />} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="/auth/callback" element={<AuthCallbackPage />} />
           
           {/* Landing Page Routes */}
           <Route
