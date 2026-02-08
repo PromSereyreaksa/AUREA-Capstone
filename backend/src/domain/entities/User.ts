@@ -8,6 +8,7 @@ export class User {
     public email_verified?: boolean,
     public verification_otp?: string,
     public verify_otp_expired?: Date,
+    public created_at?: Date,
     public last_login_at?: Date,
     public auth_provider?: string
   ) {}

@@ -1,100 +1,164 @@
-import { Request, Response, NextFunction } from "express";
-import { GeminiService } from "../../infrastructure/services/GeminiService";
-import { PdfService } from "../../infrastructure/services/PdfService";
-import { ProjectPriceRepository } from "../../infrastructure/repositories/ProjectPriceRepository";
-import { ProjectDeliverableRepository } from "../../infrastructure/repositories/ProjectDeliverableRepository";
-import { ExtractProjectFromPdf } from "../../application/use_cases/ExtractProjectFromPdf";
-import multer from "multer";
+import { Request, Response, NextFunction } from 'express';
+import { GeminiService } from '../../infrastructure/services/GeminiService';
+import { ProjectPriceRepository } from '../../infrastructure/repositories/ProjectPriceRepository';
+import { ProjectDeliverableRepository } from '../../infrastructure/repositories/ProjectDeliverableRepository';
+import { ExtractProjectFromPdf } from '../../application/use_cases/ExtractProjectFromPdf';
+import { CreateProjectManually } from '../../application/use_cases/CreateProjectManually';
+import { ProjectValidator, UserValidator, PdfValidator } from '../../shared/validators';
+import { ResponseHelper } from '../../shared/utils/responseHelper';
+import { asyncHandler } from '../../shared/middleware';
+import { ProjectDeliverable } from '../../domain/entities/ProjectDeliverable';
+import multer from 'multer';
 
+// Multer configuration
 export const upload = multer({
   storage: multer.memoryStorage(),
-  limits: {
-    fileSize: 10 * 1024 * 1024, // 10MB limit
-  },
+  limits: { fileSize: 10 * 1024 * 1024 },
   fileFilter: (req, file, cb) => {
-    if (file.mimetype === "application/pdf") {
+    if (file.mimetype === 'application/pdf') {
       cb(null, true);
     } else {
-      cb(new Error("Only PDF files are allowed"));
+      cb(new Error('Only PDF files are allowed'));
     }
-  },
+  }
 });
 
-const pdfService = new PdfService();
+// Initialize dependencies
 const geminiService = new GeminiService();
 const projectPriceRepo = new ProjectPriceRepository();
 const projectDeliverableRepo = new ProjectDeliverableRepository();
 const extractProjectUseCase = new ExtractProjectFromPdf(
   projectPriceRepo,
   projectDeliverableRepo,
-  pdfService,
-  geminiService,
+  geminiService
+);
+const createProjectManuallyUseCase = new CreateProjectManually(
+  projectPriceRepo,
+  projectDeliverableRepo
 );
 
 // Extract PDF and create project
-export const extractPdfController = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
-  try {
-    if (!req.file) {
-      return res.status(400).json({ error: "PDF file is required" });
-    }
+export const extractPdfController = asyncHandler(async (req: Request, res: Response) => {
+  PdfValidator.validatePdfFile(req.file);
+  const userId = UserValidator.validateUserId(req.body.user_id);
 
-    const userId = req.body.user_id;
-    if (!userId) {
-      return res.status(400).json({ 
-        error: "user_id is required. Please provide a valid user ID or create a user first at POST /api/users/signup" 
-      });
-    }
+  const result = await extractProjectUseCase.execute(req.file!.buffer, userId);
 
-    const result = await extractProjectUseCase.execute(req.file.buffer, userId);
+  return ResponseHelper.created(res, result, 'PDF extracted and project created successfully');
+});
 
-    return res.status(201).json({
-      message: "PDF extracted and project created successfully",
-      data: result,
-    });
-  } catch (error: any) {
-    
-    if (error.message && error.message.includes('foreign key constraint')) {
-      return res.status(400).json({
-        error: "Invalid user_id. The user does not exist. Please create a user first at POST /api/users/signup"
-      });
-    }
-    next(error);
-  }
-};
+// Create project manually without PDF
+export const createProjectManuallyController = asyncHandler(async (req: Request, res: Response) => {
+  const userId = UserValidator.validateUserId(req.body.user_id);
+  ProjectValidator.validateManualProjectInput(req.body);
+
+  const sanitizedData = ProjectValidator.sanitizeProjectData(req.body);
+  const result = await createProjectManuallyUseCase.execute(userId, sanitizedData as any);
+
+  return ResponseHelper.created(res, result, 'Project created successfully');
+});
 
 // Test Gemini connection
-export const testGeminiController = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
-  try {
-    const status = await geminiService.testConnection();
-    return res.status(200).json(status);
-  } catch (error) {
-    next(error);
-  }
-};
+export const testGeminiController = asyncHandler(async (req: Request, res: Response) => {
+  const status = await geminiService.testConnection();
+  return ResponseHelper.success(res, status);
+});
 
 // Get user's project history
-export const getProjectHistoryController = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
-  try {
-    const userId = parseInt(
-      Array.isArray(req.params.userId)
-        ? req.params.userId[0]
-        : req.params.userId,
-    );
-    const projects = await projectPriceRepo.findByUserId(userId);
-    return res.status(200).json({ data: projects });
-  } catch (error) {
-    next(error);
+export const getProjectHistoryController = asyncHandler(async (req: Request, res: Response) => {
+  const userId = UserValidator.validateUserId(req.params.userId);
+  const projects = await projectPriceRepo.findByUserId(userId);
+  return ResponseHelper.success(res, projects);
+});
+
+// Get single project by ID with deliverables
+export const getProjectByIdController = asyncHandler(async (req: Request, res: Response) => {
+  const userId = UserValidator.validateUserId(req.params.userId);
+  const projectId = ProjectValidator.validateProjectId(req.params.projectId);
+
+  const project = await projectPriceRepo.findById(projectId);
+  
+  if (!project) {
+    return ResponseHelper.notFound(res, 'Project not found');
   }
-};
+
+  // Verify ownership
+  if (project.user_id !== userId) {
+    return ResponseHelper.forbidden(res, 'You do not have access to this project');
+  }
+
+  const deliverables = await projectDeliverableRepo.findByProjectId(projectId);
+  
+  return ResponseHelper.success(res, {
+    ...project,
+    deliverables
+  });
+});
+
+// Update project
+export const updateProjectController = asyncHandler(async (req: Request, res: Response) => {
+  const userId = UserValidator.validateUserId(req.params.userId);
+  const projectId = ProjectValidator.validateProjectId(req.params.projectId);
+  ProjectValidator.validateUpdateProjectInput(req.body);
+
+  const project = await projectPriceRepo.findById(projectId);
+  
+  if (!project) {
+    return ResponseHelper.notFound(res, 'Project not found');
+  }
+
+  // Verify ownership
+  if (project.user_id !== userId) {
+    return ResponseHelper.forbidden(res, 'You do not have access to this project');
+  }
+
+  const sanitizedData = ProjectValidator.sanitizeProjectData(req.body);
+  const updatedProject = await projectPriceRepo.update(projectId, sanitizedData as any);
+
+  // If deliverables are provided, add them (new deliverables only)
+  if (req.body.deliverables && Array.isArray(req.body.deliverables)) {
+    const newDeliverables = await Promise.all(
+      req.body.deliverables.map((del: any) => {
+        const deliverable = new ProjectDeliverable(0, projectId, del.deliverable_type, del.quantity);
+        return projectDeliverableRepo.create(deliverable);
+      })
+    );
+    
+    return ResponseHelper.success(res, {
+      ...updatedProject,
+      deliverables: newDeliverables
+    }, 'Project updated successfully');
+  }
+
+  const deliverables = await projectDeliverableRepo.findByProjectId(projectId);
+  
+  return ResponseHelper.success(res, {
+    ...updatedProject,
+    deliverables
+  }, 'Project updated successfully');
+});
+
+// Delete project and associated deliverables
+export const deleteProjectController = asyncHandler(async (req: Request, res: Response) => {
+  const userId = UserValidator.validateUserId(req.params.userId);
+  const projectId = ProjectValidator.validateProjectId(req.params.projectId);
+
+  const project = await projectPriceRepo.findById(projectId);
+  
+  if (!project) {
+    return ResponseHelper.notFound(res, 'Project not found');
+  }
+
+  // Verify ownership
+  if (project.user_id !== userId) {
+    return ResponseHelper.forbidden(res, 'You do not have access to this project');
+  }
+
+  // Delete all deliverables first
+  await projectDeliverableRepo.deleteByProjectId(projectId);
+  
+  // Delete the project
+  await projectPriceRepo.delete(projectId);
+
+  return ResponseHelper.success(res, { projectId }, 'Project deleted successfully');
+});

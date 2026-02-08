@@ -1,5 +1,19 @@
 import { User } from '../../domain/entities/User';
 
+// Helper to format date for PostgreSQL timestamp (without timezone suffix)
+function toPostgresTimestamp(date: Date | undefined): string | undefined {
+  if (!date) return undefined;
+  // Format: YYYY-MM-DD HH:MM:SS
+  return date.toISOString().replace('T', ' ').replace('Z', '');
+}
+
+// Helper to parse timestamp from PostgreSQL (append Z to treat as UTC)
+function fromPostgresTimestamp(value: any): Date | undefined {
+  if (!value) return undefined;
+  // If it doesn't end with Z, append it to treat as UTC
+  const dateStr = String(value).endsWith('Z') ? value : value + 'Z';
+  return new Date(dateStr);
+}
 
 export function mapUserFromDb(data: any): User {
   return new User(
@@ -10,8 +24,9 @@ export function mapUserFromDb(data: any): User {
     data.google_id,
     data.email_verified,
     data.verification_otp,
-    data.verify_otp_expired ? new Date(data.verify_otp_expired) : undefined,
-    data.last_login_at ? new Date(data.last_login_at) : undefined,
+    fromPostgresTimestamp(data.verify_otp_expired),
+    fromPostgresTimestamp(data.created_at),
+    fromPostgresTimestamp(data.last_login_at),
     data.auth_provider
   );
 }
@@ -24,8 +39,9 @@ export function mapUserToDb(user: User) {
     google_id: user.google_id,
     email_verified: user.email_verified,
     verification_otp: user.verification_otp,
-    verify_otp_expired: user.verify_otp_expired?.toISOString(),
-    last_login_at: user.last_login_at?.toISOString(),
+    verify_otp_expired: toPostgresTimestamp(user.verify_otp_expired),
+    created_at: toPostgresTimestamp(user.created_at),
+    last_login_at: toPostgresTimestamp(user.last_login_at),
     auth_provider: user.auth_provider
   };
 }

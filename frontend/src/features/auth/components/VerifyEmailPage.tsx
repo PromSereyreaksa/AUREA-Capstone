@@ -5,10 +5,12 @@ import '../styles/auth.css';
 
 export const VerifyEmailPage = () => {
   const navigate = useNavigate();
-  const { verifyEmail } = useAuth();
+  const { verifyEmail, resendOtp } = useAuth();
   const [code, setCode] = useState(['', '', '', '', '', '']);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [resendLoading, setResendLoading] = useState(false);
+  const [resendSuccess, setResendSuccess] = useState(false);
 
   const handleChange = (index: number, value: string) => {
     if (value.length > 1) return;
@@ -103,10 +105,28 @@ export const VerifyEmailPage = () => {
 
             <p className="resend-text">
               Didn't receive the code?{' '}
-              <button type="button" className="resend-button">
-                Resend
+              <button 
+                type="button" 
+                className="resend-button"
+                onClick={async () => {
+                  setResendLoading(true);
+                  setResendSuccess(false);
+                  setError('');
+                  try {
+                    await resendOtp();
+                    setResendSuccess(true);
+                  } catch (err: any) {
+                    setError(err.message || 'Failed to resend code');
+                  } finally {
+                    setResendLoading(false);
+                  }
+                }}
+                disabled={resendLoading}
+              >
+                {resendLoading ? 'Sending...' : 'Resend'}
               </button>
             </p>
+            {resendSuccess && <p className="success-message">OTP resent successfully!</p>}
           </form>
         </div>
       </div>

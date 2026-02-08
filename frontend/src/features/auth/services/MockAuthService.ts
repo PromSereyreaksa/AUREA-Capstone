@@ -55,6 +55,21 @@ export class MockAuthService implements IAuthService {
     return new Promise((resolve) => setTimeout(() => resolve(user), 1000));
   }
 
+  async handleGoogleCallback(): Promise<User> {
+    console.log('[Mock] Handle Google callback');
+    
+    const user: User = {
+      user_id: 1,
+      email: 'mock@google.com',
+      role: 'designer',
+      email_verified: true,
+      google_id: 'mock-google-id',
+    };
+
+    this.currentUser = user;
+    return new Promise((resolve) => setTimeout(() => resolve(user), 1000));
+  }
+
   async resetPassword(email: string): Promise<void> {
     console.log('[Mock] Reset password for:', email);
     return new Promise((resolve) => setTimeout(resolve, 1000));
@@ -65,6 +80,11 @@ export class MockAuthService implements IAuthService {
     if (this.currentUser) {
       this.currentUser.email_verified = true;
     }
+    return new Promise((resolve) => setTimeout(resolve, 1000));
+  }
+
+  async resendOtp(): Promise<void> {
+    console.log('[Mock] Resend OTP');
     return new Promise((resolve) => setTimeout(resolve, 1000));
   }
 

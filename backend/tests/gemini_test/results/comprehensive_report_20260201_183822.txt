@@ -1,0 +1,1025 @@
+╔══════════════════════════════════════════════════════════════════════════════════════════════════════════╗
+║                                                                                                          ║
+║     █████╗ ██╗   ██╗██████╗ ███████╗ █████╗     ██████╗ ██████╗ ███████╗    ████████╗███████╗███████╗████████╗
+║    ██╔══██╗██║   ██║██╔══██╗██╔════╝██╔══██╗    ██╔══██╗██╔══██╗██╔════╝    ╚══██╔══╝██╔════╝██╔════╝╚══██╔══╝
+║    ███████║██║   ██║██████╔╝█████╗  ███████║    ██████╔╝██║  ██║█████╗         ██║   █████╗  ███████╗   ██║   
+║    ██╔══██║██║   ██║██╔══██╗██╔══╝  ██╔══██║    ██╔═══╝ ██║  ██║██╔══╝         ██║   ██╔══╝  ╚════██║   ██║   
+║    ██║  ██║╚██████╔╝██║  ██║███████╗██║  ██║    ██║     ██████╔╝██║            ██║   ███████╗███████║   ██║   
+║    ╚═╝  ╚═╝ ╚═════╝ ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝    ╚═╝     ╚═════╝ ╚═╝            ╚═╝   ╚══════╝╚══════╝   ╚═╝   
+║                                                                                                          ║
+║                    COMPREHENSIVE MODEL EVALUATION REPORT                                                 ║
+║                    Version 3.0 - Grouped Deliverables with Items                                         ║
+║                                                                                                          ║
+╚══════════════════════════════════════════════════════════════════════════════════════════════════════════╝
+
+Generated: Sun Feb  1 06:38:22 PM +07 2026
+Test Suite Version: 3.0.0
+
+
+═══════════════════════════════════════════════════════════════════════════════
+TEST 0.1: [BASELINE] Perfect Sample - Well Formatted Proposal
+═══════════════════════════════════════════════════════════════════════════════
+Status: PASSED ✓
+File: /home/long/Desktop/capstone backend/AUREA-Capstone/backend/tests/gemini_test/scripts/../samples/pdf/PROJECT PROPOSAL DOCUMENT.pdf
+Test Type: standard
+
+Extracted Data:
+  • Project Name: Tech Start Up Branding
+  • Title: Complete Brand Identity Development for Technology Startup
+  • Description: This project focuses on creating a complete brand identity for a technology startup. The scope includes brand research, visual identity development, a...
+  • Duration: 15 days (expected: 90)
+  • Difficulty: Complex (expected: Complex)
+  • Licensing: One-Time Used
+  • Usage Rights: Small Business Usage Rights. Client gets exclusive, non-transferable rights for internal business us
+
+Deliverables (Grouped):
+  • Categories: 5 (expected: 5)
+  • Total Items: 20
+  • Avg Items per Category: 4.0
+  • Thin Categories (<3 items): 0
+
+Accuracy Metrics:
+  • Field Completeness: 100%
+  • Category Accuracy: 100%
+  • Duration Match: OFF
+  • Difficulty Match: EXACT
+  • Extraction Time: 34156ms
+  • Model Used: gemini-3-flash-preview
+
+
+═══════════════════════════════════════════════════════════════════════════════
+TEST 1.1: [MINIMAL] Sparse Info - Basic Extraction
+═══════════════════════════════════════════════════════════════════════════════
+Status: FAILED ✗
+File: /home/long/Desktop/capstone backend/AUREA-Capstone/backend/tests/gemini_test/scripts/../samples/pdf/01-MINIMAL_PROJECT.pdf
+Test Type: standard
+Error: 
+Extraction Time: 2698ms
+
+
+═══════════════════════════════════════════════════════════════════════════════
+TEST 1.2: [MINIMAL] Implicit Timeline - ASAP interpretation
+═══════════════════════════════════════════════════════════════════════════════
+Status: FAILED ✗
+File: /home/long/Desktop/capstone backend/AUREA-Capstone/backend/tests/gemini_test/scripts/../samples/pdf/01-MINIMAL_PROJECT.pdf
+Test Type: edge_case
+Error: 
+Extraction Time: 12056ms
+
+
+═══════════════════════════════════════════════════════════════════════════════
+TEST 1.3: [MINIMAL] Budget Keyword - Limited budget inference
+═══════════════════════════════════════════════════════════════════════════════
+Status: PASSED ✓
+File: /home/long/Desktop/capstone backend/AUREA-Capstone/backend/tests/gemini_test/scripts/../samples/pdf/01-MINIMAL_PROJECT.pdf
+Test Type: edge_case
+
+Extracted Data:
+  • Project Name: Simple Website Redesign
+  • Title: Simple Website Redesign
+  • Description: A website redesign for a small business, aiming to update the current outdated site with a modern, mobile-friendly design and a contact form....
+  • Duration: 7 days (expected: N/A)
+  • Difficulty: Medium (expected: Easy)
+  • Licensing: N/A
+  • Usage Rights: N/A
+
+Deliverables (Grouped):
+  • Categories: 2 (expected: 2)
+  • Total Items: 6
+  • Avg Items per Category: 3.0
+  • Thin Categories (<3 items): 0
+
+Accuracy Metrics:
+  • Field Completeness: 100%
+  • Category Accuracy: 100%
+  • Duration Match: N/A
+  • Difficulty Match: WRONG
+  • Extraction Time: 15979ms
+  • Model Used: gemini-2.5-flash
+
+
+═══════════════════════════════════════════════════════════════════════════════
+TEST 2.1: [COMPLEX] Multi-Deliverable - Grouped Category Extraction
+═══════════════════════════════════════════════════════════════════════════════
+Status: PASSED ✓
+File: /home/long/Desktop/capstone backend/AUREA-Capstone/backend/tests/gemini_test/scripts/../samples/pdf/02-COMPLEX_MULTI_DELIVERABLE.pdf
+Test Type: standard
+
+Extracted Data:
+  • Project Name: COMPREHENSIVE E-COMMERCE PLATFORM DEVELOPMENT
+  • Title: Multi-Vendor E-Commerce Platform with Advanced Features
+  • Description: A complete e-commerce solution supporting multiple vendors, advanced inventory management, real-time analytics, and AI-powered recommendations. The pl...
+  • Duration: 240 days (expected: 240)
+  • Difficulty: Complex (expected: Complex)
+  • Licensing: Exclusive License
+  • Usage Rights: Commercial Use - Full rights to modify, distribute, and resell
+
+Deliverables (Grouped):
+  • Categories: 8 (expected: 8)
+  • Total Items: 31
+  • Avg Items per Category: 3.9
+  • Thin Categories (<3 items): 2
+
+Accuracy Metrics:
+  • Field Completeness: 100%
+  • Category Accuracy: 100%
+  • Duration Match: EXACT
+  • Difficulty Match: EXACT
+  • Extraction Time: 30947ms
+  • Model Used: gemini-2.5-flash
+
+
+═══════════════════════════════════════════════════════════════════════════════
+TEST 2.2: [COMPLEX] Timeline Calculation - Multi-phase Duration
+═══════════════════════════════════════════════════════════════════════════════
+Status: PASSED ✓
+File: /home/long/Desktop/capstone backend/AUREA-Capstone/backend/tests/gemini_test/scripts/../samples/pdf/02-COMPLEX_MULTI_DELIVERABLE.pdf
+Test Type: edge_case
+
+Extracted Data:
+  • Project Name: Comprehensive E-commerce Platform Development
+  • Title: Multi-Vendor E-Commerce Platform with Advanced Features
+  • Description: A complete e-commerce solution is sought to support multiple vendors, advanced inventory management, real-time analytics, and AI-powered recommendatio...
+  • Duration: 240 days (expected: 240)
+  • Difficulty: Complex (expected: Complex)
+  • Licensing: Exclusive License
+  • Usage Rights: Commercial Use - Full rights to modify, distribute, and resell
+
+Deliverables (Grouped):
+  • Categories: 15 (expected: 8)
+  • Total Items: 61
+  • Avg Items per Category: 4.1
+  • Thin Categories (<3 items): 4
+
+Accuracy Metrics:
+  • Field Completeness: 100%
+  • Category Accuracy: 100%
+  • Duration Match: EXACT
+  • Difficulty Match: EXACT
+  • Extraction Time: 28593ms
+  • Model Used: gemini-2.5-flash
+
+
+═══════════════════════════════════════════════════════════════════════════════
+TEST 2.3: [COMPLEX] Items Array - Sub-component Extraction
+═══════════════════════════════════════════════════════════════════════════════
+Status: PASSED ✓
+File: /home/long/Desktop/capstone backend/AUREA-Capstone/backend/tests/gemini_test/scripts/../samples/pdf/02-COMPLEX_MULTI_DELIVERABLE.pdf
+Test Type: edge_case
+
+Extracted Data:
+  • Project Name: Multi-Vendor E-Commerce Platform with Advanced Features
+  • Title: COMPREHENSIVE E-COMMERCE PLATFORM DEVELOPMENT
+  • Description: We are seeking a complete e-commerce solution that supports multiple vendors, advanced inventory management, real-time analytics, and AI-powered recom...
+  • Duration: 240 days (expected: 240)
+  • Difficulty: Complex (expected: Complex)
+  • Licensing: Exclusive License
+  • Usage Rights: Commercial Use - Full rights to modify, distribute, and resell
+
+Deliverables (Grouped):
+  • Categories: 14 (expected: 8)
+  • Total Items: 32
+  • Avg Items per Category: 2.3
+  • Thin Categories (<3 items): 10
+
+Accuracy Metrics:
+  • Field Completeness: 100%
+  • Category Accuracy: 100%
+  • Duration Match: EXACT
+  • Difficulty Match: EXACT
+  • Extraction Time: 31653ms
+  • Model Used: gemini-2.5-flash
+
+
+═══════════════════════════════════════════════════════════════════════════════
+TEST 2.4: [COMPLEX] Technical Reqs - Feature List Extraction
+═══════════════════════════════════════════════════════════════════════════════
+Status: FAILED ✗
+File: /home/long/Desktop/capstone backend/AUREA-Capstone/backend/tests/gemini_test/scripts/../samples/pdf/02-COMPLEX_MULTI_DELIVERABLE.pdf
+Test Type: standard
+Error: 
+Extraction Time: 28647ms
+
+
+═══════════════════════════════════════════════════════════════════════════════
+TEST 2.5: [COMPLEX] Quality Standards - SLA/Compliance Detection
+═══════════════════════════════════════════════════════════════════════════════
+Status: PASSED ✓
+File: /home/long/Desktop/capstone backend/AUREA-Capstone/backend/tests/gemini_test/scripts/../samples/pdf/02-COMPLEX_MULTI_DELIVERABLE.pdf
+Test Type: edge_case
+
+Extracted Data:
+  • Project Name: COMPREHENSIVE E-COMMERCE PLATFORM DEVELOPMENT
+  • Title: Multi-Vendor E-Commerce Platform with Advanced Features
+  • Description: A complete multi-vendor e-commerce solution featuring advanced inventory management, real-time analytics, and AI-powered recommendations. The platform...
+  • Duration: 240 days (expected: 240)
+  • Difficulty: Complex (expected: Complex)
+  • Licensing: Exclusive License
+  • Usage Rights: Commercial Use - Full rights to modify, distribute, and resell
+
+Deliverables (Grouped):
+  • Categories: 9 (expected: 8)
+  • Total Items: 35
+  • Avg Items per Category: 3.9
+  • Thin Categories (<3 items): 1
+
+Accuracy Metrics:
+  • Field Completeness: 100%
+  • Category Accuracy: 100%
+  • Duration Match: EXACT
+  • Difficulty Match: EXACT
+  • Extraction Time: 29412ms
+  • Model Used: gemini-3-flash-preview
+
+
+═══════════════════════════════════════════════════════════════════════════════
+TEST 3.1: [VAGUE] Ambiguous Input - Graceful Handling
+═══════════════════════════════════════════════════════════════════════════════
+Status: PASSED ✓
+File: /home/long/Desktop/capstone backend/AUREA-Capstone/backend/tests/gemini_test/scripts/../samples/pdf/03-VAGUE_REQUIREMENTS.pdf
+Test Type: edge_case
+
+Extracted Data:
+  • Project Name: Company Project Proposal
+  • Title: Project Proposal
+  • Description: A project focused on creating a modern digital solution similar to competitor offerings. The scope involves a small number of pages or screens with a ...
+  • Duration: 14 days (expected: N/A)
+  • Difficulty: Medium (expected: N/A)
+  • Licensing: N/A
+  • Usage Rights: N/A
+
+Deliverables (Grouped):
+  • Categories: 0 (expected: 1)
+  • Total Items: 0
+  • Avg Items per Category: 0
+  • Thin Categories (<3 items): 0
+
+Accuracy Metrics:
+  • Field Completeness: 100%
+  • Category Accuracy: 0%
+  • Duration Match: N/A
+  • Difficulty Match: N/A
+  • Extraction Time: 13238ms
+  • Model Used: gemini-3-flash-preview
+
+
+═══════════════════════════════════════════════════════════════════════════════
+TEST 3.2: [VAGUE] Vague Timeline - Flexible deadline handling
+═══════════════════════════════════════════════════════════════════════════════
+Status: PASSED ✓
+File: /home/long/Desktop/capstone backend/AUREA-Capstone/backend/tests/gemini_test/scripts/../samples/pdf/03-VAGUE_REQUIREMENTS.pdf
+Test Type: edge_case
+
+Extracted Data:
+  • Project Name: Company Project
+  • Title: Project Proposal
+  • Description: A proposal for a modern, professional digital solution involving a few pages or screens with interactive elements and system integration, intended to ...
+  • Duration: 30 days (expected: N/A)
+  • Difficulty: Medium (expected: N/A)
+  • Licensing: N/A
+  • Usage Rights: N/A
+
+Deliverables (Grouped):
+  • Categories: 0 (expected: 1)
+  • Total Items: 0
+  • Avg Items per Category: 0
+  • Thin Categories (<3 items): 0
+
+Accuracy Metrics:
+  • Field Completeness: 100%
+  • Category Accuracy: 0%
+  • Duration Match: N/A
+  • Difficulty Match: N/A
+  • Extraction Time: 15192ms
+  • Model Used: gemini-3-flash-preview
+
+
+═══════════════════════════════════════════════════════════════════════════════
+TEST 3.3: [VAGUE] Undefined Scope - Minimal categories
+═══════════════════════════════════════════════════════════════════════════════
+Status: PASSED ✓
+File: /home/long/Desktop/capstone backend/AUREA-Capstone/backend/tests/gemini_test/scripts/../samples/pdf/03-VAGUE_REQUIREMENTS.pdf
+Test Type: edge_case
+
+Extracted Data:
+  • Project Name: Project Proposal
+  • Title: Project Proposal
+  • Description: The client requires a solution similar to a competitor's but improved. The scope is loosely defined as potentially involving a few pages or screens wi...
+  • Duration: N/A days (expected: N/A)
+  • Difficulty: N/A (expected: Medium)
+  • Licensing: N/A
+  • Usage Rights: N/A
+
+Deliverables (Grouped):
+  • Categories: 0 (expected: 1)
+  • Total Items: 0
+  • Avg Items per Category: 0
+  • Thin Categories (<3 items): 0
+
+Accuracy Metrics:
+  • Field Completeness: 60%
+  • Category Accuracy: 0%
+  • Duration Match: N/A
+  • Difficulty Match: N/A
+  • Extraction Time: 15874ms
+  • Model Used: gemini-3-flash-preview
+
+
+═══════════════════════════════════════════════════════════════════════════════
+TEST 3.4: [VAGUE] Contradictory Info - Modern but not too modern
+═══════════════════════════════════════════════════════════════════════════════
+Status: PASSED ✓
+File: /home/long/Desktop/capstone backend/AUREA-Capstone/backend/tests/gemini_test/scripts/../samples/pdf/03-VAGUE_REQUIREMENTS.pdf
+Test Type: edge_case
+
+Extracted Data:
+  • Project Name: Project Proposal
+  • Title: Project Proposal
+  • Description: A project to develop a digital solution similar to competitors, featuring a modern design, interactive elements, and system integrations....
+  • Duration: 14 days (expected: N/A)
+  • Difficulty: N/A (expected: N/A)
+  • Licensing: N/A
+  • Usage Rights: N/A
+
+Deliverables (Grouped):
+  • Categories: 0 (expected: 1)
+  • Total Items: 0
+  • Avg Items per Category: 0
+  • Thin Categories (<3 items): 0
+
+Accuracy Metrics:
+  • Field Completeness: 80%
+  • Category Accuracy: 0%
+  • Duration Match: N/A
+  • Difficulty Match: N/A
+  • Extraction Time: 13448ms
+  • Model Used: gemini-3-flash-preview
+
+
+═══════════════════════════════════════════════════════════════════════════════
+TEST 4.1: [MIXED] Mixed Formatting - Grouped Extraction
+═══════════════════════════════════════════════════════════════════════════════
+Status: PASSED ✓
+File: /home/long/Desktop/capstone backend/AUREA-Capstone/backend/tests/gemini_test/scripts/../samples/pdf/04-MIXED_FORMAT.pdf
+Test Type: standard
+
+Extracted Data:
+  • Project Name: Corporate Rebranding Initiative
+  • Title: Corporate Rebranding Initiative
+  • Description: Comprehensive rebranding project for established tech company looking to modernize their visual identity and market presence....
+  • Duration: 84 days (expected: 84)
+  • Difficulty: Hard (expected: Hard)
+  • Licensing: Limited Use License
+  • Usage Rights: Commercial Use (Internal + Client Marketing). Designer retains portfolio rights.
+
+Deliverables (Grouped):
+  • Categories: 6 (expected: 6)
+  • Total Items: 27
+  • Avg Items per Category: 4.5
+  • Thin Categories (<3 items): 0
+
+Accuracy Metrics:
+  • Field Completeness: 100%
+  • Category Accuracy: 100%
+  • Duration Match: EXACT
+  • Difficulty Match: EXACT
+  • Extraction Time: 17550ms
+  • Model Used: gemini-3-flash-preview
+
+
+═══════════════════════════════════════════════════════════════════════════════
+TEST 4.2: [MIXED] Tree Structure - Hierarchical List Parsing
+═══════════════════════════════════════════════════════════════════════════════
+Status: PASSED ✓
+File: /home/long/Desktop/capstone backend/AUREA-Capstone/backend/tests/gemini_test/scripts/../samples/pdf/04-MIXED_FORMAT.pdf
+Test Type: edge_case
+
+Extracted Data:
+  • Project Name: Corporate Rebranding Initiative
+  • Title: Corporate Rebranding Initiative
+  • Description: Comprehensive rebranding project for established tech company looking to modernize their visual identity and market presence....
+  • Duration: 84 days (expected: 84)
+  • Difficulty: Hard (expected: Hard)
+  • Licensing: Limited Use License
+  • Usage Rights: Commercial Use (Internal + Client Marketing)
+
+Deliverables (Grouped):
+  • Categories: 6 (expected: 6)
+  • Total Items: 27
+  • Avg Items per Category: 4.5
+  • Thin Categories (<3 items): 0
+
+Accuracy Metrics:
+  • Field Completeness: 100%
+  • Category Accuracy: 100%
+  • Duration Match: EXACT
+  • Difficulty Match: EXACT
+  • Extraction Time: 18748ms
+  • Model Used: gemini-3-flash-preview
+
+
+═══════════════════════════════════════════════════════════════════════════════
+TEST 4.3: [MIXED] Box Characters - Section Detection
+═══════════════════════════════════════════════════════════════════════════════
+Status: PASSED ✓
+File: /home/long/Desktop/capstone backend/AUREA-Capstone/backend/tests/gemini_test/scripts/../samples/pdf/04-MIXED_FORMAT.pdf
+Test Type: edge_case
+
+Extracted Data:
+  • Project Name: Corporate Rebranding Initiative
+  • Title: Corporate Rebranding Initiative
+  • Description: Comprehensive rebranding project for established tech company looking to modernize their visual identity and market presence....
+  • Duration: 84 days (expected: 84)
+  • Difficulty: Hard (expected: Hard)
+  • Licensing: Limited Use License
+  • Usage Rights: Commercial Use (Internal + Client Marketing). Designer retains portfolio rights.
+
+Deliverables (Grouped):
+  • Categories: 6 (expected: 6)
+  • Total Items: 26
+  • Avg Items per Category: 4.3
+  • Thin Categories (<3 items): 0
+
+Accuracy Metrics:
+  • Field Completeness: 100%
+  • Category Accuracy: 100%
+  • Duration Match: EXACT
+  • Difficulty Match: EXACT
+  • Extraction Time: 14463ms
+  • Model Used: gemini-3-flash-preview
+
+
+═══════════════════════════════════════════════════════════════════════════════
+TEST 4.4: [MIXED] Phase Timeline - Week to Day Conversion
+═══════════════════════════════════════════════════════════════════════════════
+Status: PASSED ✓
+File: /home/long/Desktop/capstone backend/AUREA-Capstone/backend/tests/gemini_test/scripts/../samples/pdf/04-MIXED_FORMAT.pdf
+Test Type: edge_case
+
+Extracted Data:
+  • Project Name: Corporate Rebranding Initiative
+  • Title: Corporate Rebranding Initiative
+  • Description: Comprehensive rebranding project for established tech company TechStart Solutions Inc. looking to modernize their visual identity and market presence....
+  • Duration: 84 days (expected: 84)
+  • Difficulty: Hard (expected: Hard)
+  • Licensing: Limited Use License
+  • Usage Rights: Commercial Use (Internal + Client Marketing). Designer retains portfolio rights.
+
+Deliverables (Grouped):
+  • Categories: 6 (expected: 6)
+  • Total Items: 27
+  • Avg Items per Category: 4.5
+  • Thin Categories (<3 items): 0
+
+Accuracy Metrics:
+  • Field Completeness: 100%
+  • Category Accuracy: 100%
+  • Duration Match: EXACT
+  • Difficulty Match: EXACT
+  • Extraction Time: 15081ms
+  • Model Used: gemini-3-flash-preview
+
+
+═══════════════════════════════════════════════════════════════════════════════
+TEST 4.5: [MIXED] Visual Rating - Symbol Based Difficulty
+═══════════════════════════════════════════════════════════════════════════════
+Status: FAILED ✗
+File: /home/long/Desktop/capstone backend/AUREA-Capstone/backend/tests/gemini_test/scripts/../samples/pdf/04-MIXED_FORMAT.pdf
+Test Type: edge_case
+Error: 
+Extraction Time: 1999ms
+
+
+═══════════════════════════════════════════════════════════════════════════════
+TEST 4.6: [MIXED] Multi-Format Grouping - Bullets + Trees + Tables
+═══════════════════════════════════════════════════════════════════════════════
+Status: PASSED ✓
+File: /home/long/Desktop/capstone backend/AUREA-Capstone/backend/tests/gemini_test/scripts/../samples/pdf/04-MIXED_FORMAT.pdf
+Test Type: stress
+
+Extracted Data:
+  • Project Name: Corporate Rebranding Initiative
+  • Title: TechStart Solutions Inc. Rebranding
+  • Description: Comprehensive rebranding project for an established tech company looking to modernize their visual identity and market presence through a new identity...
+  • Duration: 84 days (expected: 84)
+  • Difficulty: Hard (expected: Hard)
+  • Licensing: Limited Use License
+  • Usage Rights: Commercial Use (Internal + Client Marketing). Designer retains portfolio rights.
+
+Deliverables (Grouped):
+  • Categories: 6 (expected: 6)
+  • Total Items: 27
+  • Avg Items per Category: 4.5
+  • Thin Categories (<3 items): 0
+
+Accuracy Metrics:
+  • Field Completeness: 100%
+  • Category Accuracy: 100%
+  • Duration Match: EXACT
+  • Difficulty Match: EXACT
+  • Extraction Time: 14809ms
+  • Model Used: gemini-3-flash-preview
+
+
+═══════════════════════════════════════════════════════════════════════════════
+TEST 5.1: [TECHNICAL] Technical Doc - Grouped Extraction
+═══════════════════════════════════════════════════════════════════════════════
+Status: PASSED ✓
+File: /home/long/Desktop/capstone backend/AUREA-Capstone/backend/tests/gemini_test/scripts/../samples/pdf/05-TECHNICAL_JARGON.pdf
+Test Type: standard
+
+Extracted Data:
+  • Project Name: Project Nebula
+  • Title: Distributed Microservices Architecture Implementation
+  • Description: Development of a cloud-native, containerized microservices architecture utilizing Kubernetes orchestration with Istio service mesh for inter-service c...
+  • Duration: 120 days (expected: 120)
+  • Difficulty: Complex (expected: Complex)
+  • Licensing: One-Time Used
+  • Usage Rights: Commercial Use (production deployment + modifications)
+
+Deliverables (Grouped):
+  • Categories: 7 (expected: 7)
+  • Total Items: 36
+  • Avg Items per Category: 5.1
+  • Thin Categories (<3 items): 0
+
+Accuracy Metrics:
+  • Field Completeness: 100%
+  • Category Accuracy: 100%
+  • Duration Match: EXACT
+  • Difficulty Match: EXACT
+  • Extraction Time: 18216ms
+  • Model Used: gemini-3-flash-preview
+
+
+═══════════════════════════════════════════════════════════════════════════════
+TEST 5.2: [TECHNICAL] Tech Stack - Framework/Tool Detection
+═══════════════════════════════════════════════════════════════════════════════
+Status: PASSED ✓
+File: /home/long/Desktop/capstone backend/AUREA-Capstone/backend/tests/gemini_test/scripts/../samples/pdf/05-TECHNICAL_JARGON.pdf
+Test Type: edge_case
+
+Extracted Data:
+  • Project Name: Project Nebula
+  • Title: Distributed Microservices Architecture Implementation
+  • Description: Development of a cloud-native, containerized microservices architecture utilizing Kubernetes orchestration, Istio service mesh, and event-driven patte...
+  • Duration: 120 days (expected: 120)
+  • Difficulty: Complex (expected: Complex)
+  • Licensing: One-Time Used
+  • Usage Rights: Commercial Use (production deployment + modifications)
+
+Deliverables (Grouped):
+  • Categories: 5 (expected: 7)
+  • Total Items: 26
+  • Avg Items per Category: 5.2
+  • Thin Categories (<3 items): 0
+
+Accuracy Metrics:
+  • Field Completeness: 100%
+  • Category Accuracy: 71%
+  • Duration Match: EXACT
+  • Difficulty Match: EXACT
+  • Extraction Time: 18770ms
+  • Model Used: gemini-3-flash-preview
+
+
+═══════════════════════════════════════════════════════════════════════════════
+TEST 5.3: [TECHNICAL] Microservices - Category Grouping
+═══════════════════════════════════════════════════════════════════════════════
+Status: PASSED ✓
+File: /home/long/Desktop/capstone backend/AUREA-Capstone/backend/tests/gemini_test/scripts/../samples/pdf/05-TECHNICAL_JARGON.pdf
+Test Type: edge_case
+
+Extracted Data:
+  • Project Name: Project Nebula
+  • Title: Distributed Microservices Architecture Implementation
+  • Description: The development of a cloud-native, containerized microservices architecture utilizing Kubernetes orchestration with Istio service mesh for inter-servi...
+  • Duration: 120 days (expected: 120)
+  • Difficulty: Complex (expected: Complex)
+  • Licensing: One-Time Use License
+  • Usage Rights: Commercial Use (production deployment + modifications)
+
+Deliverables (Grouped):
+  • Categories: 6 (expected: 7)
+  • Total Items: 25
+  • Avg Items per Category: 4.2
+  • Thin Categories (<3 items): 1
+
+Accuracy Metrics:
+  • Field Completeness: 100%
+  • Category Accuracy: 85%
+  • Duration Match: EXACT
+  • Difficulty Match: EXACT
+  • Extraction Time: 30375ms
+  • Model Used: gemini-2.5-flash
+
+
+═══════════════════════════════════════════════════════════════════════════════
+TEST 5.4: [TECHNICAL] Abbreviations - Technical Acronym Handling
+═══════════════════════════════════════════════════════════════════════════════
+Status: PASSED ✓
+File: /home/long/Desktop/capstone backend/AUREA-Capstone/backend/tests/gemini_test/scripts/../samples/pdf/05-TECHNICAL_JARGON.pdf
+Test Type: edge_case
+
+Extracted Data:
+  • Project Name: Project Nebula
+  • Title: Distributed Microservices Architecture Implementation
+  • Description: Development of a cloud-native, containerized microservices architecture utilizing Kubernetes orchestration with Istio service mesh for inter-service c...
+  • Duration: 120 days (expected: 120)
+  • Difficulty: Complex (expected: Complex)
+  • Licensing: One-Time Use License
+  • Usage Rights: Commercial Use
+
+Deliverables (Grouped):
+  • Categories: 13 (expected: 7)
+  • Total Items: 47
+  • Avg Items per Category: 3.6
+  • Thin Categories (<3 items): 5
+
+Accuracy Metrics:
+  • Field Completeness: 100%
+  • Category Accuracy: 100%
+  • Duration Match: EXACT
+  • Difficulty Match: EXACT
+  • Extraction Time: 25563ms
+  • Model Used: gemini-2.5-flash
+
+
+═══════════════════════════════════════════════════════════════════════════════
+TEST 5.5: [TECHNICAL] Performance Reqs - SLA Metric Extraction
+═══════════════════════════════════════════════════════════════════════════════
+Status: PASSED ✓
+File: /home/long/Desktop/capstone backend/AUREA-Capstone/backend/tests/gemini_test/scripts/../samples/pdf/05-TECHNICAL_JARGON.pdf
+Test Type: edge_case
+
+Extracted Data:
+  • Project Name: Distributed Microservices Architecture Implementation
+  • Title: Project Nebula
+  • Description: Development of a cloud-native, containerized microservices architecture utilizing Kubernetes orchestration with Istio service mesh for inter-service c...
+  • Duration: 120 days (expected: 120)
+  • Difficulty: Complex (expected: Complex)
+  • Licensing: One-Time Use License
+  • Usage Rights: Commercial Use
+
+Deliverables (Grouped):
+  • Categories: 9 (expected: 7)
+  • Total Items: 49
+  • Avg Items per Category: 5.4
+  • Thin Categories (<3 items): 0
+
+Accuracy Metrics:
+  • Field Completeness: 100%
+  • Category Accuracy: 100%
+  • Duration Match: EXACT
+  • Difficulty Match: EXACT
+  • Extraction Time: 25211ms
+  • Model Used: gemini-2.5-flash
+
+
+═══════════════════════════════════════════════════════════════════════════════
+TEST 5.6: [TECHNICAL] Compliance - Regulatory Standards Detection
+═══════════════════════════════════════════════════════════════════════════════
+Status: PASSED ✓
+File: /home/long/Desktop/capstone backend/AUREA-Capstone/backend/tests/gemini_test/scripts/../samples/pdf/05-TECHNICAL_JARGON.pdf
+Test Type: edge_case
+
+Extracted Data:
+  • Project Name: Project Nebula
+  • Title: Distributed Microservices Architecture Implementation
+  • Description: Development of a cloud-native, containerized microservices architecture using Kubernetes and Istio for inter-service communication. The system will im...
+  • Duration: 120 days (expected: 120)
+  • Difficulty: Complex (expected: Complex)
+  • Licensing: One-Time Use License
+  • Usage Rights: Commercial Use (production deployment + modifications)
+
+Deliverables (Grouped):
+  • Categories: 10 (expected: 7)
+  • Total Items: 49
+  • Avg Items per Category: 4.9
+  • Thin Categories (<3 items): 1
+
+Accuracy Metrics:
+  • Field Completeness: 100%
+  • Category Accuracy: 100%
+  • Duration Match: EXACT
+  • Difficulty Match: EXACT
+  • Extraction Time: 29345ms
+  • Model Used: gemini-2.5-flash
+
+
+═══════════════════════════════════════════════════════════════════════════════
+TEST 6.1: [BUDGET] Budget Doc - Grouped Extraction
+═══════════════════════════════════════════════════════════════════════════════
+Status: PASSED ✓
+File: /home/long/Desktop/capstone backend/AUREA-Capstone/backend/tests/gemini_test/scripts/../samples/pdf/06-BUDGET_HEAVY.pdf
+Test Type: standard
+
+Extracted Data:
+  • Project Name: Custom Manufacturing ERP System
+  • Title: Custom Manufacturing ERP System
+  • Description: Development and deployment of a custom Enterprise Resource Planning (ERP) system for Midwest Manufacturing Co., encompassing discovery, UI/UX design, ...
+  • Duration: 270 days (expected: 270)
+  • Difficulty: Complex (expected: Complex)
+  • Licensing: Exclusive License
+  • Usage Rights: Commercial Use (Unlimited internal use + modifications)
+
+Deliverables (Grouped):
+  • Categories: 9 (expected: 10)
+  • Total Items: 51
+  • Avg Items per Category: 5.7
+  • Thin Categories (<3 items): 1
+
+Accuracy Metrics:
+  • Field Completeness: 100%
+  • Category Accuracy: 90%
+  • Duration Match: EXACT
+  • Difficulty Match: EXACT
+  • Extraction Time: 66400ms
+  • Model Used: gemini-2.5-flash
+
+
+═══════════════════════════════════════════════════════════════════════════════
+TEST 6.2: [BUDGET] Phase Categories - Multi-Phase Grouping
+═══════════════════════════════════════════════════════════════════════════════
+Status: PASSED ✓
+File: /home/long/Desktop/capstone backend/AUREA-Capstone/backend/tests/gemini_test/scripts/../samples/pdf/06-BUDGET_HEAVY.pdf
+Test Type: edge_case
+
+Extracted Data:
+  • Project Name: Custom Manufacturing ERP System
+  • Title: Project Cost Estimate & Deliverables Breakdown
+  • Description: Comprehensive project to design, develop, test, deploy, and support a custom Enterprise Resource Planning (ERP) system for Midwest Manufacturing Co. T...
+  • Duration: 270 days (expected: 270)
+  • Difficulty: Complex (expected: Complex)
+  • Licensing: Exclusive License (Full ownership transfer)
+  • Usage Rights: Commercial Use (Unlimited internal use + modifications)
+
+Deliverables (Grouped):
+  • Categories: 8 (expected: 10)
+  • Total Items: 51
+  • Avg Items per Category: 6.4
+  • Thin Categories (<3 items): 0
+
+Accuracy Metrics:
+  • Field Completeness: 100%
+  • Category Accuracy: 80%
+  • Duration Match: EXACT
+  • Difficulty Match: EXACT
+  • Extraction Time: 26204ms
+  • Model Used: gemini-2.5-flash
+
+
+═══════════════════════════════════════════════════════════════════════════════
+TEST 6.3: [BUDGET] Timeline - Month to Day Conversion
+═══════════════════════════════════════════════════════════════════════════════
+Status: PASSED ✓
+File: /home/long/Desktop/capstone backend/AUREA-Capstone/backend/tests/gemini_test/scripts/../samples/pdf/06-BUDGET_HEAVY.pdf
+Test Type: edge_case
+
+Extracted Data:
+  • Project Name: Custom Manufacturing ERP System
+  • Title: Custom Manufacturing ERP System
+  • Description: Development and implementation of a custom Enterprise Resource Planning (ERP) system for Midwest Manufacturing Co., covering discovery, UI/UX design, ...
+  • Duration: 270 days (expected: 270)
+  • Difficulty: Complex (expected: Complex)
+  • Licensing: Exclusive License
+  • Usage Rights: Commercial Use (Unlimited internal use + modifications)
+
+Deliverables (Grouped):
+  • Categories: 9 (expected: 10)
+  • Total Items: 51
+  • Avg Items per Category: 5.7
+  • Thin Categories (<3 items): 1
+
+Accuracy Metrics:
+  • Field Completeness: 100%
+  • Category Accuracy: 90%
+  • Duration Match: EXACT
+  • Difficulty Match: EXACT
+  • Extraction Time: 28126ms
+  • Model Used: gemini-2.5-flash
+
+
+═══════════════════════════════════════════════════════════════════════════════
+TEST 6.4: [BUDGET] Quantity Parsing - Items Array Extraction
+═══════════════════════════════════════════════════════════════════════════════
+Status: PASSED ✓
+File: /home/long/Desktop/capstone backend/AUREA-Capstone/backend/tests/gemini_test/scripts/../samples/pdf/06-BUDGET_HEAVY.pdf
+Test Type: edge_case
+
+Extracted Data:
+  • Project Name: Custom Manufacturing ERP System
+  • Title: PROJECT COST ESTIMATE & DELIVERABLES BREAKDOWN
+  • Description: Development of a custom Enterprise Resource Planning (ERP) system for Midwest Manufacturing Co., covering discovery, UI/UX design, frontend and backen...
+  • Duration: 270 days (expected: 270)
+  • Difficulty: Complex (expected: Complex)
+  • Licensing: Exclusive License
+  • Usage Rights: Commercial Use
+
+Deliverables (Grouped):
+  • Categories: 8 (expected: 10)
+  • Total Items: 51
+  • Avg Items per Category: 6.4
+  • Thin Categories (<3 items): 0
+
+Accuracy Metrics:
+  • Field Completeness: 100%
+  • Category Accuracy: 80%
+  • Duration Match: EXACT
+  • Difficulty Match: EXACT
+  • Extraction Time: 33661ms
+  • Model Used: gemini-2.5-flash
+
+
+═══════════════════════════════════════════════════════════════════════════════
+TEST 6.5: [BUDGET] Module Grouping - Component Categories
+═══════════════════════════════════════════════════════════════════════════════
+Status: PASSED ✓
+File: /home/long/Desktop/capstone backend/AUREA-Capstone/backend/tests/gemini_test/scripts/../samples/pdf/06-BUDGET_HEAVY.pdf
+Test Type: edge_case
+
+Extracted Data:
+  • Project Name: Custom Manufacturing ERP System
+  • Title: ERP System Development Project
+  • Description: Comprehensive development project for a Custom Manufacturing ERP System, encompassing full lifecycle from discovery and UI/UX design to frontend and b...
+  • Duration: 270 days (expected: 270)
+  • Difficulty: Complex (expected: Complex)
+  • Licensing: Exclusive License
+  • Usage Rights: Commercial Use (Unlimited internal use + modifications)
+
+Deliverables (Grouped):
+  • Categories: 8 (expected: 10)
+  • Total Items: 51
+  • Avg Items per Category: 6.4
+  • Thin Categories (<3 items): 0
+
+Accuracy Metrics:
+  • Field Completeness: 100%
+  • Category Accuracy: 80%
+  • Duration Match: EXACT
+  • Difficulty Match: EXACT
+  • Extraction Time: 27987ms
+  • Model Used: gemini-2.5-flash
+
+
+═══════════════════════════════════════════════════════════════════════════════
+TEST 6.6: [BUDGET] Training Materials - Educational Content Grouping
+═══════════════════════════════════════════════════════════════════════════════
+Status: PASSED ✓
+File: /home/long/Desktop/capstone backend/AUREA-Capstone/backend/tests/gemini_test/scripts/../samples/pdf/06-BUDGET_HEAVY.pdf
+Test Type: edge_case
+
+Extracted Data:
+  • Project Name: Custom Manufacturing ERP System
+  • Title: Custom Manufacturing ERP System
+  • Description: Development of a custom Manufacturing ERP System, covering discovery, UI/UX design, frontend and backend development, testing, deployment, training, a...
+  • Duration: 270 days (expected: 270)
+  • Difficulty: Complex (expected: Complex)
+  • Licensing: Exclusive License
+  • Usage Rights: Commercial Use (Unlimited internal use + modifications)
+
+Deliverables (Grouped):
+  • Categories: 11 (expected: 10)
+  • Total Items: 52
+  • Avg Items per Category: 4.7
+  • Thin Categories (<3 items): 3
+
+Accuracy Metrics:
+  • Field Completeness: 100%
+  • Category Accuracy: 100%
+  • Duration Match: EXACT
+  • Difficulty Match: EXACT
+  • Extraction Time: 37509ms
+  • Model Used: gemini-2.5-flash
+
+
+═══════════════════════════════════════════════════════════════════════════════
+TEST 6.7: [BUDGET] Stress Test - Complete Grouped Extraction
+═══════════════════════════════════════════════════════════════════════════════
+Status: PASSED ✓
+File: /home/long/Desktop/capstone backend/AUREA-Capstone/backend/tests/gemini_test/scripts/../samples/pdf/06-BUDGET_HEAVY.pdf
+Test Type: stress
+
+Extracted Data:
+  • Project Name: Custom Manufacturing ERP System
+  • Title: Project Cost Estimate & Deliverables Breakdown
+  • Description: Development of a custom Enterprise Resource Planning (ERP) system for Midwest Manufacturing Co., covering discovery, UI/UX design, frontend and backen...
+  • Duration: 270 days (expected: 270)
+  • Difficulty: Complex (expected: Complex)
+  • Licensing: Exclusive License
+  • Usage Rights: Commercial Use (Unlimited internal use + modifications)
+
+Deliverables (Grouped):
+  • Categories: 8 (expected: 10)
+  • Total Items: 51
+  • Avg Items per Category: 6.4
+  • Thin Categories (<3 items): 0
+
+Accuracy Metrics:
+  • Field Completeness: 100%
+  • Category Accuracy: 80%
+  • Duration Match: EXACT
+  • Difficulty Match: EXACT
+  • Extraction Time: 24896ms
+  • Model Used: gemini-2.5-flash
+
+
+╔══════════════════════════════════════════════════════════════════════════════════════════════════════════╗
+║                              COMPREHENSIVE EVALUATION SUMMARY                                            ║
+╚══════════════════════════════════════════════════════════════════════════════════════════════════════════╝
+
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ 1. OVERALL TEST RESULTS                                                                                 │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+  • Total Tests Executed:     32
+  • Tests Passed:             28 (87.5%)
+  • Tests Failed:             4
+  • Tests Skipped:            0
+  • Edge Cases Passed:        21 / 23 (91.3%)
+
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ 2. FIELD-LEVEL EXTRACTION ACCURACY                                                                      │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+  • project_name     Extraction Rate: 100%  Quality Score: 100%
+  • title            Extraction Rate: 100%  Quality Score: 100%
+  • description      Extraction Rate: 100%  Quality Score: 100%
+  • duration         Extraction Rate:  96%  Quality Score:  81%
+  • difficulty       Extraction Rate:  92%  Quality Score:  88%
+  • licensing        Extraction Rate:  82%  Quality Score: 100%
+  • usage_rights     Extraction Rate:  82%  Quality Score: 100%
+  • deliverables     Extraction Rate: 100%  Quality Score:  64%
+
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ 3. DELIVERABLE EXTRACTION METRICS (Grouped Categories + Items)                                          │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+  • Total Expected Categories:      185
+  • Total Found Categories:         194
+  • Category Accuracy:              104%
+  • Total Items Found:              909
+  • Avg Items per Category:         4.7
+  • Thin Deliverables (<3 items):   29
+
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ 4. PERFORMANCE METRICS                                                                                  │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+  • Total Test Suite Duration:      871 seconds
+  • Average Extraction Time:        23337ms
+  • Minimum Extraction Time:        1999ms
+  • Maximum Extraction Time:        66400ms
+  • Throughput:                     0.04 tests/second
+
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ 5. AI MODEL PERFORMANCE                                                                                 │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+  Available Models:
+  • gemini-2.5-flash-lite (Optimized for speed)
+  • gemini-3-flash-preview (Latest capabilities)
+
+  Model Usage Statistics:
+  • gemini-2.5-flash           Usage:  15  Success Rate: 100%  Avg Response: 30829ms
+  • gemini-3-flash-preview     Usage:  13  Success Rate: 100%  Avg Response: 18381ms
+
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ 6. TEST CATEGORY BREAKDOWN                                                                              │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+  • BASELINE:     Well-formatted reference document (1 test)
+  • MINIMAL:      Sparse data with implicit information (3 tests)
+  • COMPLEX:      Large-scale grouped deliverable extraction (5 tests)
+  • VAGUE:        Ambiguous and poorly defined requirements (4 tests)
+  • MIXED:        Various formatting styles and special characters (6 tests)
+  • TECHNICAL:    Heavy technical jargon and architecture docs (6 tests)
+  • BUDGET:       Financial data with phases and grouped categories (7 tests)
+
+  Deliverable Structure:
+  • Categories = Grouped deliverable types (e.g., "Brand Identity System")
+  • Items = Sub-components within each category (e.g., "Primary logo", "Color palette")
+  • "Final Asset Delivery" should always be included as a category
+
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ 7. KEY FINDINGS & RECOMMENDATIONS                                                                       │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+  ✅ Category extraction accuracy is strong (104%)
+  ⚠️  Found 29 thin deliverables (<3 items) - consider grouping better
+  ✅ Edge case handling is robust (91.3%)
+  ⚠️  Average extraction time exceeds 15s - consider optimization
+
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ 8. DATA FILES GENERATED                                                                                 │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+  • Detailed Report:     /home/long/Desktop/capstone backend/AUREA-Capstone/backend/tests/gemini_test/scripts/../results/comprehensive_report_20260201_183822.txt
+  • CSV Data Export:     /home/long/Desktop/capstone backend/AUREA-Capstone/backend/tests/gemini_test/scripts/../results/test_data_20260201_183822.csv
+  • JSON Metrics:        /home/long/Desktop/capstone backend/AUREA-Capstone/backend/tests/gemini_test/scripts/../results/metrics_20260201_183822.json
+  • Visualization:       /home/long/Desktop/capstone backend/AUREA-Capstone/backend/tests/gemini_test/scripts/../results/visualize_results.py
+
+╔══════════════════════════════════════════════════════════════════════════════════════════════════════════╗
+║                                    END OF EVALUATION REPORT                                              ║
+║                              Generated: Sun Feb  1 06:52:53 PM +07 2026                                              ║
+╚══════════════════════════════════════════════════════════════════════════════════════════════════════════╝
