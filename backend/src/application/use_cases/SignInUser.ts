@@ -6,9 +6,10 @@ export interface SignInResult {
   user: {
     user_id: number;
     email: string;
-    role: string;
     email_verified: boolean;
     auth_provider?: string;
+    first_name?: string;
+    last_name?: string;
     created_at?: Date;
     last_login_at?: Date;
   };
@@ -46,8 +47,7 @@ export class SignInUser {
     // Generate JWT token
     const token = JwtService.generateToken({
       user_id: user.user_id,
-      email: user.email,
-      role: user.role
+      email: user.email
     });
 
     // Update last login timestamp
@@ -57,9 +57,10 @@ export class SignInUser {
       user: {
         user_id: user.user_id,
         email: user.email,
-        role: user.role,
         email_verified: user.email_verified,
         auth_provider: user.auth_provider,
+        first_name: user.first_name,
+        last_name: user.last_name,
         created_at: user.created_at,
         last_login_at: new Date()
       },

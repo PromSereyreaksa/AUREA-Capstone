@@ -120,4 +120,63 @@ export class UserRepository implements IUserRepository {
       throw new DatabaseError(`Failed to link Google account: ${error.message}`);
     }
   }
+
+  async updatePassword(user_id: number, hashedPassword: string): Promise<void> {
+    const { error } = await supabase
+      .from("users")
+      .update({ 
+        password: hashedPassword,
+        password_reset_token: null,
+        password_reset_expires: null
+      })
+      .eq("user_id", user_id);
+
+    if (error) {
+      throw new DatabaseError(`Failed to update password: ${error.message}`);
+    }
+  }
+
+  async updatePasswordResetToken(user_id: number, token: string, expiration: Date): Promise<void> {
+    const expirationStr = expiration.toISOString().replace('T', ' ').replace('Z', '');
+
+    const { error } = await supabase
+      .from("users")
+      .update({ 
+        password_reset_token: token,
+        password_reset_expires: expirationStr
+      })
+      .eq("user_id", user_id);
+
+    if (error) {
+      throw new DatabaseError(`Failed to update password reset token: ${error.message}`);
+    }
+  }
+
+  async clearPasswordResetToken(user_id: number): Promise<void> {
+    const { error } = await supabase
+      .from("users")
+      .update({ 
+        password_reset_token: null,
+        password_reset_expires: null
+      })
+      .eq("user_id", user_id);
+
+    if (error) {
+      throw new DatabaseError(`Failed to clear password reset token: ${error.message}`);
+    }
+  }
+
+  async findByResetToken(token: string): Promise<User | null> {
+    const { data, error } = await supabase
+      .from("users")
+      .select("*")
+      .eq("password_reset_token", token)
+      .maybeSingle();
+
+    if (error) {
+      throw new DatabaseError(`Failed to find user by reset token: ${error.message}`);
+    }
+    if (!data) return null;
+    return mapUserFromDb(data);
+  }
 }

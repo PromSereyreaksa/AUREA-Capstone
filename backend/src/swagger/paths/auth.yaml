@@ -29,24 +29,28 @@ paths:
                   example: user@gmail.com
                 name:
                   type: string
-                  description: User's full name from Google profile
+                  description: User's full name from Google profile (will be split into first/last name)
                   example: John Doe
+                first_name:
+                  type: string
+                  description: User's first name (takes priority over name splitting)
+                  example: John
+                last_name:
+                  type: string
+                  description: User's last name (takes priority over name splitting)
+                  example: Doe
                 avatar_url:
                   type: string
                   format: uri
                   description: URL to user's Google profile picture
                   example: "https://lh3.googleusercontent.com/a/default-user"
-                role:
-                  type: string
-                  enum: [client, designer, admin]
-                  description: User's role (defaults to designer for new users)
-                  example: designer
             example:
               google_id: "117234567890123456789"
               email: john.doe@gmail.com
               name: John Doe
+              first_name: John
+              last_name: Doe
               avatar_url: "https://lh3.googleusercontent.com/a/default-user"
-              role: designer
       responses:
         '200':
           description: Google authentication successful
@@ -76,7 +80,6 @@ paths:
                       user:
                         user_id: 5
                         email: john.doe@gmail.com
-                        role: designer
                         google_id: "117234567890123456789"
                         email_verified: true
                         auth_provider: google
@@ -91,7 +94,6 @@ paths:
                       user:
                         user_id: 3
                         email: existing@gmail.com
-                        role: client
                         google_id: "117234567890123456789"
                         email_verified: true
                         auth_provider: google
@@ -120,7 +122,8 @@ paths:
               required:
                 - email
                 - password
-                - role
+                - first_name
+                - last_name
               properties:
                 email:
                   type: string
@@ -133,24 +136,29 @@ paths:
                   minLength: 6
                   description: User's password (minimum 6 characters)
                   example: password123
-                role:
+                first_name:
                   type: string
-                  enum: [client, designer, admin]
-                  description: User's role in the system
-                  example: designer
+                  description: User's first name
+                  example: John
+                last_name:
+                  type: string
+                  description: User's last name
+                  example: Doe
             examples:
               designer:
                 summary: Designer signup
                 value:
                   email: designer@example.com
                   password: securePass123
-                  role: designer
+                  first_name: Jane
+                  last_name: Designer
               client:
                 summary: Client signup
                 value:
                   email: client@example.com
                   password: clientPass456
-                  role: client
+                  first_name: Bob
+                  last_name: Client
       responses:
         '201':
           description: User created successfully. OTP sent to email.
@@ -359,3 +367,131 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+
+  /api/v1/users/forgot-password:
+    post:
+      summary: Request password reset
+      description: |
+        Sends a password reset email to the user's registered email address.
+        The email contains a link with a secure token that expires in 1 hour.
+        For security, always returns a success message regardless of whether the email exists.
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+              properties:
+                email:
+                  type: string
+                  format: email
+                  description: User's registered email address
+                  example: user@example.com
+            example:
+              email: user@example.com
+      responses:
+        '200':
+          description: Password reset email sent (or generic success for non-existent emails)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: If an account with that email exists, a password reset link has been sent.
+                  data:
+                    type: object
+                    properties:
+                      success:
+                        type: boolean
+                        example: true
+                      message:
+                        type: string
+                        example: If an account with that email exists, a password reset link has been sent.
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          description: Failed to send password reset email
+
+  /api/v1/users/reset-password:
+    post:
+      summary: Reset password with token
+      description: |
+        Resets the user's password using the token received via email.
+        The token is valid for 1 hour from the time it was generated.
+        After successful reset, the user can sign in with the new password.
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - token
+                - newPassword
+              properties:
+                token:
+                  type: string
+                  description: Password reset token from the email link
+                  example: "a1b2c3d4e5f6..."
+                newPassword:
+                  type: string
+                  format: password
+                  minLength: 6
+                  description: New password (minimum 6 characters)
+                  example: newSecurePass123
+            example:
+              token: "a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2"
+              newPassword: newSecurePass123
+      responses:
+        '200':
+          description: Password reset successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Password has been reset successfully. You can now sign in with your new password.
+                  data:
+                    type: object
+                    properties:
+                      success:
+                        type: boolean
+                        example: true
+                      message:
+                        type: string
+                        example: Password has been reset successfully. You can now sign in with your new password.
+        '400':
+          description: Invalid or expired token, or validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                invalidToken:
+                  summary: Invalid reset token
+                  value:
+                    success: false
+                    error:
+                      message: Invalid or expired reset token
+                expiredToken:
+                  summary: Expired reset token
+                  value:
+                    success: false
+                    error:
+                      message: Reset token has expired. Please request a new password reset.

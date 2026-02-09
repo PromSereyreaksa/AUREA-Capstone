@@ -6,14 +6,25 @@ interface GoogleUserData {
   google_id: string;
   email: string;
   name?: string;
+  first_name?: string;
+  last_name?: string;
   avatar_url?: string;
 }
 
 export class SignUpWithGoogle {
   constructor(private userRepo: IUserRepository) {}
 
-  async execute(googleUserData: GoogleUserData, role: string = 'designer'): Promise<{ user: User; token: string }> {
-    const { google_id, email } = googleUserData;
+  async execute(googleUserData: GoogleUserData): Promise<{ user: User; token: string }> {
+    const { google_id, email, name, first_name, last_name } = googleUserData;
+
+    // Parse name into first_name / last_name if not explicitly provided
+    let parsedFirstName = first_name;
+    let parsedLastName = last_name;
+    if (!parsedFirstName && !parsedLastName && name) {
+      const nameParts = name.trim().split(/\s+/);
+      parsedFirstName = nameParts[0];
+      parsedLastName = nameParts.length > 1 ? nameParts.slice(1).join(' ') : undefined;
+    }
 
     // Check if user already exists by Google ID
     let user = await this.userRepo.findByGoogleId(google_id);
@@ -46,14 +57,15 @@ export class SignUpWithGoogle {
       0,                    // user_id (will be assigned by DB)
       email,
       '',                   // no password for Google users
-      role,
       google_id,            // google_id
       true,                 // email_verified (Google emails are verified)
       undefined,            // verification_otp (not needed)
       undefined,            // verify_otp_expired (not needed)
       new Date(),           // created_at
       new Date(),           // last_login_at
-      'google'              // auth_provider
+      'google',             // auth_provider
+      parsedFirstName,      // first_name
+      parsedLastName        // last_name
     );
 
     const createdUser = await this.userRepo.create(newUser);
@@ -65,8 +77,7 @@ export class SignUpWithGoogle {
   private generateToken(user: User): string {
     const payload: JwtPayload = {
       user_id: user.user_id,
-      email: user.email,
-      role: user.role,
+      email: user.email
     };
     return JwtService.generateToken(payload);
   }

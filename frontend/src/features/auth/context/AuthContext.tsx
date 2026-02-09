@@ -10,6 +10,7 @@ interface AuthContextValue extends AuthState {
   signOut: () => Promise<void>;
   signInWithGoogle: () => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
+  confirmPasswordReset: (token: string, newPassword: string) => Promise<void>;
   verifyEmail: (code: string) => Promise<void>;
   resendOtp: () => Promise<void>;
 }
@@ -128,6 +129,17 @@ export const AuthProvider = ({ children, authService }: AuthProviderProps) => {
     }
   };
 
+  const confirmPasswordReset = async (token: string, newPassword: string) => {
+    try {
+      setState({ ...state, loading: true, error: null });
+      await service.confirmPasswordReset(token, newPassword);
+      setState({ ...state, loading: false, error: null });
+    } catch (error: any) {
+      setState({ ...state, loading: false, error: error.message });
+      throw error;
+    }
+  };
+
   const value: AuthContextValue = {
     ...state,
     authService: service,
@@ -136,6 +148,7 @@ export const AuthProvider = ({ children, authService }: AuthProviderProps) => {
     signOut,
     signInWithGoogle,
     resetPassword,
+    confirmPasswordReset,
     verifyEmail,
     resendOtp,
   };

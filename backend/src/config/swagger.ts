@@ -141,14 +141,25 @@ For issues or questions, please contact the development team.
             format: 'email',
             example: 'user@example.com'
           },
-          role: {
+          first_name: {
             type: 'string',
-            enum: ['client', 'designer', 'admin'],
-            example: 'designer'
+            example: 'John',
+            nullable: true
+          },
+          last_name: {
+            type: 'string',
+            example: 'Doe',
+            nullable: true
           },
           email_verified: {
             type: 'boolean',
             example: true
+          },
+          auth_provider: {
+            type: 'string',
+            enum: ['email', 'google'],
+            example: 'email',
+            nullable: true
           },
           created_at: {
             type: 'string',

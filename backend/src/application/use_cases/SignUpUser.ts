@@ -21,7 +21,7 @@ export class SignUpUser {
     return expiration;
   }
 
-  async execute(email: string, password: string, role: string): Promise<User> {
+  async execute(email: string, password: string, first_name?: string, last_name?: string): Promise<User> {
     // Check if email already exists
     const existingUser = await this.userRepo.findByEmail(email);
     if (existingUser) {
@@ -34,24 +34,32 @@ export class SignUpUser {
     // Generate OTP for email verification
     const otp = this.generateOTP();
     const otpExpiration = this.getOTPExpiration();
+    
+    // Hash OTP before storing
+    const hashedOTP = await bcrypt.hash(otp, 10);
 
     const user = new User(
       0,
       email,
       hashedPassword,
-      role,
       undefined,           // google_id
       false,               // email_verified (default: false)
-      otp,                 // verification_otp
+      hashedOTP,           // verification_otp
       otpExpiration,       // verify_otp_expired
       new Date(),          // created_at
       undefined,           // last_login_at
-      'email'              // auth_provider
+      'email',             // auth_provider
+      first_name,          // first_name
+      last_name            // last_name
     );
 
     const createdUser = await this.userRepo.create(user);
+    
+    // Attach plain OTP to the response for testing/development
+    // In production, you might want to remove this and only send via email
+    (createdUser as any).plain_otp = otp;
 
-    // Send OTP email
+    // Send OTP email (use plain OTP, not hashed)
     try {
       await this.emailService.sendOTPEmail(email, otp);
     } catch (error: any) {

@@ -1,5 +1,6 @@
 import { IUserRepository } from '../../domain/repositories/IUserRepository';
 import { JwtService } from '../../infrastructure/services/JwtService';
+import bcrypt from 'bcrypt';
 
 export interface VerifyOTPResult {
   success: boolean;
@@ -8,7 +9,6 @@ export interface VerifyOTPResult {
   user?: {
     user_id: number;
     email: string;
-    role: string;
     email_verified: boolean;
   };
 }
@@ -28,8 +28,7 @@ export class VerifyOTP {
     if (user.email_verified) {
       const token = JwtService.generateToken({
         user_id: user.user_id,
-        email: user.email,
-        role: user.role
+        email: user.email
       });
 
       return { 
@@ -39,14 +38,18 @@ export class VerifyOTP {
         user: {
           user_id: user.user_id,
           email: user.email,
-          role: user.role,
           email_verified: true
         }
       };
     }
 
-    // Verify OTP matches
-    if (user.verification_otp !== otp) {
+    // Verify OTP matches (compare hashed OTP)
+    if (!user.verification_otp) {
+      throw new Error('No OTP found for this user');
+    }
+    
+    const isOTPValid = await bcrypt.compare(otp, user.verification_otp);
+    if (!isOTPValid) {
       throw new Error('Invalid OTP code');
     }
 
@@ -71,8 +74,7 @@ export class VerifyOTP {
     // Generate JWT token after successful verification
     const token = JwtService.generateToken({
       user_id: user.user_id,
-      email: user.email,
-      role: user.role
+      email: user.email
     });
 
     return { 
@@ -82,7 +84,6 @@ export class VerifyOTP {
       user: {
         user_id: user.user_id,
         email: user.email,
-        role: user.role,
         email_verified: true
       }
     };

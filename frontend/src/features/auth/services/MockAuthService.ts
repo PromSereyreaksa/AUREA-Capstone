@@ -75,6 +75,11 @@ export class MockAuthService implements IAuthService {
     return new Promise((resolve) => setTimeout(resolve, 1000));
   }
 
+  async confirmPasswordReset(token: string, newPassword: string): Promise<void> {
+    console.log('[Mock] Confirm password reset with token:', token);
+    return new Promise((resolve) => setTimeout(resolve, 1000));
+  }
+
   async verifyEmail(code: string): Promise<void> {
     console.log('[Mock] Verify email with code:', code);
     if (this.currentUser) {

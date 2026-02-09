@@ -18,11 +18,17 @@ CREATE TABLE users (
   email_verified BOOLEAN DEFAULT FALSE,
   verification_otp VARCHAR(10),
   verify_otp_expired TIMESTAMP,
+  first_name VARCHAR(100),
+  last_name VARCHAR(100),
+  password_reset_token VARCHAR(255),
+  password_reset_expires TIMESTAMP,
   created_at TIMESTAMP DEFAULT NOW(),
   updated_at TIMESTAMP DEFAULT NOW(),
   last_login_at TIMESTAMP,
   auth_provider VARCHAR(50)
 );
+-- Index for fast token lookup during password reset
+CREATE INDEX IF NOT EXISTS idx_users_password_reset_token ON users(password_reset_token) WHERE password_reset_token IS NOT NULL;
 
 -- =============================================================================
 -- BASE PRICE (Legacy - consider migrating to pricing_profiles)

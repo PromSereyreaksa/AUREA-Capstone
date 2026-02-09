@@ -7,6 +7,7 @@ export interface IAuthService {
   signInWithGoogle(): Promise<User>;
   handleGoogleCallback(): Promise<User>;
   resetPassword(email: string): Promise<void>;
+  confirmPasswordReset(token: string, newPassword: string): Promise<void>;
   verifyEmail(code: string): Promise<void>;
   resendOtp(): Promise<void>;
   getCurrentUser(): Promise<User | null>;
