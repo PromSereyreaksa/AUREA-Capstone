@@ -147,7 +147,15 @@ export class AuthService implements IAuthService {
 
   async resetPassword(email: string): Promise<void> {
     try {
-      await httpClient.post("/users/reset-password", { email });
+      await httpClient.post("/users/forgot-password", { email });
+    } catch (error: any) {
+      throw new Error(error.message || "Password reset failed");
+    }
+  }
+
+  async confirmPasswordReset(token: string, newPassword: string): Promise<void> {
+    try {
+      await httpClient.post("/users/reset-password", { token, newPassword });
     } catch (error: any) {
       throw new Error(error.message || "Password reset failed");
     }

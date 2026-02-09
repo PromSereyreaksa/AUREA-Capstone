@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { signUpUserController, signInUserController, verifyOTPController, resendOTPController, getCurrentUserController, googleAuthController } from '../controllers/UserController';
+import { signUpUserController, signInUserController, verifyOTPController, resendOTPController, getCurrentUserController, googleAuthController, forgotPasswordController, resetPasswordController } from '../controllers/UserController';
 import { authMiddleware } from '../../shared/middleware/authMiddleware';
 
 const router = Router();
@@ -19,6 +19,12 @@ router.post('/verify-otp', verifyOTPController);
 
 // POST /api/users/resend-otp - Resend OTP code
 router.post('/resend-otp', resendOTPController);
+
+// POST /api/users/forgot-password - Request password reset email
+router.post('/forgot-password', forgotPasswordController);
+
+// POST /api/users/reset-password - Reset password with token
+router.post('/reset-password', resetPasswordController);
 
 // Protected routes (auth required)
 // GET /api/users/me - Get current authenticated user

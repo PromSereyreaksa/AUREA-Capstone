@@ -9,7 +9,6 @@ const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '7d';
 export interface JwtPayload {
   user_id: number;
   email: string;
-  role: string;
 }
 
 export class JwtService {

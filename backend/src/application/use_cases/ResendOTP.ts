@@ -1,5 +1,6 @@
 import { IUserRepository } from '../../domain/repositories/IUserRepository';
 import { EmailService } from '../../infrastructure/services/EmailService';
+import bcrypt from 'bcrypt';
 
 export interface ResendOTPResult {
   success: boolean;
@@ -41,9 +42,12 @@ export class ResendOTP {
     // Generate new OTP
     const newOTP = this.generateOTP();
     const otpExpiration = this.getOTPExpiration();
+    
+    // Hash OTP before storing
+    const hashedOTP = await bcrypt.hash(newOTP, 10);
 
-    // Update user with new OTP
-    await this.userRepo.updateOTP(user.user_id, newOTP, otpExpiration);
+    // Update user with hashed OTP
+    await this.userRepo.updateOTP(user.user_id, hashedOTP, otpExpiration);
 
     // Send OTP email
     try {

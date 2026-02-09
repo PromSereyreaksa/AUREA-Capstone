@@ -7,7 +7,8 @@
 API_URL="http://localhost:3000/api/v1"
 TEST_EMAIL="test$(date +%s)@example.com"
 TEST_PASSWORD="password123"
-TEST_ROLE="designer"
+TEST_FIRST_NAME="Test"
+TEST_LAST_NAME="User"
 
 echo "=========================================="
 echo "AUREA User Authentication API Test Suite"
@@ -53,7 +54,8 @@ echo "Step 2: Testing User Signup..."
 echo "Request: POST $API_URL/users/signup"
 echo "  - email: $TEST_EMAIL"
 echo "  - password: $TEST_PASSWORD"
-echo "  - role: $TEST_ROLE"
+echo "  - first_name: $TEST_FIRST_NAME"
+echo "  - last_name: $TEST_LAST_NAME"
 echo ""
 
 SIGNUP_RESPONSE=$(curl -s -X POST "$API_URL/users/signup" \
@@ -61,7 +63,8 @@ SIGNUP_RESPONSE=$(curl -s -X POST "$API_URL/users/signup" \
   -d "{
     \"email\": \"$TEST_EMAIL\",
     \"password\": \"$TEST_PASSWORD\",
-    \"role\": \"$TEST_ROLE\"
+    \"first_name\": \"$TEST_FIRST_NAME\",
+    \"last_name\": \"$TEST_LAST_NAME\"
   }")
 
 echo "Response:"
@@ -164,7 +167,8 @@ DUPLICATE_RESPONSE=$(curl -s -X POST "$API_URL/users/signup" \
   -d "{
     \"email\": \"$TEST_EMAIL\",
     \"password\": \"password123\",
-    \"role\": \"designer\"
+    \"first_name\": \"Test\",
+    \"last_name\": \"Duplicate\"
   }")
 if echo "$DUPLICATE_RESPONSE" | grep -q "already exists\|already registered"; then
     echo -e "${GREEN}✓ Duplicate email correctly rejected${NC}"
