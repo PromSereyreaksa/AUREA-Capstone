@@ -7,7 +7,8 @@ export const SignUpPage = () => {
   const navigate = useNavigate();
   const { signUp, signInWithGoogle } = useAuth();
   const [formData, setFormData] = useState({
-    fullName: '',
+    firstName: '',
+    lastName: '',
     email: '',
     password: '',
     confirmPassword: '',
@@ -34,10 +35,15 @@ export const SignUpPage = () => {
 
     setLoading(true);
     try {
-      await signUp(formData.email, formData.password);
+      await signUp(
+        formData.email, 
+        formData.password,
+        formData.firstName || undefined,
+        formData.lastName || undefined
+      );
       navigate('/verify-email');
-    } catch (err: any) {
-      setError(err.message || 'Failed to create account');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to create account');
     } finally {
       setLoading(false);
     }
@@ -46,8 +52,8 @@ export const SignUpPage = () => {
   const handleGoogleSignIn = async () => {
     try {
       await signInWithGoogle();
-    } catch (err: any) {
-      setError(err.message || 'Failed to sign in with Google');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to sign in with Google');
     }
   };
 
@@ -95,15 +101,26 @@ export const SignUpPage = () => {
 
           <form onSubmit={handleSubmit} className="auth-form">
             <div className="form-group">
-              <label htmlFor="fullName">Full Name</label>
+              <label htmlFor="firstName">First Name</label>
               <input
                 type="text"
-                id="fullName"
-                name="fullName"
-                placeholder="John Week"
-                value={formData.fullName}
+                id="firstName"
+                name="firstName"
+                placeholder="John"
+                value={formData.firstName}
                 onChange={handleChange}
-                required
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="lastName">Last Name</label>
+              <input
+                type="text"
+                id="lastName"
+                name="lastName"
+                placeholder="Week"
+                value={formData.lastName}
+                onChange={handleChange}
               />
             </div>
 

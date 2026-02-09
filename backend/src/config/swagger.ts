@@ -3,12 +3,12 @@ import swaggerJsdoc from 'swagger-jsdoc';
 const swaggerDefinition = {
   openapi: '3.0.0',
   info: {
-    title: 'AUREA API - Development Version',
-    version: '0.1.0',
+    title: 'AUREA API',
+    version: '1.0.0',
     description: `
-# AUREA Capstone Project API Documentation (v0 - Development)
+# AUREA Capstone Project API Documentation
 
-⚠️ **This is the development version of the API, restricted to localhost access only.**
+Welcome to the AUREA API documentation.
 
 ## About
 AUREA is a capstone project that provides AI-powered PDF extraction and project management capabilities. This API allows users to:
@@ -54,8 +54,8 @@ For issues or questions, please contact the development team.
   },
   servers: [
     {
-      url: 'http://localhost:3000/api/v0',
-      description: 'Development Server (Localhost Only)'
+      url: 'http://localhost:3000/api/v1',
+      description: 'API v1 - Production'
     }
   ],
   tags: [
@@ -70,6 +70,10 @@ For issues or questions, please contact the development team.
     {
       name: 'User Management',
       description: 'User profile and account management'
+    },
+    {
+      name: 'User Profile',
+      description: 'User profile CRUD operations including bio, skills, experience, and social links'
     },
     {
       name: 'AI Extraction',

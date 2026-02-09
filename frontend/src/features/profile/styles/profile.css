@@ -668,3 +668,489 @@
   transform: translate(1px, 1px);
   box-shadow: 1px 1px 0px rgba(0, 0, 0, 0.2);
 }
+
+/* ===== Error State - Neobrutalism ===== */
+.profile-error {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(to bottom, #FF6B35 0%, #FFAD85 40%, #FFD4C2 70%, #FFF5F0 85%, #ffffff 100%);
+  padding: 2rem;
+  text-align: center;
+}
+
+.profile-error h2 {
+  font-family: var(--font-mono);
+  font-size: 2rem;
+  font-weight: var(--font-bold);
+  color: var(--primary-black);
+  margin-bottom: 1rem;
+}
+
+.profile-error p {
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  color: var(--text-gray);
+  margin-bottom: 2rem;
+}
+
+.profile-error button,
+.create-profile-button,
+.back-button-alt {
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  font-weight: 700;
+  padding: 0.75rem 1.5rem;
+  border: var(--border-thick) solid var(--primary-black);
+  border-radius: 0;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin: 0.5rem;
+}
+
+.create-profile-button {
+  background: var(--primary-orange);
+  color: var(--primary-white);
+  box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.4);
+}
+
+.create-profile-button:hover {
+  background: var(--secondary-orange);
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.4);
+}
+
+.back-button-alt {
+  background: var(--primary-white);
+  color: var(--primary-black);
+  box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.4);
+}
+
+.back-button-alt:hover {
+  background: var(--secondary-gray);
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.4);
+}
+
+/* ===== Incomplete Profile Banner ===== */
+.profile-incomplete-banner {
+  background: var(--light-orange);
+  border: var(--border-thick) solid var(--primary-black);
+  padding: 1rem 1.5rem;
+  margin-bottom: 1.5rem;
+  max-width: 1400px;
+  margin-left: auto;
+  margin-right: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.profile-incomplete-banner p {
+  font-family: var(--font-mono);
+  font-size: 0.95rem;
+  color: var(--primary-black);
+  margin: 0;
+}
+
+.complete-profile-button {
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  font-weight: 700;
+  padding: 0.5rem 1rem;
+  background: var(--primary-orange);
+  color: var(--primary-white);
+  border: var(--border-medium) solid var(--primary-black);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 3px 3px 0px rgba(0, 0, 0, 0.4);
+}
+
+.complete-profile-button:hover {
+  background: var(--secondary-orange);
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.4);
+}
+
+/* ===== Avatar Placeholder ===== */
+.profile-avatar-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--primary-orange);
+  color: var(--primary-white);
+  font-family: var(--font-mono);
+  font-size: 3rem;
+  font-weight: var(--font-bold);
+}
+
+/* ===== Empty State Styles ===== */
+.profile-location-empty,
+.profile-bio-empty,
+.profile-skills-empty {
+  color: var(--text-gray);
+  font-style: italic;
+}
+
+.profile-email {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  color: var(--text-gray);
+  margin-top: 0.25rem;
+}
+
+/* ===== Social Links ===== */
+.social-link {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0;
+  color: var(--primary-black);
+  text-decoration: none;
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  transition: color 0.2s ease;
+}
+
+.social-link:hover {
+  color: var(--primary-orange);
+}
+
+.social-link svg {
+  flex-shrink: 0;
+}
+
+.portfolio-link {
+  color: var(--primary-orange);
+  font-weight: 700;
+}
+
+.portfolio-link:hover {
+  color: var(--secondary-orange);
+}
+
+.profile-empty-text {
+  color: var(--text-gray);
+  font-style: italic;
+  font-size: 0.875rem;
+  margin: 0;
+}
+
+/* ===== Experience & Seniority ===== */
+.profile-experience {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  color: var(--text-gray);
+  margin-top: 0.5rem;
+}
+
+.seniority-badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  background: var(--light-orange);
+  color: var(--primary-orange);
+  border: 2px solid var(--primary-orange);
+  font-weight: 700;
+  font-size: 0.8rem;
+  text-transform: capitalize;
+}
+/* ===== Edit Mode Styles ===== */
+.save-profile-button,
+.cancel-edit-button {
+  padding: 1rem 1.5rem;
+  border: var(--border-medium) solid var(--primary-black);
+  border-radius: 0px;
+  font-size: 0.9rem;
+  font-weight: var(--font-bold);
+  cursor: pointer;
+  transition: all 0.1s;
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 3px 3px 0px rgba(0, 0, 0, 0.2);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.save-profile-button {
+  background: var(--primary-orange);
+  color: var(--primary-white);
+}
+
+.cancel-edit-button {
+  background: var(--primary-white);
+  color: var(--primary-black);
+}
+
+.save-profile-button:hover,
+.cancel-edit-button:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.3);
+}
+
+.save-profile-button:active,
+.cancel-edit-button:active {
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0px rgba(0, 0, 0, 0.2);
+}
+
+.save-profile-button:disabled,
+.cancel-edit-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.edit-field {
+  margin: 1rem 0;
+}
+
+.edit-field label {
+  display: block;
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--primary-black);
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.edit-input,
+.edit-textarea,
+.edit-select {
+  width: 100%;
+  padding: 0.75rem;
+  border: var(--border-medium) solid var(--primary-black);
+  border-radius: 0px;
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  background: var(--primary-white);
+  box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.1);
+}
+
+.edit-input:focus,
+.edit-textarea:focus,
+.edit-select:focus {
+  outline: none;
+  border-color: var(--primary-orange);
+  box-shadow: 3px 3px 0px rgba(255, 107, 53, 0.2);
+}
+
+.edit-textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.experience-inputs {
+  display: flex;
+  gap: 1rem;
+}
+
+.edit-input-small {
+  width: 100px;
+  padding: 0.75rem;
+  border: var(--border-medium) solid var(--primary-black);
+  border-radius: 0px;
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  background: var(--primary-white);
+  box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.1);
+}
+
+.edit-input-small:focus {
+  outline: none;
+  border-color: var(--primary-orange);
+  box-shadow: 3px 3px 0px rgba(255, 107, 53, 0.2);
+}
+
+.skills-edit {
+  margin-top: 1rem;
+}
+
+.skill-tag.editable {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding-right: 0.5rem;
+}
+
+.remove-skill-btn,
+.remove-social-btn {
+  background: transparent;
+  border: none;
+  color: var(--primary-black);
+  cursor: pointer;
+  padding: 0.25rem;
+  display: flex;
+  align-items: center;
+  transition: color 0.2s;
+}
+
+.remove-skill-btn:hover,
+.remove-social-btn:hover {
+  color: var(--primary-orange);
+}
+
+.add-skill-btn,
+.add-social-btn {
+  padding: 0.5rem 1rem;
+  background: var(--light-orange);
+  color: var(--primary-orange);
+  border: var(--border-medium) solid var(--primary-orange);
+  border-radius: 0px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.1s;
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 2px 2px 0px rgba(255, 107, 53, 0.2);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.add-skill-btn:hover,
+.add-social-btn:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0px rgba(255, 107, 53, 0.3);
+}
+
+.add-skill-btn:active,
+.add-social-btn:active {
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0px rgba(255, 107, 53, 0.1);
+}
+
+.social-link.editable {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  margin-bottom: 0.5rem;
+  background: var(--secondary-gray);
+  border: var(--border-medium) solid var(--primary-black);
+  box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.1);
+}
+
+.social-link.editable span {
+  flex: 1;
+}
+
+.name-inputs {
+  display: flex;
+  gap: 1rem;
+}
+
+.edit-input-name {
+  flex: 1;
+  padding: 0.75rem;
+  border: var(--border-medium) solid var(--primary-black);
+  border-radius: 0px;
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  background: var(--primary-white);
+  box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.1);
+}
+
+.edit-input-name:focus {
+  outline: none;
+  border-color: var(--primary-orange);
+  box-shadow: 3px 3px 0px rgba(255, 107, 53, 0.2);
+}
+
+/* Add Item Forms */
+.add-item-form,
+.add-social-form {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: var(--light-orange);
+  border: var(--border-medium) solid var(--primary-orange);
+  box-shadow: 3px 3px 0px rgba(255, 107, 53, 0.2);
+}
+
+.add-item-form {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.add-social-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.add-item-input {
+  flex: 1;
+  padding: 0.5rem 0.75rem;
+  border: var(--border-medium) solid var(--primary-black);
+  border-radius: 0px;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  background: var(--primary-white);
+  box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.1);
+}
+
+.add-item-input:focus {
+  outline: none;
+  border-color: var(--primary-orange);
+  box-shadow: 2px 2px 0px rgba(255, 107, 53, 0.2);
+}
+
+.add-item-save-btn,
+.add-item-cancel-btn {
+  padding: 0.5rem 0.75rem;
+  border: var(--border-medium) solid var(--primary-black);
+  border-radius: 0px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.1s;
+  font-family: var(--font-mono);
+  box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.2);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.add-item-save-btn {
+  background: var(--primary-orange);
+  color: var(--primary-white);
+}
+
+.add-item-cancel-btn {
+  background: var(--primary-white);
+  color: var(--primary-black);
+}
+
+.add-item-save-btn:hover,
+.add-item-cancel-btn:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0px rgba(0, 0, 0, 0.3);
+}
+
+.add-item-save-btn:active,
+.add-item-cancel-btn:active {
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0px rgba(0, 0, 0, 0.1);
+}
+
+.add-social-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+}

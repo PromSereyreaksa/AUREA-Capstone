@@ -11,13 +11,15 @@ interface ApiResponse<T> {
 }
 
 export class AuthService implements IAuthService {
-  async signUp(email: string, password: string): Promise<User> {
+  async signUp(email: string, password: string, firstName?: string, lastName?: string): Promise<User> {
     try {
       const response = await httpClient.post<
         ApiResponse<{ user: User; otp?: string }>
       >("/users/signup", {
         email,
         password,
+        first_name: firstName,
+        last_name: lastName,
         role: "designer",
       });
 
@@ -269,8 +271,8 @@ export class AuthService implements IAuthService {
     if (!token) return null;
 
     try {
-      const user = await httpClient.get<User>("/users/me");
-      return user;
+      const response = await httpClient.get<{ data: { user: User } }>("/users/me");
+      return response.data?.user || null;
     } catch (error) {
       // Token invalid or expired
       localStorage.removeItem("auth_token");

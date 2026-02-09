@@ -6,8 +6,16 @@ export interface User {
   role: string;
   email_verified: boolean;
   google_id?: string;
+  first_name?: string;
+  last_name?: string;
   created_at?: Date;
   last_login_at?: Date;
+}
+
+export interface SocialLink {
+  platform: string;
+  url: string;
+  handle: string;
 }
 
 export interface UserProfile {
@@ -16,10 +24,20 @@ export interface UserProfile {
   first_name?: string;
   last_name?: string;
   bio?: string;
-  skills?: string;
+  skills?: string[];
   location?: string;
   profile_avatar?: string;
+  experience_years?: number;
+  seniority_level?: 'junior' | 'mid' | 'senior' | 'expert';
+  social_links?: SocialLink[];
   updated_at?: Date;
+}
+
+export interface Portfolio {
+  portfolio_id: number;
+  user_id: number;
+  portfolio_url?: string;
+  is_public: boolean;
 }
 
 export interface Project {

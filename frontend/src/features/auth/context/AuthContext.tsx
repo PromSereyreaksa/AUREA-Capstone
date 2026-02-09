@@ -5,7 +5,7 @@ import { AuthService } from '../services/AuthService';
 
 interface AuthContextValue extends AuthState {
   authService: IAuthService;
-  signUp: (email: string, password: string) => Promise<void>;
+  signUp: (email: string, password: string, firstName?: string, lastName?: string) => Promise<void>;
   signIn: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
   signInWithGoogle: () => Promise<void>;
@@ -46,10 +46,10 @@ export const AuthProvider = ({ children, authService }: AuthProviderProps) => {
     initAuth();
   }, []);
 
-  const signUp = async (email: string, password: string) => {
+  const signUp = async (email: string, password: string, firstName?: string, lastName?: string) => {
     try {
       setState({ ...state, loading: true, error: null });
-      const user = await service.signUp(email, password);
+      const user = await service.signUp(email, password, firstName, lastName);
       setState({ user, loading: false, error: null });
     } catch (error: any) {
       setState({ ...state, loading: false, error: error.message });

@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { UserRepository } from '../../infrastructure/repositories/UserRepository';
+import { UserProfileRepository } from '../../infrastructure/repositories/UserProfileRepository';
 import { SignUpUser } from '../../application/use_cases/SignUpUser';
 import { SignInUser } from '../../application/use_cases/SignInUser';
 import { SignUpWithGoogle } from '../../application/use_cases/SignUpWithGoogle';
@@ -13,8 +14,9 @@ import { ResponseHelper } from '../../shared/utils';
 import { asyncHandler } from '../../shared/middleware';
 
 const userRepo = new UserRepository();
+const userProfileRepo = new UserProfileRepository();
 const emailService = new EmailService();
-const signUpUser = new SignUpUser(userRepo, emailService);
+const signUpUser = new SignUpUser(userRepo, emailService, userProfileRepo);
 const signInUser = new SignInUser(userRepo);
 const signUpWithGoogle = new SignUpWithGoogle(userRepo);
 const verifyOTP = new VerifyOTP(userRepo);

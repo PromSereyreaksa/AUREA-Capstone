@@ -181,6 +181,18 @@
   gap: 1.5rem;
 }
 
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+@media (max-width: 600px) {
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+}
+
 .form-group {
   display: flex;
   flex-direction: column;
@@ -197,10 +209,10 @@
 }
 
 .form-group input {
-  padding: 1rem 1rem;
+  padding: 0.75rem 0.875rem;
   border: var(--border-medium) solid var(--primary-black);
   border-radius: 0px;
-  font-size: 0.9rem;
+  font-size: 0.875rem;
   transition: all 0.1s;
   background: var(--primary-white);
   font-family: var(--font-mono);

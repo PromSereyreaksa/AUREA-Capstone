@@ -1,0 +1,399 @@
+paths:
+  /api/v1/profile:
+    post:
+      summary: Create user profile
+      description: |
+        Creates a new profile for the authenticated user.
+        Profile includes bio, skills, location, experience, seniority level, and social links.
+      tags:
+        - User Profile
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                bio:
+                  type: string
+                  description: User's professional biography
+                  example: "Experienced UI/UX designer with 5 years in web and mobile design"
+                skills:
+                  type: string
+                  description: JSON string array of user's skills
+                  example: "[\"UI Design\", \"UX Research\", \"Figma\", \"Adobe XD\"]"
+                location:
+                  type: string
+                  description: User's location
+                  example: "San Francisco, CA"
+                profile_avatar:
+                  type: string
+                  description: URL to user's profile avatar image
+                  example: "https://example.com/avatar.jpg"
+                experience_years:
+                  type: integer
+                  description: Years of professional experience
+                  example: 5
+                seniority_level:
+                  type: string
+                  enum: [junior, mid, senior, expert]
+                  description: Professional seniority level
+                  example: "senior"
+                social_links:
+                  type: object
+                  description: Social media profile links
+                  properties:
+                    linkedin:
+                      type: string
+                      example: "https://linkedin.com/in/johndoe"
+                    github:
+                      type: string
+                      example: "https://github.com/johndoe"
+                    twitter:
+                      type: string
+                      example: "https://twitter.com/johndoe"
+                    behance:
+                      type: string
+                      example: "https://behance.net/johndoe"
+                    dribbble:
+                      type: string
+                      example: "https://dribbble.com/johndoe"
+      responses:
+        '201':
+          description: Profile created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Profile created successfully"
+                  data:
+                    $ref: '#/components/schemas/UserProfile'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '409':
+          description: Profile already exists
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Profile already exists for this user"
+
+    get:
+      summary: Get current user's profile
+      description: |
+        Retrieves the profile of the authenticated user.
+        Includes user's basic info (name, email) merged with profile data.
+      tags:
+        - User Profile
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Profile retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/UserProfile'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: Profile not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Profile not found"
+
+    put:
+      summary: Update user profile
+      description: |
+        Updates the authenticated user's profile.
+        Can update profile fields and also first_name/last_name in the users table.
+      tags:
+        - User Profile
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                first_name:
+                  type: string
+                  description: User's first name (updates users table)
+                  example: "John"
+                last_name:
+                  type: string
+                  description: User's last name (updates users table)
+                  example: "Doe"
+                bio:
+                  type: string
+                  description: User's professional biography
+                  example: "Senior UI/UX designer specializing in mobile apps"
+                skills:
+                  type: string
+                  description: JSON string array of user's skills
+                  example: "[\"UI Design\", \"UX Research\", \"Figma\"]"
+                location:
+                  type: string
+                  description: User's location
+                  example: "New York, NY"
+                profile_avatar:
+                  type: string
+                  description: URL to user's profile avatar image
+                  example: "https://example.com/new-avatar.jpg"
+                experience_years:
+                  type: integer
+                  description: Years of professional experience
+                  example: 6
+                seniority_level:
+                  type: string
+                  enum: [junior, mid, senior, expert]
+                  description: Professional seniority level
+                  example: "expert"
+                social_links:
+                  type: object
+                  description: Social media profile links
+                  properties:
+                    linkedin:
+                      type: string
+                      example: "https://linkedin.com/in/johndoe"
+                    github:
+                      type: string
+                      example: "https://github.com/johndoe"
+                    twitter:
+                      type: string
+                      example: "https://twitter.com/johndoe"
+                    behance:
+                      type: string
+                      example: "https://behance.net/johndoe"
+                    dribbble:
+                      type: string
+                      example: "https://dribbble.com/johndoe"
+      responses:
+        '200':
+          description: Profile updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Profile updated successfully"
+                  data:
+                    $ref: '#/components/schemas/UserProfile'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: Profile not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Profile not found"
+
+    delete:
+      summary: Delete user profile
+      description: |
+        Deletes the authenticated user's profile.
+        This does not delete the user account, only the profile data.
+      tags:
+        - User Profile
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Profile deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Profile deleted successfully"
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: Profile not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Profile not found"
+
+  /api/v1/profile/{userId}:
+    get:
+      summary: Get user profile by ID
+      description: |
+        Retrieves a user's public profile by their user ID.
+        This endpoint does not require authentication.
+      tags:
+        - User Profile
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema:
+            type: integer
+          description: The ID of the user whose profile to retrieve
+          example: 123
+      responses:
+        '200':
+          description: Profile retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/UserProfile'
+        '404':
+          description: User or profile not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "User not found"
+
+components:
+  schemas:
+    UserProfile:
+      type: object
+      properties:
+        profile_id:
+          type: integer
+          description: Unique profile identifier
+          example: 1
+        user_id:
+          type: integer
+          description: Associated user ID
+          example: 123
+        first_name:
+          type: string
+          description: User's first name (from users table)
+          example: "John"
+        last_name:
+          type: string
+          description: User's last name (from users table)
+          example: "Doe"
+        email:
+          type: string
+          description: User's email (from users table)
+          example: "john.doe@example.com"
+        bio:
+          type: string
+          nullable: true
+          description: User's professional biography
+          example: "Experienced UI/UX designer with 5 years in web and mobile design"
+        skills:
+          type: string
+          nullable: true
+          description: JSON string array of user's skills
+          example: "[\"UI Design\", \"UX Research\", \"Figma\", \"Adobe XD\"]"
+        location:
+          type: string
+          nullable: true
+          description: User's location
+          example: "San Francisco, CA"
+        profile_avatar:
+          type: string
+          nullable: true
+          description: URL to user's profile avatar image
+          example: "https://example.com/avatar.jpg"
+        experience_years:
+          type: integer
+          nullable: true
+          description: Years of professional experience
+          example: 5
+        seniority_level:
+          type: string
+          nullable: true
+          enum: [junior, mid, senior, expert]
+          description: Professional seniority level
+          example: "senior"
+        social_links:
+          type: object
+          nullable: true
+          description: Social media profile links
+          properties:
+            linkedin:
+              type: string
+              example: "https://linkedin.com/in/johndoe"
+            github:
+              type: string
+              example: "https://github.com/johndoe"
+            twitter:
+              type: string
+              example: "https://twitter.com/johndoe"
+            behance:
+              type: string
+              example: "https://behance.net/johndoe"
+            dribbble:
+              type: string
+              example: "https://dribbble.com/johndoe"
+        updated_at:
+          type: string
+          format: date-time
+          description: Last update timestamp
+          example: "2026-02-10T10:30:00.000Z"
