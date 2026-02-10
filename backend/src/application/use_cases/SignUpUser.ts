@@ -1,12 +1,15 @@
 import { IUserRepository } from '../../domain/repositories/IUserRepository';
+import { IUserProfileRepository } from '../../domain/repositories/IUserProfileRepository';
 import { User } from '../../domain/entities/User';
+import { UserProfile } from '../../domain/entities/UserProfile';
 import bcrypt from 'bcrypt';
 import { EmailService } from '../../infrastructure/services/EmailService';
 
 export class SignUpUser {
   constructor(
     private userRepo: IUserRepository,
-    private emailService: EmailService
+    private emailService: EmailService,
+    private userProfileRepo?: IUserProfileRepository
   ) {}
 
   // Generate 6-digit OTP
@@ -54,6 +57,21 @@ export class SignUpUser {
     );
 
     const createdUser = await this.userRepo.create(user);
+    
+    // Create a basic profile for the user automatically
+    if (this.userProfileRepo) {
+      try {
+        const profile = new UserProfile(
+          0, // profile_id will be generated
+          createdUser.user_id
+          // Other fields will be undefined/empty initially
+        );
+        await this.userProfileRepo.create(profile);
+      } catch (error: any) {
+        console.error('[SignUpUser] Failed to create user profile:', error.message);
+        // Don't throw error - user is already created, they can create profile later
+      }
+    }
     
     // Attach plain OTP to the response for testing/development
     // In production, you might want to remove this and only send via email

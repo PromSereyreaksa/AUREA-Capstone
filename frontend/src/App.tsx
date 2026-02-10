@@ -46,8 +46,9 @@ function App() {
           <Route path="/reset-password" element={<ResetPasswordPage />} />
           <Route path="/auth/callback" element={<AuthCallbackPage />} />
 
-          {/* Designer profile route */}
-          <Route path="/designer-profile/:designerId" element={<DesignerProfilePage />} />
+          {/* Designer profile routes */}
+          <Route path="/designer-profile" element={<DesignerProfilePage />} />
+          <Route path="/designer-profile/:userId" element={<DesignerProfilePage />} />
           
           {/* Landing Page Routes */}
           <Route

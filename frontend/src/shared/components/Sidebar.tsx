@@ -114,7 +114,7 @@ const Sidebar = ({ userName = "User", userAvatar }: SidebarProps) => {
       </div>
 
       {/* User Profile Card */}
-      <NavLink to="/designer-profile/:1">
+      <NavLink to="/designer-profile">
         <div className="flex items-center gap-3 p-2 sm:p-3 bg-[#FFE8DC] rounded-xl mb-4 lg:mb-6 border-2 border-black shadow-[2px_2px_0_#1a1a1a]">
           <div className="w-10 h-10 rounded-lg overflow-hidden bg-white flex items-center justify-center border-2 border-black">
             {userAvatar ? (

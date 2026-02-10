@@ -13,7 +13,6 @@ CREATE TABLE users (
   user_id SERIAL PRIMARY KEY,
   email VARCHAR(255) NOT NULL UNIQUE,
   password VARCHAR(255) NOT NULL,
-  role VARCHAR(50) NOT NULL,
   google_id VARCHAR(255) UNIQUE,
   email_verified BOOLEAN DEFAULT FALSE,
   verification_otp VARCHAR(10),
@@ -58,12 +57,14 @@ CREATE TABLE user_profile (
   first_name VARCHAR(100),
   last_name VARCHAR(100),
   bio TEXT,
-  skills TEXT,
+  skills TEXT, -- Stored as JSON string array: ["Skill 1", "Skill 2", ...]
   location VARCHAR(255),
   profile_avatar VARCHAR(255),
   -- UREA extension fields
   experience_years INT CHECK (experience_years >= 0),
   seniority_level VARCHAR(20) CHECK (seniority_level IN ('junior', 'mid', 'senior', 'expert')),
+  -- Social media links
+  social_links JSONB DEFAULT '[]'::jsonb, -- Array of {platform, url, handle} objects
   created_at TIMESTAMP DEFAULT NOW(),
   updated_at TIMESTAMP DEFAULT NOW()
 );
@@ -290,6 +291,8 @@ CREATE TRIGGER trigger_pricing_profiles_updated_at BEFORE UPDATE ON pricing_prof
 -- =============================================================================
 COMMENT ON TABLE users IS 'User accounts with authentication data';
 COMMENT ON TABLE user_profile IS 'Extended user profile with experience data for UREA pricing';
+COMMENT ON COLUMN user_profile.skills IS 'JSON string array of skill names: ["UI/UX Design", "Figma", ...]';
+COMMENT ON COLUMN user_profile.social_links IS 'JSONB array of social media links: [{"platform": "instagram", "url": "...", "handle": "..."}]';
 COMMENT ON TABLE project_price IS 'Projects with optional client context and UREA-calculated rates';
 COMMENT ON TABLE project_deliverable IS 'Project deliverables with grouped items from Gemini extraction';
 COMMENT ON COLUMN project_deliverable.items IS 'Array of sub-items included in this deliverable (e.g., ["Logo", "Color palette", "Typography"])';

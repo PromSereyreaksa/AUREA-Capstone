@@ -1,7 +1,7 @@
 import type { User } from '../../../shared/types';
 
 export interface IAuthService {
-  signUp(email: string, password: string): Promise<User>;
+  signUp(email: string, password: string, firstName?: string, lastName?: string): Promise<User>;
   signIn(email: string, password: string): Promise<User>;
   signOut(): Promise<void>;
   signInWithGoogle(): Promise<User>;

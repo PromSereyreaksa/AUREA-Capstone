@@ -7,6 +7,7 @@ import testRoutes from './interfaces/routes/testRoutes';
 import userRoutes from './interfaces/routes/userRoutes';
 import pdfExtractRoutes from './interfaces/routes/pdfExtractRoutes';
 import pricingRoutes from './interfaces/routes/pricingRoutes';
+import profileRoutes from './interfaces/routes/profileRoutes';
 import { errorHandler, requestLogger, versionMiddleware, versionCheck, restrictV0ToLocalhost } from './shared/middleware';
 
 // Suppress dotenv logging in non-debug mode
@@ -44,17 +45,18 @@ app.get('/api/v1/health', (req, res) => {
   });
 });
 
-// Swagger Documentation (v0 only - for developers)
+// Swagger Documentation (accessible via v0/docs, shows v1 endpoints)
 app.use('/api/v0/docs', swaggerUi.serve);
 app.get('/api/v0/docs', swaggerUi.setup(swaggerSpec, {
   customCss: '.swagger-ui .topbar { display: none }',
-  customSiteTitle: 'AUREA API v0 - Development',
+  customSiteTitle: 'AUREA API Documentation',
   customfavIcon: '/favicon.ico'
 }));
 
 //for developer
 app.use('/api/v0', versionMiddleware('v0'), testRoutes);
 app.use('/api/v0/users', versionMiddleware('v0'), userRoutes);
+app.use('/api/v0/profile', versionMiddleware('v0'), profileRoutes);
 app.use('/api/v0/pdf', versionMiddleware('v0'), pdfExtractRoutes);
 app.use('/api/v0/pricing', versionMiddleware('v0'), pricingRoutes);
 
@@ -62,6 +64,7 @@ app.use('/api/v0/pricing', versionMiddleware('v0'), pricingRoutes);
 //for users v1
 app.use('/api/v1', versionMiddleware('v1'), testRoutes);
 app.use('/api/v1/users', versionMiddleware('v1'), userRoutes);
+app.use('/api/v1/profile', versionMiddleware('v1'), profileRoutes);
 app.use('/api/v1/pdf', versionMiddleware('v1'), pdfExtractRoutes);
 app.use('/api/v1/pricing', versionMiddleware('v1'), pricingRoutes);
 

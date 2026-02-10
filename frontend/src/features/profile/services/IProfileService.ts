@@ -1,8 +1,12 @@
-import type { UserProfile, Project } from '../../../shared/types';
+import type { UserProfile, Project, Portfolio } from '../../../shared/types';
 
 export interface IProfileService {
-  getProfile(userId: number): Promise<UserProfile>;
-  updateProfile(userId: number, data: Partial<UserProfile>): Promise<UserProfile>;
+  getCurrentProfile(): Promise<UserProfile>;
+  getProfileById(userId: number): Promise<UserProfile>;
+  createProfile(data: Partial<UserProfile>): Promise<UserProfile>;
+  updateProfile(data: Partial<UserProfile>): Promise<UserProfile>;
+  deleteProfile(): Promise<void>;
+  getPortfolio(userId: number): Promise<Portfolio>;
   getProjects(userId: number): Promise<Project[]>;
 }
 

@@ -1,38 +1,35 @@
 import type { IProfileService } from './IProfileService';
-import type { UserProfile, Project } from '../../../shared/types';
+import type { UserProfile, Project, Portfolio } from '../../../shared/types';
 import { httpClient } from '../../../shared/api/client';
 
 export class ProfileService implements IProfileService {
-  async getProfile(userId: number): Promise<UserProfile> {
-    try {
-      const profile = await httpClient.get<UserProfile>(`/profiles/${userId}`);
-      return profile;
-    } catch (error) {
-      console.error('Error fetching profile:', error);
-      // Return mock data if API fails
-      return {
-        profile_id: 1,
-        user_id: userId,
-        first_name: 'John',
-        last_name: 'Doe',
-        bio: 'Passionate designer',
-        skills: 'UI/UX, Branding',
-        location: 'San Francisco, CA',
-      };
-    }
+  async getCurrentProfile(): Promise<UserProfile> {
+    const response = await httpClient.get<{ success: boolean; data: UserProfile }>('/profile');
+    return response.data;
   }
 
-  async updateProfile(userId: number, data: Partial<UserProfile>): Promise<UserProfile> {
-    try {
-      const updatedProfile = await httpClient.put<UserProfile>(
-        `/profiles/${userId}`,
-        data
-      );
-      return updatedProfile;
-    } catch (error) {
-      console.error('Error updating profile:', error);
-      throw new Error('Failed to update profile');
-    }
+  async getProfileById(userId: number): Promise<UserProfile> {
+    const response = await httpClient.get<{ success: boolean; data: UserProfile }>(`/profile/${userId}`);
+    return response.data;
+  }
+
+  async createProfile(data: Partial<UserProfile>): Promise<UserProfile> {
+    const response = await httpClient.post<{ success: boolean; data: UserProfile }>('/profile', data);
+    return response.data;
+  }
+
+  async updateProfile(data: Partial<UserProfile>): Promise<UserProfile> {
+    const response = await httpClient.put<{ success: boolean; data: UserProfile }>('/profile', data);
+    return response.data;
+  }
+
+  async deleteProfile(): Promise<void> {
+    await httpClient.delete('/profile');
+  }
+
+  async getPortfolio(userId: number): Promise<Portfolio> {
+    const response = await httpClient.get<{ success: boolean; data: Portfolio }>(`/portfolio/${userId}`);
+    return response.data;
   }
 
   async getProjects(userId: number): Promise<Project[]> {
@@ -41,7 +38,6 @@ export class ProfileService implements IProfileService {
       return projects;
     } catch (error) {
       console.error('Error fetching projects:', error);
-      // Return empty array if API fails
       return [];
     }
   }
