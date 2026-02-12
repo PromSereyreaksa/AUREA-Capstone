@@ -41,7 +41,7 @@ export const HTTP_STATUS = {
 } as const;
 
 export const FILE_LIMITS = {
-  MAX_PDF_SIZE: 10 * 1024 * 1024, // 10MB
+  MAX_PDF_SIZE: 20 * 1024 * 1024, // 20MB
   MAX_IMAGE_SIZE: 5 * 1024 * 1024, // 5MB
 } as const;
 
@@ -81,6 +81,12 @@ export const SENIORITY_MULTIPLIERS = {
   senior: 1.3,
   expert: 1.5
 } as const;
+
+export const PORTFOLIO_QUALITY_TIERS = ['budget', 'mid', 'premium'] as const;
+export type PortfolioQualityTier = typeof PORTFOLIO_QUALITY_TIERS[number];
+
+export const PORTFOLIO_CONFIDENCE_LEVELS = ['low', 'medium', 'high'] as const;
+export type PortfolioConfidenceLevel = typeof PORTFOLIO_CONFIDENCE_LEVELS[number];
 
 export const RATE_POSITION = ['below_median', 'at_median', 'above_median'] as const;
 export type RatePosition = typeof RATE_POSITION[number];

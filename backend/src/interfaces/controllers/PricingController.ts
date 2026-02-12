@@ -6,10 +6,13 @@ import { CalculateBaseRate } from '../../application/use_cases/CalculateBaseRate
 import { GetMarketBenchmark } from '../../application/use_cases/GetMarketBenchmark';
 import { CalculateProjectRate } from '../../application/use_cases/CalculateProjectRate';
 import { QuickEstimateRate } from '../../application/use_cases/QuickEstimateRate';
+import { PortfolioAssistedPricing } from '../../application/use_cases/PortfolioAssistedPricing';
+import { AcceptPortfolioRate } from '../../application/use_cases/AcceptPortfolioRate';
 import { OnboardingSessionRepository } from '../../infrastructure/repositories/OnboardingSessionRepository';
 import { PricingProfileRepository } from '../../infrastructure/repositories/PricingProfileRepository';
 import { MarketBenchmarkRepository } from '../../infrastructure/repositories/MarketBenchmarkRepository';
 import { ProjectPriceRepository } from '../../infrastructure/repositories/ProjectPriceRepository';
+import { CategoryRepository } from '../../infrastructure/repositories/CategoryRepository';
 import { GeminiService } from '../../infrastructure/services/GeminiService';
 import { ResponseHelper } from '../../shared/utils/responseHelper';
 import { HTTP_STATUS } from '../../shared/constants';
@@ -20,6 +23,7 @@ export class PricingController {
   private pricingProfileRepo: PricingProfileRepository;
   private marketBenchmarkRepo: MarketBenchmarkRepository;
   private projectPriceRepo: ProjectPriceRepository;
+  private categoryRepo: CategoryRepository;
   private geminiService: GeminiService;
 
   constructor() {
@@ -27,6 +31,7 @@ export class PricingController {
     this.pricingProfileRepo = new PricingProfileRepository();
     this.marketBenchmarkRepo = new MarketBenchmarkRepository();
     this.projectPriceRepo = new ProjectPriceRepository();
+    this.categoryRepo = new CategoryRepository();
     this.geminiService = new GeminiService();
   }
 
@@ -234,5 +239,54 @@ export class PricingController {
     const result = await useCase.execute(input);
 
     ResponseHelper.success(res, result, 'Quick estimate generated successfully');
+  }
+
+  /**
+   * POST /api/v1/pricing/portfolio-assist
+   * Analyze a portfolio and calculate project rate with AI-inferred signals.
+   * Accepts JSON body or multipart/form-data (for PDF upload).
+   */
+  async portfolioAssistedPricing(req: Request, res: Response): Promise<void> {
+    // When sent as multipart/form-data, `overrides` arrives as a JSON string
+    const body = { ...req.body };
+    if (typeof body.overrides === 'string') {
+      try { body.overrides = JSON.parse(body.overrides); } catch { body.overrides = undefined; }
+    }
+
+    // Handle optional PDF file from multipart/form-data
+    let portfolio_pdf: Buffer | undefined;
+    if ((req as any).file) {
+      const file = (req as any).file as { buffer: Buffer; mimetype: string; size: number };
+      portfolio_pdf = PricingValidator.validatePortfolioPdf(file);
+    }
+
+    // Pass hasPdf flag so the validator allows PDF-only requests
+    const validated = PricingValidator.validatePortfolioAssistedPricing(body, !!portfolio_pdf);
+
+    const useCase = new PortfolioAssistedPricing(
+      this.pricingProfileRepo,
+      this.projectPriceRepo,
+      this.marketBenchmarkRepo,
+      this.categoryRepo,
+      this.geminiService
+    );
+
+    const result = await useCase.execute({ ...validated, portfolio_pdf });
+
+    ResponseHelper.success(res, result, 'Portfolio-assisted pricing completed successfully');
+  }
+
+  /**
+   * POST /api/v1/pricing/portfolio-assist/accept
+   * Accept and save an AI-recommended rate to the user's pricing profile
+   */
+  async acceptPortfolioRate(req: Request, res: Response): Promise<void> {
+    const validated = PricingValidator.validateAcceptRate(req.body);
+
+    const useCase = new AcceptPortfolioRate(this.pricingProfileRepo);
+
+    const result = await useCase.execute(validated);
+
+    ResponseHelper.success(res, result, result.message);
   }
 }

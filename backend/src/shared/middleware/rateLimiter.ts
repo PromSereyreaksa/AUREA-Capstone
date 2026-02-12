@@ -194,6 +194,20 @@ export const globalLimiter = createRateLimiter('global', {
  */
 export const createCustomLimiter = createRateLimiter;
 
+/**
+ * Portfolio analysis rate limiter (daily per-user quota)
+ * Default: 2 requests per 24 hours per user
+ * Configurable via PORTFOLIO_DAILY_LIMIT env var
+ */
+const portfolioDailyMax = parseInt(process.env.PORTFOLIO_DAILY_LIMIT || '2', 10);
+export const portfolioAnalysisLimiter = createRateLimiter('portfolio-analysis', {
+  windowMs: 24 * 60 * 60 * 1000,  // 24 hours
+  maxRequests: portfolioDailyMax,
+  message: `Portfolio analysis limit reached (${portfolioDailyMax}/day). Please try again tomorrow.`,
+  keyGenerator: (req) => `portfolio:${req.user?.user_id?.toString() || req.ip || 'anonymous'}`,
+  skipFailedRequests: true  // Don't count server-side failures against user
+});
+
 export default {
   standardLimiter,
   aiEndpointLimiter,
@@ -201,5 +215,6 @@ export default {
   profileLimiter,
   calculationLimiter,
   globalLimiter,
+  portfolioAnalysisLimiter,
   createCustomLimiter
 };

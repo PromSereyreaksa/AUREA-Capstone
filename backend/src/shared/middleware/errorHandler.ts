@@ -30,7 +30,7 @@ export const errorHandler = (
   // Handle Multer errors
   if (err.name === 'MulterError') {
     const messages: Record<string, string> = {
-      LIMIT_FILE_SIZE: 'File size exceeds the allowed limit',
+      LIMIT_FILE_SIZE: 'File size exceeds the allowed limit (max 20 MB)',
       LIMIT_UNEXPECTED_FILE: 'Unexpected file field',
       LIMIT_PART_COUNT: 'Too many parts',
       LIMIT_FIELD_KEY: 'Field name too long',

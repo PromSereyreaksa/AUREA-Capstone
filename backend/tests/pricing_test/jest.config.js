@@ -1,3 +1,4 @@
+
 /** @type {import('ts-jest').JestConfigWithTsJest} */
 module.exports = {
   preset: 'ts-jest',
@@ -5,7 +6,8 @@ module.exports = {
   rootDir: __dirname,
   testMatch: [
     '<rootDir>/unit/**/*.test.ts',
-    '<rootDir>/integration/**/*.test.ts'
+    '<rootDir>/integration/**/*.test.ts',
+    '<rootDir>/e2e/**/*.test.ts'
   ],
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
   moduleNameMapper: {
@@ -47,6 +49,19 @@ module.exports = {
       rootDir: __dirname,
       testMatch: ['<rootDir>/integration/**/*.test.ts'],
       testTimeout: 60000,
+      transform: {
+        '^.+\\.tsx?$': ['ts-jest', {
+          tsconfig: '<rootDir>/../../tsconfig.json'
+        }]
+      },
+    },
+    {
+      displayName: 'e2e',
+      preset: 'ts-jest',
+      testEnvironment: 'node',
+      rootDir: __dirname,
+      testMatch: ['<rootDir>/e2e/**/*.test.ts'],
+      testTimeout: 120000,
       transform: {
         '^.+\\.tsx?$': ['ts-jest', {
           tsconfig: '<rootDir>/../../tsconfig.json'

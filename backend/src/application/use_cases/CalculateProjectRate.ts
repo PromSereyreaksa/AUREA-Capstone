@@ -9,9 +9,10 @@ interface CalculateProjectRateInput {
   project_id?: number;  // Optional: if provided, will update project's calculated_rate
   client_type: string;
   client_region: string;
+  seniority_level_override?: string;
 }
 
-interface CalculateProjectRateOutput {
+export interface CalculateProjectRateOutput {
   base_rate: number;
   seniority_level: string;
   seniority_multiplier: number;
@@ -45,14 +46,19 @@ export class CalculateProjectRate {
     // 2. Create client context
     const clientContext = ClientContext.fromStrings(input.client_type, input.client_region);
 
-    // 3. Calculate project rate with breakdown
+    // 3. Determine seniority level (allow override)
+    const seniorityLevel = input.seniority_level_override
+      ? SeniorityMultiplier.validate(input.seniority_level_override)
+      : pricingProfile.seniority_level;
+
+    // 4. Calculate project rate with breakdown
     const calculation = PricingCalculatorService.calculateProjectRateWithBreakdown(
       pricingProfile.base_hourly_rate,
-      pricingProfile.seniority_level,
+      seniorityLevel,
       clientContext
     );
 
-    // 4. Calculate revenue estimates
+    // 5. Calculate revenue estimates
     const monthlyRevenue = PricingCalculatorService.estimateMonthlyRevenue(
       calculation.final_hourly_rate,
       pricingProfile.billable_hours_per_month
@@ -63,7 +69,7 @@ export class CalculateProjectRate {
       pricingProfile.billable_hours_per_month
     );
 
-    // 5. Update project if project_id provided
+    // 6. Update project if project_id provided
     let projectUpdated = false;
     if (input.project_id) {
       projectUpdated = await this.updateProjectRate(
