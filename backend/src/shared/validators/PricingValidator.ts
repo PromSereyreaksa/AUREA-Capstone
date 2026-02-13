@@ -1,5 +1,12 @@
 import { BaseValidator } from './BaseValidator';
-import { SENIORITY_LEVELS, CLIENT_TYPES, CLIENT_REGIONS, PRICING_CONSTANTS } from '../constants';
+import { 
+  SENIORITY_LEVELS, 
+  CLIENT_TYPES, 
+  CLIENT_REGIONS, 
+  PRICING_CONSTANTS,
+  PORTFOLIO_QUALITY_TIERS,
+  PORTFOLIO_CONFIDENCE_LEVELS
+} from '../constants';
 
 export class PricingValidator extends BaseValidator {
   
@@ -262,5 +269,320 @@ export class PricingValidator extends BaseValidator {
       hours_per_week,
       region
     };
+  }
+
+  /**
+   * Validate portfolio-assisted pricing request
+   */
+  static validatePortfolioAssistedPricing(data: any, hasPdf: boolean = false): {
+    user_id: number;
+    project_id?: number;
+    client_region: string;
+    portfolio_url?: string;
+    portfolio_text?: string;
+    client_type?: string;
+    use_ai?: boolean;
+    experience_years?: number;
+    skills?: string;
+    hours_per_week?: number;
+    overrides?: {
+      seniority_level?: string;
+      skill_areas?: string[];
+      specialization?: string;
+      portfolio_quality_tier?: string;
+      client_readiness?: string;
+      confidence?: string;
+      market_benchmark_category?: string;
+    };
+  } {
+    this.throwIf(this.isNullOrEmpty(data?.user_id), 'user_id is required');
+    const user_id = this.parsePositiveInt(data.user_id, 'user_id');
+
+    let project_id: number | undefined;
+    if (data?.project_id) {
+      project_id = this.parsePositiveInt(data.project_id, 'project_id');
+    }
+
+    this.throwIf(this.isNullOrEmpty(data?.client_region), 'client_region is required');
+    const client_region = data.client_region.toLowerCase().trim();
+    this.throwIf(
+      !CLIENT_REGIONS.includes(client_region as any),
+      `client_region must be one of: ${CLIENT_REGIONS.join(', ')}`
+    );
+
+    let portfolio_url: string | undefined;
+    if (data?.portfolio_url != null && data.portfolio_url !== '') {
+      this.throwIf(typeof data.portfolio_url !== 'string', 'portfolio_url must be a string');
+      const trimmedUrl = data.portfolio_url.trim();
+      if (trimmedUrl.length > 0) {
+        this.throwIf(trimmedUrl.length > 500, 'portfolio_url is too long (max 500 characters)');
+        this.throwIf(
+          !/^https?:\/\/.+/i.test(trimmedUrl),
+          'portfolio_url must be a valid HTTP or HTTPS URL'
+        );
+        portfolio_url = trimmedUrl;
+      }
+    }
+
+    let portfolio_text: string | undefined;
+    if (data?.portfolio_text != null && data.portfolio_text !== '') {
+      this.throwIf(typeof data.portfolio_text !== 'string', 'portfolio_text must be a string');
+      const trimmedText = data.portfolio_text.trim();
+      if (trimmedText.length > 0) {
+        this.throwIf(trimmedText.length > 10000, 'portfolio_text is too long (max 10000 characters)');
+        portfolio_text = trimmedText;
+      }
+    }
+
+    let client_type: string | undefined;
+    if (data?.client_type) {
+      const ct = data.client_type.toLowerCase().trim();
+      this.throwIf(
+        !CLIENT_TYPES.includes(ct as any),
+        `client_type must be one of: ${CLIENT_TYPES.join(', ')}`
+      );
+      client_type = ct;
+    }
+
+    let use_ai: boolean | undefined;
+    if (data?.use_ai !== undefined) {
+      use_ai = Boolean(data.use_ai);
+    }
+
+    let overrides: any | undefined;
+    if (data?.overrides && typeof data.overrides === 'object' && !Array.isArray(data.overrides)) {
+      overrides = {};
+
+      if (data.overrides.seniority_level) {
+        const level = String(data.overrides.seniority_level).toLowerCase().trim();
+        this.throwIf(
+          !SENIORITY_LEVELS.includes(level as any),
+          `overrides.seniority_level must be one of: ${SENIORITY_LEVELS.join(', ')}`
+        );
+        overrides.seniority_level = level;
+      }
+
+      if (Array.isArray(data.overrides.skill_areas)) {
+        const skills = data.overrides.skill_areas
+          .filter((item: any) => typeof item === 'string')
+          .map((item: string) => item.trim())
+          .filter((item: string) => item.length > 0)
+          .slice(0, 20);
+        overrides.skill_areas = skills;
+      }
+
+      if (data.overrides.specialization) {
+        this.throwIf(typeof data.overrides.specialization !== 'string', 'overrides.specialization must be a string');
+        overrides.specialization = data.overrides.specialization.trim().substring(0, 100);
+      }
+
+      if (data.overrides.portfolio_quality_tier) {
+        const tier = String(data.overrides.portfolio_quality_tier).toLowerCase().trim();
+        this.throwIf(
+          !PORTFOLIO_QUALITY_TIERS.includes(tier as any),
+          `overrides.portfolio_quality_tier must be one of: ${PORTFOLIO_QUALITY_TIERS.join(', ')}`
+        );
+        overrides.portfolio_quality_tier = tier;
+      }
+
+      if (data.overrides.client_readiness) {
+        const readiness = String(data.overrides.client_readiness).toLowerCase().trim();
+        this.throwIf(
+          !CLIENT_TYPES.includes(readiness as any),
+          `overrides.client_readiness must be one of: ${CLIENT_TYPES.join(', ')}`
+        );
+        overrides.client_readiness = readiness;
+      }
+
+      if (data.overrides.confidence) {
+        const confidence = String(data.overrides.confidence).toLowerCase().trim();
+        this.throwIf(
+          !PORTFOLIO_CONFIDENCE_LEVELS.includes(confidence as any),
+          `overrides.confidence must be one of: ${PORTFOLIO_CONFIDENCE_LEVELS.join(', ')}`
+        );
+        overrides.confidence = confidence;
+      }
+
+      if (data.overrides.market_benchmark_category) {
+        this.throwIf(typeof data.overrides.market_benchmark_category !== 'string', 'overrides.market_benchmark_category must be a string');
+        overrides.market_benchmark_category = data.overrides.market_benchmark_category.trim().substring(0, 100);
+      }
+
+      // Discard overrides if all fields ended up empty/undefined
+      if (Object.keys(overrides).length === 0) {
+        overrides = undefined;
+      }
+    }
+
+    this.throwIf(
+      !portfolio_url && !portfolio_text && !hasPdf && !overrides && !client_type,
+      'At least one of portfolio_url, portfolio_text, portfolio_pdf, overrides, or client_type is required'
+    );
+
+    // Validate new structured fields for AI rate recommendation
+    let experience_years: number | undefined;
+    if (data?.experience_years !== undefined && data?.experience_years !== null && data?.experience_years !== '') {
+      experience_years = parseInt(data.experience_years);
+      this.throwIf(isNaN(experience_years), 'experience_years must be a number');
+      this.throwIf(experience_years < 0 || experience_years > 50, 'experience_years must be between 0 and 50');
+    }
+
+    let skills: string | undefined;
+    if (data?.skills != null && data.skills !== '') {
+      this.throwIf(typeof data.skills !== 'string', 'skills must be a string');
+      const trimmedSkills = data.skills.trim();
+      if (trimmedSkills.length > 0) {
+        this.throwIf(trimmedSkills.length > 200, 'skills is too long (max 200 characters)');
+        skills = trimmedSkills;
+      }
+    }
+
+    let hours_per_week: number | undefined;
+    if (data?.hours_per_week !== undefined && data?.hours_per_week !== null && data?.hours_per_week !== '') {
+      hours_per_week = parseInt(data.hours_per_week);
+      this.throwIf(isNaN(hours_per_week), 'hours_per_week must be a number');
+      this.throwIf(hours_per_week < 5 || hours_per_week > 80, 'hours_per_week must be between 5 and 80');
+    }
+
+    return {
+      user_id,
+      project_id,
+      client_region,
+      portfolio_url,
+      portfolio_text,
+      client_type,
+      use_ai,
+      experience_years,
+      skills,
+      hours_per_week,
+      overrides
+    };
+  }
+
+  /**
+   * Validate accept portfolio rate request
+   */
+  static validateAcceptRate(data: any): {
+    user_id: number;
+    hourly_rate: number;
+    seniority_level?: string;
+    skill_categories?: number[];
+    experience_years?: number;
+    researched_costs?: {
+      workspace?: number;
+      software?: number;
+      equipment?: number;
+      utilities?: number;
+      materials?: number;
+    };
+    desired_monthly_income?: number;
+    billable_hours_per_month?: number;
+    profit_margin?: number;
+  } {
+    this.throwIf(this.isNullOrEmpty(data?.user_id), 'user_id is required');
+    const user_id = this.parsePositiveInt(data.user_id, 'user_id');
+
+    this.throwIf(this.isNullOrEmpty(data?.hourly_rate), 'hourly_rate is required');
+    const hourly_rate = parseFloat(data.hourly_rate);
+    this.throwIf(isNaN(hourly_rate), 'hourly_rate must be a number');
+    this.throwIf(hourly_rate <= 0, 'hourly_rate must be greater than 0');
+
+    let seniority_level: string | undefined;
+    if (data?.seniority_level) {
+      const level = String(data.seniority_level).toLowerCase().trim();
+      this.throwIf(
+        !SENIORITY_LEVELS.includes(level as any),
+        `seniority_level must be one of: ${SENIORITY_LEVELS.join(', ')}`
+      );
+      seniority_level = level;
+    }
+
+    let skill_categories: number[] | undefined;
+    if (Array.isArray(data?.skill_categories)) {
+      skill_categories = data.skill_categories
+        .filter((item: any) => typeof item === 'number' || typeof item === 'string')
+        .map((item: any) => parseInt(item))
+        .filter((item: number) => !isNaN(item) && item > 0);
+    }
+
+    let experience_years: number | undefined;
+    if (data?.experience_years !== undefined && data?.experience_years !== null && data?.experience_years !== '') {
+      experience_years = parseInt(data.experience_years);
+      this.throwIf(isNaN(experience_years), 'experience_years must be a number');
+      this.throwIf(experience_years < 0 || experience_years > 50, 'experience_years must be between 0 and 50');
+    }
+
+    let researched_costs: any | undefined;
+    if (data?.researched_costs && typeof data.researched_costs === 'object') {
+      researched_costs = {};
+      const costFields = ['workspace', 'software', 'equipment', 'utilities', 'materials'];
+      for (const field of costFields) {
+        if (data.researched_costs[field] !== undefined && data.researched_costs[field] !== null) {
+          const value = parseFloat(data.researched_costs[field]);
+          this.throwIf(isNaN(value), `researched_costs.${field} must be a number`);
+          this.throwIf(value < 0, `researched_costs.${field} must be non-negative`);
+          researched_costs[field] = value;
+        }
+      }
+    }
+
+    let desired_monthly_income: number | undefined;
+    if (data?.desired_monthly_income !== undefined && data?.desired_monthly_income !== null && data?.desired_monthly_income !== '') {
+      desired_monthly_income = parseFloat(data.desired_monthly_income);
+      this.throwIf(isNaN(desired_monthly_income), 'desired_monthly_income must be a number');
+      this.throwIf(desired_monthly_income < 0, 'desired_monthly_income must be non-negative');
+    }
+
+    let billable_hours_per_month: number | undefined;
+    if (data?.billable_hours_per_month !== undefined && data?.billable_hours_per_month !== null && data?.billable_hours_per_month !== '') {
+      billable_hours_per_month = parseFloat(data.billable_hours_per_month);
+      this.throwIf(isNaN(billable_hours_per_month), 'billable_hours_per_month must be a number');
+      this.throwIf(
+        billable_hours_per_month < 40 || billable_hours_per_month > 200,
+        'billable_hours_per_month must be between 40 and 200'
+      );
+    }
+
+    let profit_margin: number | undefined;
+    if (data?.profit_margin !== undefined && data?.profit_margin !== null && data?.profit_margin !== '') {
+      profit_margin = parseFloat(data.profit_margin);
+      this.throwIf(isNaN(profit_margin), 'profit_margin must be a number');
+      this.throwIf(
+        profit_margin < 0.05 || profit_margin > 0.50,
+        'profit_margin must be between 0.05 and 0.50 (5% and 50%)'
+      );
+    }
+
+    return {
+      user_id,
+      hourly_rate,
+      seniority_level,
+      skill_categories,
+      experience_years,
+      researched_costs,
+      desired_monthly_income,
+      billable_hours_per_month,
+      profit_margin
+    };
+  }
+
+  /**
+   * Validate a PDF buffer for portfolio analysis.
+   * Called separately from the main validator because the buffer comes from multer.
+   */
+  static validatePortfolioPdf(file: { buffer: Buffer; mimetype: string; size: number }): Buffer {
+    PricingValidator.throwIf(
+      file.mimetype !== 'application/pdf',
+      'portfolio_pdf must be a PDF file (application/pdf)'
+    );
+    PricingValidator.throwIf(
+      file.size > 20 * 1024 * 1024,
+      'portfolio_pdf must be under 20 MB'
+    );
+    PricingValidator.throwIf(
+      file.buffer.length === 0,
+      'portfolio_pdf file is empty'
+    );
+    return file.buffer;
   }
 }

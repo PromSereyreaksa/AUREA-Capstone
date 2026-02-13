@@ -1,7 +1,12 @@
 import "dotenv/config";
 import { GoogleGenAI } from "@google/genai";
-import { ExternalServiceError, RateLimitError } from "../../shared/errors";
+import { ExternalServiceError, RateLimitError, ValidationError } from "../../shared/errors";
 import { handleAndLogError, getSafeErrorMessage } from "../../shared/utils/errorUtils";
+import { 
+  sanitizeForAIPrompt, 
+  sanitizeSkillsInput, 
+  sanitizeRegionInput 
+} from '../../shared/utils/sanitization';
 
 interface ApiKeyConfig {
   apiKey: string;
@@ -575,6 +580,615 @@ Now analyze the provided PDF document and extract the project information follow
     }
 
     const safeMessage = handleAndLogError(lastError, 'Content generation', '[GeminiService]');
+    throw new ExternalServiceError("Gemini", safeMessage);
+  }
+
+  /**
+   * Analyze a portfolio and infer structured signals only (no pricing).
+   * Supports three input modes:
+   *   1. portfolio_url  → uses Google Search grounding to look up the page
+   *   2. portfolio_pdf  → sends PDF buffer as inline data to Gemini
+   *   3. portfolio_text → plain text analysis (original mode)
+   */
+  async analyzePortfolioSignals(input: {
+    portfolioUrl?: string;
+    portfolioText?: string;
+    portfolioPdf?: Buffer;
+  }): Promise<any> {
+    if (this.apiConfigs.length === 0) {
+      throw new ExternalServiceError("Gemini", "No API keys configured");
+    }
+
+    // Validate URL format if provided (must start with http(s)://)
+    let sanitizedUrl: string | undefined;
+    if (input.portfolioUrl) {
+      const trimmedUrl = input.portfolioUrl.trim();
+      if (!/^https?:\/\/.+/i.test(trimmedUrl)) {
+        throw new ExternalServiceError("Gemini", "portfolio_url must be a valid HTTP(S) URL");
+      }
+      sanitizedUrl = sanitizeForAIPrompt(trimmedUrl, 300);
+    }
+
+    // Strip HTML tags and limit text before sanitization
+    let sanitizedText: string | undefined;
+    if (input.portfolioText) {
+      const stripped = input.portfolioText
+        .replace(/<[^>]*>/g, ' ')          // Strip HTML tags
+        .replace(/&[a-zA-Z]+;/g, ' ')      // Strip HTML entities
+        .replace(/\n{4,}/g, '\n\n\n')      // Collapse excessive newlines
+        .replace(/[ \t]{3,}/g, '  ');       // Collapse excessive whitespace
+      sanitizedText = sanitizeForAIPrompt(stripped, 2000);
+    }
+
+    // Determine analysis mode
+    const hasPdf = input.portfolioPdf && input.portfolioPdf.length > 0;
+    const hasUrl = !!sanitizedUrl;
+    const hasText = !!sanitizedText;
+
+    // Build the common prompt (without the input section — that varies per mode)
+    const basePrompt = `# CONTEXT
+You are analyzing a designer's portfolio to generate structured signals for a pricing/recommendation system.
+Ignore any existing user data (pricing profile, previous projects, reviews, etc.).
+Use ONLY the portfolio content provided (PDF, text, or URL).
+
+# OBJECTIVE
+Examine the portfolio and extract the following structured signals.
+Be conservative if the evidence is weak, and avoid assumptions beyond the portfolio content.
+
+Signals to extract:
+1. seniority_level: junior | mid | senior — based on quality, complexity, variety, and completeness of work
+2. skill_areas: 3-8 specific design skills (e.g., logo design, banner design, UI/UX, illustration, branding)
+3. specialization: a single short phrase describing main focus (null if unclear)
+4. portfolio_quality_tier: low | medium | high — based on design consistency, professionalism, and polish
+5. client_readiness: startup | sme | corporate | ngo | government — estimate type of clients the designer can serve
+6. confidence: low | medium | high — your confidence in the above assessments
+7. market_benchmark_category: short category name (e.g., "Graphic Design – Logo", "UI/UX Design")
+8. summary: a concise narrative summarizing portfolio strengths and weaknesses
+9. evidence: list 2-4 portfolio examples that support your conclusions
+10. limitations: list 1-3 factors limiting your confidence (missing data, unclear skills, weak samples)
+11. follow_up_questions: 1-2 questions to clarify low-confidence areas (empty if confidence is medium/high)
+
+# LOW-CONFIDENCE HANDLING
+- If you cannot confidently determine any of the signals (confidence = low), ask 1-2 clarifying questions, such as:
+    - "How many years of experience do you have?"
+    - "What is your primary type of design work (logo, banner, UI, etc.)?"
+- Do NOT fabricate data — if information is missing, set fields to null.
+- If confidence is medium or high, leave follow_up_questions as an empty array.
+
+# RULES
+- Do NOT include any prices, rates, or financial advice.
+- Do NOT apply multipliers, scoring formulas, or business logic.
+- Use only the portfolio content provided.
+- If portfolio content is weak or missing, set confidence to "low".
+- Only return valid JSON with the exact structure below.
+
+# RESPONSE FORMAT
+Return ONLY valid JSON in this structure:
+
+{
+  "seniority_level": "junior" | "mid" | "senior",
+  "skill_areas": ["string", "string", "..."],
+  "specialization": "string" | null,
+  "portfolio_quality_tier": "low" | "medium" | "high" | null,
+  "client_readiness": "startup" | "sme" | "corporate" | "ngo" | "government" | null,
+  "confidence": "low" | "medium" | "high",
+  "market_benchmark_category": "string" | null,
+  "summary": "string",
+  "evidence": ["string", "string", "..."],
+  "limitations": ["string", "string", "..."],
+  "follow_up_questions": ["string", "..."] | []
+}
+`;
+
+    // ── Mode A: URL → Google Search grounding ──────────────
+    if (hasUrl && !hasPdf && !hasText) {
+      return this.analyzePortfolioViaGrounding(sanitizedUrl!, basePrompt);
+    }
+
+    // ── Mode B: PDF → inline data ──────────────────────────
+    if (hasPdf) {
+      return this.analyzePortfolioViaPdf(input.portfolioPdf!, basePrompt, sanitizedUrl);
+    }
+
+    // ── Mode C: Text (+ optional URL as context) ───────────
+    return this.analyzePortfolioViaText(
+      sanitizedText || 'N/A',
+      sanitizedUrl || 'N/A',
+      basePrompt
+    );
+  }
+
+  /**
+   * Mode A: Use Google Search grounding so Gemini can look up the portfolio URL.
+   */
+  private async analyzePortfolioViaGrounding(url: string, basePrompt: string): Promise<any> {
+    const groundedPrompt = `${basePrompt}
+
+# PORTFOLIO INPUT
+Visit and analyze the portfolio at this URL: ${url}
+Use Google Search to find information about the designer/creator and their work at this URL.
+If the page cannot be reached, set confidence to "low" and note the limitation.`;
+
+    console.log(`[PortfolioAnalysis] Using Google Search grounding for URL: ${url}`);
+
+    const result = await this.generateContentWithGrounding(groundedPrompt, 0.1);
+
+    let responseText = result.text
+      .replace(/^```json\s*\n?/, '')
+      .replace(/\n?```\s*$/, '')
+      .trim();
+
+    const parsed = JSON.parse(responseText);
+
+    // Attach grounding sources as extra evidence
+    if (result.groundingMetadata?.webSearchSources?.length) {
+      parsed._grounding_sources = result.groundingMetadata.webSearchSources;
+    }
+
+    return parsed;
+  }
+
+  /**
+   * Mode B: Send PDF buffer as inline data alongside the analysis prompt.
+   */
+  private async analyzePortfolioViaPdf(pdfBuffer: Buffer, basePrompt: string, url?: string): Promise<any> {
+    const base64Pdf = pdfBuffer.toString('base64');
+    const urlContext = url ? `\nPortfolio URL (for reference): ${url}` : '';
+
+    const prompt = `${basePrompt}
+
+# PORTFOLIO INPUT
+Analyze the attached PDF portfolio document.${urlContext}
+Extract signals from the visual design work, project descriptions, and any "About" sections.`;
+
+    console.log(`[PortfolioAnalysis] Analyzing PDF (${(pdfBuffer.length / 1024).toFixed(0)} KB)`);
+
+    let lastError: any;
+    let attemptCount = 0;
+    const maxAttempts = Math.min(3, this.apiConfigs.length * this.apiConfigs[0].models.length);
+
+    while (attemptCount < maxAttempts) {
+      try {
+        const { apiKey, model } = this.getCurrentConfig();
+        const client = this.clients.get(apiKey);
+        if (!client) throw new ExternalServiceError("Gemini", "Failed to initialize client");
+
+        const response = await client.models.generateContent({
+          model,
+          contents: [
+            { text: prompt },
+            { inlineData: { mimeType: 'application/pdf', data: base64Pdf } }
+          ],
+        });
+
+        let responseText = response.text
+          || response.candidates?.[0]?.content?.parts?.[0]?.text
+          || '{}';
+
+        responseText = responseText.replace(/^```json\s*\n?/, '').replace(/\n?```\s*$/, '').trim();
+        return JSON.parse(responseText);
+      } catch (error: any) {
+        lastError = error;
+        if (this.isRateLimitError(error)) {
+          this.rotateToNextModel();
+          attemptCount++;
+          continue;
+        }
+        this.rotateToNextModel();
+        attemptCount++;
+      }
+    }
+
+    const safeMessage = handleAndLogError(lastError, 'Portfolio PDF analysis', '[GeminiService]');
+    throw new ExternalServiceError("Gemini", safeMessage);
+  }
+
+  /**
+   * Mode C: Plain text analysis with optional URL as context string.
+   */
+  private async analyzePortfolioViaText(text: string, url: string, basePrompt: string): Promise<any> {
+    const prompt = `${basePrompt}
+
+# PORTFOLIO INPUT
+Portfolio URL: ${url}
+Portfolio Content:
+${text}`;
+
+    let lastError: any;
+    let attemptCount = 0;
+    const maxAttempts = Math.min(3, this.apiConfigs.length * this.apiConfigs[0].models.length);
+
+    while (attemptCount < maxAttempts) {
+      try {
+        const { apiKey, model } = this.getCurrentConfig();
+        const client = this.clients.get(apiKey);
+        if (!client) throw new ExternalServiceError("Gemini", "Failed to initialize client");
+
+        const response = await client.models.generateContent({
+          model,
+          contents: prompt,
+        });
+
+        let responseText = response.text
+          || response.candidates?.[0]?.content?.parts?.[0]?.text
+          || '{}';
+
+        responseText = responseText.replace(/^```json\s*\n?/, '').replace(/\n?```\s*$/, '').trim();
+        return JSON.parse(responseText);
+      } catch (error: any) {
+        lastError = error;
+        if (this.isRateLimitError(error)) {
+          this.rotateToNextModel();
+          attemptCount++;
+          continue;
+        }
+        this.rotateToNextModel();
+        attemptCount++;
+      }
+    }
+
+    const safeMessage = handleAndLogError(lastError, 'Portfolio analysis', '[GeminiService]');
+    throw new ExternalServiceError("Gemini", safeMessage);
+  }
+
+  /**
+   * Analyze portfolio and recommend a rate using Gemini AI with UREA formula
+   * This is an enhanced version that not only extracts portfolio signals but also
+   * researches costs, market rates, and calculates a recommended hourly rate.
+   * 
+   * @param input - Portfolio content (URL/PDF/text) + optional structured user context
+   * @returns Portfolio signals + rate recommendation with reasoning and cost breakdown
+   */
+  async analyzePortfolioAndRecommendRate(input: {
+    portfolioUrl?: string;
+    portfolioText?: string;
+    portfolioPdf?: Buffer;
+    experienceYears?: number;
+    skills?: string;
+    hoursPerWeek?: number;
+    clientType?: string;
+    region?: string;
+  }): Promise<any> {
+    // Sanitize inputs
+    const sanitizedUrl = input.portfolioUrl
+      ? sanitizeForAIPrompt(input.portfolioUrl.trim().substring(0, 500))
+      : undefined;
+    const sanitizedText = input.portfolioText
+      ? sanitizeForAIPrompt(input.portfolioText.trim().substring(0, 10000))
+      : undefined;
+    const sanitizedSkills = input.skills
+      ? sanitizeSkillsInput(input.skills)
+      : undefined;
+    const sanitizedRegion = input.region
+      ? sanitizeRegionInput(input.region)
+      : 'Cambodia';
+
+    const hasUrl = !!sanitizedUrl;
+    const hasPdf = !!input.portfolioPdf;
+    const hasText = !!sanitizedText;
+
+    if (!hasUrl && !hasPdf && !hasText) {
+      throw new ValidationError('At least one portfolio input (URL, PDF, or text) is required');
+    }
+
+    // Build comprehensive COSTAR prompt for rate recommendation
+    const contextSection = `# CONTEXT
+You are an AI pricing advisor for freelance designers in Cambodia. You help calculate sustainable hourly rates using the UREA (Universal Rate Estimation Algorithm) framework.
+
+You have access to:
+1. The designer's portfolio (PDF, URL, or text description)
+2. Optional user-provided context: experience years, skills, work hours, client type
+3. Google Search for researching real Cambodia market data
+
+Your job is to analyze the portfolio, research missing information, and recommend a sustainable hourly rate.`;
+
+    const objectiveSection = `# OBJECTIVE
+1. Analyze the portfolio to extract designer signals (seniority, skills, quality, specialization)
+2. Research realistic costs for a freelancer in Cambodia (workspace, software, equipment, utilities)
+3. Research appropriate income expectations for this skill/seniority level in Cambodia
+4. Research current market rates for similar designers in Cambodia
+5. Apply the UREA formula to calculate a sustainable base rate
+6. Apply seniority and client context multipliers
+7. Provide a recommended hourly rate with reasoning
+
+If information is missing or unclear, ask 1-2 follow-up questions.`;
+
+    const ureaSectionFormula = `# UREA PRICING FORMULA
+
+**Step 1: Calculate Total Monthly Expenses**
+- Workspace Costs: Rent for coworking space or home office (research typical Phnom Penh rates)
+- Software/Tools: Design software subscriptions (Adobe Creative Cloud, Figma, etc.)
+- Equipment: Computer, tablet, peripherals (amortized monthly cost)
+- Utilities: Internet, electricity, phone
+- Insurance & Taxes: If applicable
+- Materials: Stock photos, fonts, mockups, etc.
+
+**Step 2: Determine Desired Monthly Income**
+Research appropriate take-home income for a ${sanitizedRegion} designer at this skill level.
+Consider cost of living, industry standards, and experience level.
+
+**Step 3: Calculate Monthly Billable Hours**
+${input.hoursPerWeek ? `User works ${input.hoursPerWeek} hours/week` : 'Assume 20-30 hours/week for freelancers'}
+Billable hours ≈ (Weekly hours × 4 weeks) × 0.7 (accounting for non-billable time)
+
+**Step 4: Apply UREA Formula**
+Base Hourly Rate = (Total Monthly Expenses + Desired Monthly Income) / Monthly Billable Hours
+
+**Step 5: Apply Multipliers**
+- Seniority multiplier: junior (0.8), mid (1.0), senior (1.3), expert (1.5)
+- Client context multiplier: ${input.clientType || 'sme'} (startup: 0.9, sme: 1.0, corporate: 1.2, ngo: 0.85, government: 1.1)
+
+Final Rate = Base Hourly Rate × Seniority Multiplier × Client Context Multiplier`;
+
+    const rulesSection = `# RULES
+1. Use Google Search to find REAL Cambodia market data (don't rely on assumptions)
+2. Research actual coworking space costs in Phnom Penh (e.g., Impact Hub, SmallWorld, etc.)
+3. Research actual software costs for designers (Adobe CC ≈ $55/mo, Figma ≈ $15/mo)
+4. Be conservative with income expectations - use Cambodia local market rates, not Western rates
+5. If portfolio quality is low or confidence is low, ask follow-up questions
+6. Provide specific reasoning for every number you use
+7. Include sources for your research (URLs when available)
+8. Return rates in USD (Cambodia standard for freelance work)`;
+
+    const userContextSection = input.experienceYears || input.skills || input.hoursPerWeek
+      ? `# USER-PROVIDED CONTEXT
+${input.experienceYears ? `- Experience: ${input.experienceYears} years` : ''}
+${input.skills ? `- Skills: ${input.skills}` : ''}
+${input.hoursPerWeek ? `- Available hours per week: ${input.hoursPerWeek}` : ''}
+${input.clientType ? `- Target client type: ${input.clientType}` : ''}
+
+Use this context to supplement your portfolio analysis. If experience/skills conflict with portfolio evidence, prefer portfolio evidence and note the discrepancy.`
+      : '';
+
+    const responseFormatSection = `# RESPONSE FORMAT
+Return ONLY valid JSON with this exact structure:
+
+{
+  "seniority_level": "junior" | "mid" | "senior" | "expert",
+  "skill_areas": ["string", ...],
+  "specialization": "string" | null,
+  "portfolio_quality_tier": "low" | "medium" | "high" | null,
+  "confidence": "low" | "medium" | "high",
+  "market_benchmark_category": "string" | null,
+  "summary": "Brief portfolio analysis summary",
+  "evidence": ["Portfolio example 1", "Portfolio example 2", ...],
+  "limitations": ["Limitation 1", "Limitation 2", ...],
+  "follow_up_questions": ["Question 1", "Question 2"] | [],
+  "recommended_rate": {
+    "hourly_rate": number,
+    "rate_range": {
+      "low": number,
+      "high": number
+    },
+    "reasoning": "Detailed explanation of how you arrived at this rate"
+  },
+  "researched_costs": {
+    "workspace": number,
+    "software": number,
+    "equipment": number,
+    "utilities": number,
+    "materials": number,
+    "total_monthly": number,
+    "sources": ["URL or source 1", ...]
+  },
+  "income_research": {
+    "median_income": number,
+    "income_range": {
+      "low": number,
+      "high": number
+    },
+    "sources": ["URL or source 1", ...]
+  },
+  "market_research": {
+    "market_rate_range": {
+      "low": number,
+      "high": number
+    },
+    "sources": ["URL or source 1", ...]
+  },
+  "calculation_breakdown": {
+    "monthly_expenses": number,
+    "desired_income": number,
+    "billable_hours": number,
+    "base_rate": number,
+    "seniority_multiplier": number,
+    "client_multiplier": number,
+    "final_rate": number
+  }
+}`;
+
+    const basePrompt = [
+      contextSection,
+      objectiveSection,
+      ureaSectionFormula,
+      rulesSection,
+      userContextSection,
+      responseFormatSection
+    ].filter(Boolean).join('\n\n');
+
+    // Route to appropriate analysis mode with grounding
+    if (hasUrl && !hasPdf && !hasText) {
+      return this.analyzePortfolioAndRecommendRateViaGrounding(sanitizedUrl!, basePrompt);
+    }
+    if (hasPdf) {
+      return this.analyzePortfolioAndRecommendRateViaPdf(
+        input.portfolioPdf!,
+        basePrompt,
+        sanitizedUrl,
+        sanitizedText
+      );
+    }
+    return this.analyzePortfolioAndRecommendRateViaText(
+      sanitizedText || 'N/A',
+      sanitizedUrl || 'N/A',
+      basePrompt
+    );
+  }
+
+  /**
+   * Portfolio + rate recommendation via Google Search grounding (URL mode)
+   */
+  private async analyzePortfolioAndRecommendRateViaGrounding(
+    url: string,
+    basePrompt: string
+  ): Promise<any> {
+    const groundedPrompt = `${basePrompt}
+
+# PORTFOLIO INPUT
+Visit and analyze the portfolio at this URL: ${url}
+Use Google Search to:
+1. Find information about this designer and their work
+2. Research Cambodia market rates for similar designers
+3. Research coworking space costs in Phnom Penh
+4. Research software/tool costs for designers
+5. Research appropriate income levels for designers in Cambodia
+
+If the portfolio URL cannot be accessed, set confidence to "low" and ask for more information.`;
+
+    const result = await this.generateContentWithGrounding(groundedPrompt, 0.1);
+    let responseText = result.text.replace(/^```json\s*\n?/, '').replace(/\n?```\s*$/, '').trim();
+    const parsed = JSON.parse(responseText);
+    
+    // Include grounding sources in the response
+    if (result.groundingMetadata?.webSearchSources?.length) {
+      parsed._grounding_sources = result.groundingMetadata.webSearchSources;
+      
+      // Merge grounding sources into researched data sources
+      if (parsed.researched_costs && !parsed.researched_costs.sources) {
+        parsed.researched_costs.sources = result.groundingMetadata.webSearchSources.map(
+          (s: any) => `${s.title}: ${s.uri}`
+        );
+      }
+    }
+    
+    return parsed;
+  }
+
+  /**
+   * Portfolio + rate recommendation via PDF with optional grounding
+   */
+  private async analyzePortfolioAndRecommendRateViaPdf(
+    pdfBuffer: Buffer,
+    basePrompt: string,
+    url?: string,
+    text?: string
+  ): Promise<any> {
+    const base64Pdf = pdfBuffer.toString('base64');
+    const urlContext = url ? `\nPortfolio URL (for reference): ${url}` : '';
+    const textContext = text ? `\nAdditional context: ${text.substring(0, 500)}` : '';
+    
+    const prompt = `${basePrompt}
+
+# PORTFOLIO INPUT
+Analyze the attached PDF portfolio document.${urlContext}${textContext}
+
+Use Google Search to research Cambodia market data:
+1. Typical coworking space costs in Phnom Penh
+2. Design software subscription costs
+3. Market rates for similar designers in Cambodia
+4. Appropriate income levels for this skill/experience level
+
+Extract signals from the portfolio's visual design work, project descriptions, and any "About" sections.`;
+
+    // Try with grounding first, fallback to simple generation
+    try {
+      const result = await this.generateContentWithGrounding(prompt, 0.2);
+      let responseText = result.text.replace(/^```json\s*\n?/, '').replace(/\n?```\s*$/, '').trim();
+      const parsed = JSON.parse(responseText);
+      
+      if (result.groundingMetadata?.webSearchSources?.length) {
+        parsed._grounding_sources = result.groundingMetadata.webSearchSources;
+      }
+      
+      return parsed;
+    } catch (groundingError: any) {
+      // Fallback to PDF inline data without grounding
+      return this.analyzePortfolioViaPdfWithRateCalc(pdfBuffer, prompt);
+    }
+  }
+
+  /**
+   * Portfolio + rate recommendation via text with grounding
+   */
+  private async analyzePortfolioAndRecommendRateViaText(
+    text: string,
+    url: string,
+    basePrompt: string
+  ): Promise<any> {
+    const prompt = `${basePrompt}
+
+# PORTFOLIO INPUT
+Portfolio URL: ${url}
+Portfolio Content:
+${text}
+
+Use Google Search to research Cambodia market data:
+1. Coworking space costs in Phnom Penh
+2. Design software costs
+3. Market rates for similar designers
+4. Income expectations for this skill level`;
+
+    const result = await this.generateContentWithGrounding(prompt, 0.1);
+    let responseText = result.text.replace(/^```json\s*\n?/, '').replace(/\n?```\s*$/, '').trim();
+    const parsed = JSON.parse(responseText);
+    
+    if (result.groundingMetadata?.webSearchSources?.length) {
+      parsed._grounding_sources = result.groundingMetadata.webSearchSources;
+    }
+    
+    return parsed;
+  }
+
+  /**
+   * Fallback method for PDF analysis with rate calculation (no grounding)
+   */
+  private async analyzePortfolioViaPdfWithRateCalc(
+    pdfBuffer: Buffer,
+    prompt: string
+  ): Promise<any> {
+    const base64Pdf = pdfBuffer.toString('base64');
+    let lastError: any;
+    let attemptCount = 0;
+    const maxAttempts = Math.min(3, this.apiConfigs.length * this.apiConfigs[0].models.length);
+
+    while (attemptCount < maxAttempts) {
+      try {
+        const { apiKey, model } = this.getCurrentConfig();
+        const client = this.clients.get(apiKey);
+        if (!client) throw new ExternalServiceError("Gemini", "Failed to initialize client");
+
+        const response = await client.models.generateContent({
+          model,
+          contents: [
+            { text: prompt },
+            {
+              inlineData: {
+                mimeType: 'application/pdf',
+                data: base64Pdf
+              }
+            }
+          ]
+        });
+
+        let responseText = response.text
+          || response.candidates?.[0]?.content?.parts?.[0]?.text
+          || '{}';
+
+        responseText = responseText.replace(/^```json\s*\n?/, '').replace(/\n?```\s*$/, '').trim();
+        return JSON.parse(responseText);
+      } catch (error: any) {
+        lastError = error;
+        if (this.isRateLimitError(error)) {
+          this.rotateToNextModel();
+          attemptCount++;
+          continue;
+        }
+        this.rotateToNextModel();
+        attemptCount++;
+      }
+    }
+
+    const safeMessage = handleAndLogError(lastError, 'Portfolio analysis with rate calculation', '[GeminiService]');
     throw new ExternalServiceError("Gemini", safeMessage);
   }
 
