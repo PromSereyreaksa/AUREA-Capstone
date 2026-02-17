@@ -112,6 +112,48 @@ export class HttpClient {
 
     return response.json();
   }
+
+  /**
+   * Upload file using FormData (multipart/form-data)
+   * Used for avatar uploads and other file uploads
+   */
+  async uploadFormData<T>(
+    endpoint: string,
+    formData: FormData,
+    options?: RequestOptions,
+  ): Promise<T> {
+    // Don't set Content-Type - let browser set it with boundary for FormData
+    const headers: Record<string, string> = {};
+    
+    // Add auth token if available
+    const token = localStorage.getItem("auth_token");
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+    }
+
+    // Merge with custom headers (but not Content-Type)
+    if (options?.headers) {
+      Object.assign(headers, options.headers);
+      delete headers["Content-Type"]; // Ensure Content-Type is not set
+    }
+
+    const response = await fetch(`${this.baseUrl}${endpoint}`, {
+      method: "POST",
+      headers,
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const error = await response
+        .json()
+        .catch(() => ({
+          error: { message: "Network error. Please try again." },
+        }));
+      throw new Error(error.error?.message || "Upload failed");
+    }
+
+    return response.json();
+  }
 }
 
 export const httpClient = new HttpClient();

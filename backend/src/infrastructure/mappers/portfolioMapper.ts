@@ -1,11 +1,17 @@
 import { Portfolio } from '../../domain/entities/Portfolio';
 
 export function mapPortfolioToDb(portfolio: Portfolio) {
-  return {
+  const result: any = {
     user_id: portfolio.user_id,
-    portfolio_url: portfolio.portfolio_url,
     is_public: portfolio.is_public
   };
+  
+  // Add portfolio_url if present (stores Supabase public URL)
+  if (portfolio.portfolio_url !== undefined) {
+    result.portfolio_url = portfolio.portfolio_url;
+  }
+  
+  return result;
 }
 
 export function mapPortfolioFromDb(data: any): Portfolio {

@@ -78,7 +78,7 @@ DROP TABLE IF EXISTS portfolio CASCADE;
 CREATE TABLE portfolio (
   portfolio_id SERIAL PRIMARY KEY,
   user_id INT NOT NULL UNIQUE REFERENCES users(user_id) ON DELETE CASCADE,
-  portfolio_url VARCHAR(255),
+  portfolio_url VARCHAR(500),  -- Public URL in Supabase Storage user_portfolio bucket
   is_public BOOLEAN DEFAULT FALSE,
   created_at TIMESTAMP DEFAULT NOW(),
   updated_at TIMESTAMP DEFAULT NOW()

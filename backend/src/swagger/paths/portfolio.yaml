@@ -1,0 +1,225 @@
+paths:
+  /api/v1/portfolio:
+    get:
+      summary: Get user's portfolio
+      description: |
+        Retrieves the portfolio of the authenticated user.
+        Returns the portfolio URL (public Supabase Storage URL) and settings.
+      tags:
+        - Portfolio
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Portfolio retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Portfolio retrieved successfully"
+                  data:
+                    $ref: '#/components/schemas/Portfolio'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: Portfolio not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Portfolio not found"
+
+    put:
+      summary: Update portfolio settings
+      description: |
+        Updates the portfolio settings for the authenticated user.
+        Currently only supports updating the is_public flag.
+      tags:
+        - Portfolio
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                is_public:
+                  type: boolean
+                  description: Whether the portfolio is publicly visible
+                  example: true
+      responses:
+        '200':
+          description: Portfolio updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Portfolio updated successfully"
+                  data:
+                    $ref: '#/components/schemas/Portfolio'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+
+  /api/v1/portfolio/pdf:
+    post:
+      summary: Upload portfolio PDF
+      description: |
+        Uploads a PDF file as the user's portfolio.
+        The file is stored in Supabase Storage (user_portfolio bucket).
+        If a portfolio already exists, the old PDF is deleted and replaced.
+        
+        **File Requirements:**
+        - Format: PDF only
+        - Max size: 10MB
+      tags:
+        - Portfolio
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - pdf
+              properties:
+                pdf:
+                  type: string
+                  format: binary
+                  description: PDF file to upload (max 10MB)
+      responses:
+        '200':
+          description: Portfolio PDF uploaded successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Portfolio PDF uploaded successfully"
+                  data:
+                    type: object
+                    properties:
+                      message:
+                        type: string
+                        example: "Portfolio PDF uploaded successfully"
+                      portfolio_id:
+                        type: integer
+                        example: 1
+                      user_id:
+                        type: integer
+                        example: 80
+                      portfolio_url:
+                        type: string
+                        description: Public URL to access the PDF
+                        example: "https://xxx.supabase.co/storage/v1/object/public/user_portfolio/80/abc123.pdf"
+                      is_public:
+                        type: boolean
+                        example: false
+        '400':
+          description: Bad request (no file or invalid file)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  error:
+                    type: object
+                    properties:
+                      message:
+                        type: string
+                        example: "No PDF file provided"
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+
+    delete:
+      summary: Delete portfolio PDF
+      description: |
+        Deletes the user's portfolio PDF from Supabase Storage.
+        Also removes the portfolio_url from the database.
+      tags:
+        - Portfolio
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Portfolio PDF deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Portfolio PDF deleted successfully"
+                  data:
+                    type: 'null'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: No portfolio PDF found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "No portfolio PDF found"
+
+components:
+  schemas:
+    Portfolio:
+      type: object
+      properties:
+        portfolio_id:
+          type: integer
+          description: Unique portfolio identifier
+          example: 1
+        user_id:
+          type: integer
+          description: ID of the portfolio owner
+          example: 80
+        portfolio_url:
+          type: string
+          nullable: true
+          description: Public URL to the portfolio PDF in Supabase Storage
+          example: "https://xxx.supabase.co/storage/v1/object/public/user_portfolio/80/abc123.pdf"
+        is_public:
+          type: boolean
+          description: Whether the portfolio is publicly visible
+          example: false

@@ -1,4 +1,4 @@
-import type { IProfileService } from './IProfileService';
+import type { IProfileService, AvatarUploadResponse } from './IProfileService';
 import type { UserProfile, Project, Portfolio } from '../../../shared/types';
 import { httpClient } from '../../../shared/api/client';
 
@@ -40,5 +40,20 @@ export class ProfileService implements IProfileService {
       console.error('Error fetching projects:', error);
       return [];
     }
+  }
+
+  async uploadAvatar(file: File): Promise<AvatarUploadResponse> {
+    const formData = new FormData();
+    formData.append('avatar', file);
+    
+    const response = await httpClient.uploadFormData<{ success: boolean; data: AvatarUploadResponse }>(
+      '/profile/avatar',
+      formData
+    );
+    return response.data;
+  }
+
+  async deleteAvatar(): Promise<void> {
+    await httpClient.delete('/profile/avatar');
   }
 }

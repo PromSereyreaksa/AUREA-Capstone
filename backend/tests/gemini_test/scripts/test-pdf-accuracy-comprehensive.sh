@@ -30,6 +30,7 @@ BOLD='\033[1m'
 
 # API Configuration
 API_URL="http://localhost:3000/api/v0"
+TEST_USER_ID=80  # Set this to an existing user ID in your database
 
 # Directory paths (relative to script location)
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -195,7 +196,7 @@ run_test() {
     while [ $RETRY_COUNT -le $MAX_RETRIES ]; do
         RESPONSE=$(curl -s -X POST "$API_URL/pdf/extract" \
             -F "pdf=@$pdf_file" \
-            -F "user_id=1" \
+            -F "user_id=$TEST_USER_ID" \
             --max-time 180)
         
         # Check if response is valid (not a network error)

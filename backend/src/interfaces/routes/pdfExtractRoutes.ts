@@ -7,6 +7,7 @@ import {
   getProjectByIdController,
   updateProjectController,
   deleteProjectController,
+  getProjectPdfController,
   upload,
 } from "../controllers/PdfExtractController";
 import { conditionalAuth } from "../../shared/middleware";
@@ -30,6 +31,9 @@ router.get("/projects/:userId", getProjectHistoryController);
 
 // Get single project by ID (with deliverables)
 router.get("/projects/:userId/:projectId", getProjectByIdController);
+
+// Get project PDF download URL (signed URL for private bucket)
+router.get("/projects/:userId/:projectId/pdf", getProjectPdfController);
 
 // Update project
 router.put("/projects/:userId/:projectId", updateProjectController);

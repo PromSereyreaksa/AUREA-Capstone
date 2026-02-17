@@ -1,5 +1,11 @@
 import type { UserProfile, Project, Portfolio } from '../../../shared/types';
 
+export interface AvatarUploadResponse {
+  message: string;
+  profile_avatar: string;
+  profile: UserProfile;
+}
+
 export interface IProfileService {
   getCurrentProfile(): Promise<UserProfile>;
   getProfileById(userId: number): Promise<UserProfile>;
@@ -8,6 +14,8 @@ export interface IProfileService {
   deleteProfile(): Promise<void>;
   getPortfolio(userId: number): Promise<Portfolio>;
   getProjects(userId: number): Promise<Project[]>;
+  uploadAvatar(file: File): Promise<AvatarUploadResponse>;
+  deleteAvatar(): Promise<void>;
 }
 
 export interface ProfileState {

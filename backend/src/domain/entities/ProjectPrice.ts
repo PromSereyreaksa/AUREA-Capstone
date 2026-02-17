@@ -12,6 +12,7 @@ export class ProjectPrice {
     public result?: string,
     public client_type?: string,          // NEW: 'startup' | 'sme' | 'corporate' | 'ngo' | 'government'
     public client_region?: string,        // NEW: 'cambodia' | 'southeast_asia' | 'global'
-    public calculated_rate?: number       // NEW: Hourly rate calculated by UREA
+    public calculated_rate?: number,      // NEW: Hourly rate calculated by UREA
+    public project_pdf?: string           // PDF file path in Supabase Storage (private bucket)
   ) {}
 }

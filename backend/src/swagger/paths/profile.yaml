@@ -316,6 +316,120 @@ paths:
                     type: string
                     example: "User not found"
 
+  /api/v1/profile/avatar:
+    post:
+      summary: Upload profile avatar
+      description: |
+        Uploads a new avatar image for the authenticated user's profile.
+        The image is stored in Supabase Storage (avatars bucket).
+        If an avatar already exists, the old one is deleted and replaced.
+        
+        **File Requirements:**
+        - Formats: JPEG, PNG, WebP
+        - Max size: 10MB
+      tags:
+        - User Profile
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - avatar
+              properties:
+                avatar:
+                  type: string
+                  format: binary
+                  description: Image file to upload (JPEG, PNG, or WebP, max 10MB)
+      responses:
+        '200':
+          description: Avatar uploaded successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Avatar uploaded successfully"
+                  data:
+                    type: object
+                    properties:
+                      message:
+                        type: string
+                        example: "Avatar uploaded successfully"
+                      profile_avatar:
+                        type: string
+                        description: Public URL to access the avatar
+                        example: "https://xxx.supabase.co/storage/v1/object/public/avatars/80/abc123.jpg"
+                      profile:
+                        $ref: '#/components/schemas/UserProfile'
+        '400':
+          description: Bad request (no file or invalid file)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  error:
+                    type: object
+                    properties:
+                      message:
+                        type: string
+                        example: "Only JPEG, PNG, and WebP images are allowed"
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+
+    delete:
+      summary: Delete profile avatar
+      description: |
+        Deletes the authenticated user's profile avatar from Supabase Storage.
+        Also removes the profile_avatar URL from the profile.
+      tags:
+        - User Profile
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Avatar deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Avatar deleted successfully"
+                  data:
+                    type: 'null'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: No avatar found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "No avatar found"
+
 components:
   schemas:
     UserProfile:
