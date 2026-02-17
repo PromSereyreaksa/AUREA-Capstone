@@ -12,10 +12,8 @@ import {
   ForgotPasswordPage,
   ResetPasswordPage,
   AuthCallbackPage,
-} from './features/auth';
-import { 
-  DesignerProfilePage
-} from './features/profile';
+} from "./features/auth";
+import { DesignerProfilePage } from "./features/profile";
 
 import {
   Header,
@@ -25,6 +23,11 @@ import {
   ProductExplanation,
   Footer,
 } from "./features/landing-page";
+import {
+  FeeEstimatorPage,
+  BREstimationPage,
+  PBEstimationPage,
+} from "./features/fee-estimator";
 
 import { GuestAccessViewpage } from "./features/guest-access";
 
@@ -48,8 +51,11 @@ function App() {
 
           {/* Designer profile routes */}
           <Route path="/designer-profile" element={<DesignerProfilePage />} />
-          <Route path="/designer-profile/:userId" element={<DesignerProfilePage />} />
-          
+          <Route
+            path="/designer-profile/:userId"
+            element={<DesignerProfilePage />}
+          />
+
           {/* Landing Page Routes */}
           <Route
             path="/"
@@ -70,32 +76,36 @@ function App() {
 
           {/* Dashboard Route */}
           <Route path="/dashboard" element={<DashboardPage />} />
+
           {/* Projects Route */}
           <Route path="/projects" element={<ProjectsPage />} />
 
+          {/* Fee Estimator Route */}
+          <Route path="/fee-estimator" element={<FeeEstimatorPage />} />
+
+          {/* Fee Estimator Sub-routes */}
+          <Route
+            path="/fee-estimator/base-rate"
+            element={<BREstimationPage />}
+          />
+          <Route
+            path="/fee-estimator/portfolio-based"
+            element={<PBEstimationPage />}
+          />
+          <Route
+            path="/fee-estimator/project-base"
+            element={
+              <div style={{ padding: "2rem" }}>
+                Project Rate Calculator - Coming Soon
+              </div>
+            }
+          />
+
           {/* Placeholder Routes */}
-          <Route
-            path="/projects"
-            element={
-              <div style={{ padding: "2rem" }}>Projects - Coming Soon</div>
-            }
-          />
-          <Route
-            path="/fee-estimator"
-            element={
-              <div style={{ padding: "2rem" }}>Fee Estimator - Coming Soon</div>
-            }
-          />
           <Route
             path="/settings"
             element={
               <div style={{ padding: "2rem" }}>Settings - Coming Soon</div>
-            }
-          />
-          <Route
-            path="/profile"
-            element={
-              <div style={{ padding: "2rem" }}>Profile - Coming Soon</div>
             }
           />
 
