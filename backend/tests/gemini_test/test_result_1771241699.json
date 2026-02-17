@@ -1,0 +1,157 @@
+{
+  "success": true,
+  "message": "PDF extracted and project created successfully",
+  "data": {
+    "project": {
+      "project_id": 367,
+      "user_id": 88,
+      "project_name": "Marketing Collateral Design Request",
+      "title": "Marketing Collateral Design Request",
+      "description": "Creation of comprehensive marketing collateral for MekongBank's retail banking division to align with the 'Banking Made Simple' initiative. Includes print materials, digital assets, corporate stationery updates, and promotional items adhering to existing brand guidelines and regulatory compliance.",
+      "duration": 90,
+      "difficulty": "Hard",
+      "licensing": "Exclusive License",
+      "usage_rights": "Work for hire: Full IP transfer to MekongBank",
+      "result": "A complete suite of updated print and digital marketing materials ready for Q2 2026 launch.",
+      "client_type": null,
+      "client_region": null,
+      "calculated_rate": null
+    },
+    "deliverables": [
+      {
+        "deliverable_id": 4857,
+        "project_id": 367,
+        "deliverable_type": "Print Marketing Materials",
+        "quantity": 1,
+        "items": [
+          "6 Branch Poster designs (A2 size)",
+          "4 Brochure Series types (Tri-fold, 6-page)",
+          "Counter Display Table tents",
+          "Wobbler designs",
+          "Shelf talkers"
+        ]
+      },
+      {
+        "deliverable_id": 4858,
+        "project_id": 367,
+        "deliverable_type": "Digital Asset Package",
+        "quantity": 1,
+        "items": [
+          "2 HTML Responsive Email Newsletter templates",
+          "15 Social Media templates (Facebook, Instagram, LinkedIn)",
+          "8 Website Banner variations (Desktop, Tablet, Mobile)"
+        ]
+      },
+      {
+        "deliverable_id": 4859,
+        "project_id": 367,
+        "deliverable_type": "Corporate Stationery System",
+        "quantity": 1,
+        "items": [
+          "Business Card Redesign (Standard & Executive variants)",
+          "MS Word Letterhead template",
+          "15-slide PowerPoint Master template"
+        ]
+      },
+      {
+        "deliverable_id": 4860,
+        "project_id": 367,
+        "deliverable_type": "Promotional & Event Design",
+        "quantity": 1,
+        "items": [
+          "Branded notebook cover design",
+          "Tote bag graphic",
+          "12-month Calendar design",
+          "Booth backdrop (3m x 2.5m)",
+          "Roll-up banner",
+          "Certificate template"
+        ]
+      },
+      {
+        "deliverable_id": 4861,
+        "project_id": 367,
+        "deliverable_type": "Final Asset Delivery",
+        "quantity": 1,
+        "items": [
+          "Source files (AI, InDD, PSD)",
+          "Exported assets (PDF, PNG, JPG)",
+          "CMYK and RGB versions",
+          "Organized file structure with standard naming convention"
+        ]
+      }
+    ],
+    "metadata": {
+      "model": "gemini-3-flash-preview"
+    },
+    "clientContext": {
+      "client_type": "corporate",
+      "client_region": "cambodia",
+      "budget_mentioned": 12000,
+      "urgency": "normal",
+      "estimated_project_hours": 140,
+      "complexity_indicators": [
+        "Large-scale financial institution",
+        "Regulatory compliance requirements",
+        "Three-tier stakeholder approval process",
+        "High volume of diverse deliverables",
+        "Strict technical and file naming specifications"
+      ]
+    },
+    "pricing": {
+      "final_hourly_rate": 45,
+      "project_total_estimate": 12420,
+      "estimated_hours": 276,
+      "hourly_rate_range": {
+        "min": 35,
+        "max": 65
+      },
+      "ai_researched_costs": {
+        "software_needed": "Adobe Creative Cloud (Illustrator, InDesign, Photoshop), Figma Professional, Microsoft 365 Business (for PPT/Word templates)",
+        "monthly_software_cost": 85,
+        "equipment_requirements": "Color-accurate monitor (99% sRGB), High-performance workstation/laptop (16GB+ RAM), Secure cloud storage for large asset transfer (Dropbox/Google One)"
+      },
+      "market_research": {
+        "similar_projects_median": 10500,
+        "cambodia_market_position": "mid-to-premium",
+        "comparable_rates": "Upwork Cambodia Top-Rated: $35-$60/hr; Local boutique agencies: $75-$120/hr; Junior freelancers: $15-$25/hr."
+      },
+      "adjustments": [
+        {
+          "factor": "base_rate",
+          "multiplier": 1,
+          "reason": "Starting point for mid-to-senior freelance talent in the Phnom Penh market for 2026."
+        },
+        {
+          "factor": "complexity",
+          "multiplier": 1.2,
+          "reason": "Hard difficulty due to banking regulatory compliance, high volume of technical specifications, and complex multi-asset print requirements."
+        },
+        {
+          "factor": "client_type",
+          "multiplier": 1.15,
+          "reason": "Corporate premium for MekongBank due to three-tier stakeholder approval process and administrative overhead."
+        },
+        {
+          "factor": "urgency",
+          "multiplier": 1,
+          "reason": "Normal timeline (90 days) allows for standard production cycles without rush fees."
+        }
+      ],
+      "calculation_breakdown": {
+        "base_market_rate": 32.5,
+        "after_complexity": 39,
+        "after_client_type": 44.85,
+        "final_rate": 45
+      },
+      "sources": [
+        "Upwork Cambodia Freelancer Market Data 2025/2026",
+        "Glassdoor Cambodia Graphic Designer Salary Benchmarks",
+        "AIGA Standard Guide to Design Hours per Deliverable",
+        "Adobe Creative Cloud Individual/Teams Pricing Southeast Asia",
+        "Phnom Penh Graphic Design Community Rate Surveys",
+        "MekongBank Public Brand Guidelines (proxy for complexity analysis)"
+      ],
+      "disclaimer": "This estimate is based on market data projected for 2026 in Cambodia. Actual costs may vary based on specific regulatory changes in the financial sector or individual freelancer expertise. The total estimate exceeds the client's $12,000 mention slightly to account for the 'Hard' complexity and high volume of deliverables, though it remains within a negotiable range."
+    }
+  }
+}

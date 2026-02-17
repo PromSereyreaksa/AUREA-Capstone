@@ -1,0 +1,151 @@
+{
+  "success": true,
+  "message": "PDF extracted and project created successfully",
+  "data": {
+    "project": {
+      "project_id": 370,
+      "user_id": 88,
+      "project_name": "TechVenture Co.",
+      "title": "Brand Identity Project Brief",
+      "description": "Tech startup disrupting e-commerce with AI-powered recommendations needs a complete brand identity ASAP for an investor pitch. The aesthetic should be modern, minimalist, and tech-forward, similar to Stripe, Notion, or Linear.",
+      "duration": 21,
+      "difficulty": "Medium",
+      "licensing": "Standard License",
+      "usage_rights": "Commercial Use",
+      "result": "Complete brand identity system including logo, brand guidelines, and social media assets for an investor pitch.",
+      "client_type": null,
+      "client_region": null,
+      "calculated_rate": null
+    },
+    "deliverables": [
+      {
+        "deliverable_id": 4872,
+        "project_id": 370,
+        "deliverable_type": "Brand Identity System",
+        "quantity": 1,
+        "items": [
+          "Primary logo design",
+          "Simplified app icon version",
+          "Modern color palette",
+          "Tech-forward typography system",
+          "Light and dark background variations"
+        ]
+      },
+      {
+        "deliverable_id": 4873,
+        "project_id": 370,
+        "deliverable_type": "Brand Guidelines",
+        "quantity": 1,
+        "items": [
+          "Logo usage rules",
+          "Color usage guidelines",
+          "Typography hierarchy",
+          "Essential brand style rules"
+        ]
+      },
+      {
+        "deliverable_id": 4874,
+        "project_id": 370,
+        "deliverable_type": "Social Media Kit",
+        "quantity": 1,
+        "items": [
+          "Profile pictures (LinkedIn, Twitter, Instagram)",
+          "Editable social media post templates"
+        ]
+      },
+      {
+        "deliverable_id": 4875,
+        "project_id": 370,
+        "deliverable_type": "Marketing Collateral",
+        "quantity": 4,
+        "items": [
+          "Business card designs for 4 founders"
+        ]
+      },
+      {
+        "deliverable_id": 4876,
+        "project_id": 370,
+        "deliverable_type": "Final Asset Delivery",
+        "quantity": 1,
+        "items": [
+          "Original source files",
+          "Exported PNG assets",
+          "Exported SVG assets"
+        ]
+      }
+    ],
+    "metadata": {
+      "model": "gemini-3-flash-preview"
+    },
+    "clientContext": {
+      "client_type": "startup",
+      "client_region": "cambodia",
+      "budget_mentioned": 1000,
+      "urgency": "urgent",
+      "estimated_project_hours": 45,
+      "complexity_indicators": [
+        "Tight 3-week deadline",
+        "Investor pitch dependency",
+        "Multiple founders requiring collateral",
+        "First-time founders needing guidance",
+        "Requires cross-platform asset optimization"
+      ]
+    },
+    "pricing": {
+      "final_hourly_rate": 30,
+      "project_total_estimate": 1650,
+      "estimated_hours": 55,
+      "hourly_rate_range": {
+        "min": 18,
+        "max": 45
+      },
+      "ai_researched_costs": {
+        "software_needed": "Adobe Creative Cloud (Illustrator, InDesign), Figma Professional, Brandpad (optional for guidelines)",
+        "monthly_software_cost": 75,
+        "equipment_requirements": "High-resolution monitor (99% sRGB), Mid-spec MacBook Pro or equivalent PC (16GB RAM), Graphics Tablet (optional)"
+      },
+      "market_research": {
+        "similar_projects_median": 1200,
+        "cambodia_market_position": "mid-to-premium",
+        "comparable_rates": "Upwork Cambodia Mid-Level: $20-$35/hr; Local Agencies (Phnom Penh): $50-$100/hr; Junior Local Freelancers: $10-$15/hr."
+      },
+      "adjustments": [
+        {
+          "factor": "base_rate",
+          "multiplier": 1,
+          "reason": "Standardized rate for a mid-market freelance designer in Phnom Penh with 3-5 years experience."
+        },
+        {
+          "factor": "complexity",
+          "multiplier": 1.15,
+          "reason": "Tech startup aesthetic (Stripe/Linear style) requires high-precision typography and grid systems, increasing technical difficulty."
+        },
+        {
+          "factor": "client_type",
+          "multiplier": 1,
+          "reason": "Startup status is neutral; while they have tighter budgets, the high stakes of an investor pitch demand full professional value."
+        },
+        {
+          "factor": "urgency",
+          "multiplier": 1.3,
+          "reason": "21-day turnaround for a full identity system and collateral is considered a 'rush' project, requiring prioritized scheduling."
+        }
+      ],
+      "calculation_breakdown": {
+        "base_market_rate": 20,
+        "after_complexity": 23,
+        "after_client_type": 23,
+        "final_rate": 30
+      },
+      "sources": [
+        "Khmer24 Salary Portal (Graphic Design rates 2025-2026)",
+        "Upwork Cambodia Freelancer Profiles (Mid-level Branding Specialists)",
+        "DesignRush Global Agency & Freelance Pricing Report 2025",
+        "SmartVAs Guide: How Much to Pay a Graphic Designer 2025",
+        "Adobe Southeast Asia (Pricing for Creative Cloud Individual Plans)",
+        "Figma Pricing - Professional Tier 2026"
+      ],
+      "disclaimer": "This estimate reflects market rates for a professional-grade tech brand identity in Cambodia as of 2026. While the client budget is $1000, the scope and urgency justify a $1650 valuation. Negotiation may be required to align scope with the $1000 budget."
+    }
+  }
+}

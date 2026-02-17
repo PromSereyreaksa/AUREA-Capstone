@@ -1,0 +1,155 @@
+{
+  "success": true,
+  "message": "PDF extracted and project created successfully",
+  "data": {
+    "project": {
+      "project_id": 368,
+      "user_id": 88,
+      "project_name": "TechVenture Brand Identity",
+      "title": "Brand Identity Project Brief",
+      "description": "TechVenture is an early-stage startup disrupting the e-commerce space with AI-powered recommendations. They require a complete brand identity for an upcoming investor pitch in three weeks, seeking a modern, tech-forward, and minimal aesthetic similar to Stripe or Notion.",
+      "duration": 21,
+      "difficulty": "Medium",
+      "licensing": "Standard License",
+      "usage_rights": "Client Ownership",
+      "result": "A comprehensive brand identity system and essential marketing assets ready for an investor pitch.",
+      "client_type": null,
+      "client_region": null,
+      "calculated_rate": null
+    },
+    "deliverables": [
+      {
+        "deliverable_id": 4862,
+        "project_id": 368,
+        "deliverable_type": "Brand Identity System",
+        "quantity": 1,
+        "items": [
+          "Primary logo design",
+          "Simplified app icon version",
+          "Light and dark background variations",
+          "Color palette selection",
+          "Typography system selection"
+        ]
+      },
+      {
+        "deliverable_id": 4863,
+        "project_id": 368,
+        "deliverable_type": "Brand Guidelines",
+        "quantity": 1,
+        "items": [
+          "Logo usage rules",
+          "Color usage guidelines",
+          "Typography hierarchy",
+          "Basic usage essentials"
+        ]
+      },
+      {
+        "deliverable_id": 4864,
+        "project_id": 368,
+        "deliverable_type": "Social Media Kit",
+        "quantity": 1,
+        "items": [
+          "LinkedIn profile pictures",
+          "Twitter profile pictures",
+          "Instagram profile pictures",
+          "Editable post templates"
+        ]
+      },
+      {
+        "deliverable_id": 4865,
+        "project_id": 368,
+        "deliverable_type": "Marketing Collateral",
+        "quantity": 1,
+        "items": [
+          "Business card designs for 4 founders"
+        ]
+      },
+      {
+        "deliverable_id": 4866,
+        "project_id": 368,
+        "deliverable_type": "Final Asset Delivery",
+        "quantity": 1,
+        "items": [
+          "Source files (AI/Figma/PSD)",
+          "Exported PNG assets",
+          "Exported SVG assets",
+          "Final brand documentation"
+        ]
+      }
+    ],
+    "metadata": {
+      "model": "gemini-3-flash-preview"
+    },
+    "clientContext": {
+      "client_type": "startup",
+      "client_region": "cambodia",
+      "budget_mentioned": 1000,
+      "urgency": "urgent",
+      "estimated_project_hours": 50,
+      "complexity_indicators": [
+        "Tight 3-week deadline",
+        "Investor pitch requirement",
+        "Multiple platform social media assets",
+        "Requirement for editable templates",
+        "Specific aesthetic benchmarks (Stripe, Notion, Linear)"
+      ]
+    },
+    "pricing": {
+      "final_hourly_rate": 26,
+      "project_total_estimate": 1352,
+      "estimated_hours": 52,
+      "hourly_rate_range": {
+        "min": 19.23,
+        "max": 35
+      },
+      "ai_researched_costs": {
+        "software_needed": "Adobe Creative Cloud (Illustrator, Photoshop, InDesign), Figma Professional, Google Workspace",
+        "monthly_software_cost": 70,
+        "equipment_requirements": "High-color accuracy monitor (sRGB 99%+), MacBook Pro or equivalent workstation, Graphics Tablet (optional for logos)"
+      },
+      "market_research": {
+        "similar_projects_median": 1150,
+        "cambodia_market_position": "mid-to-premium",
+        "comparable_rates": "Upwork Cambodia freelancers: $15-40/hr; Local boutique agencies in Phnom Penh: $1,500-$3,500 for full identity; Entry-level local freelancers: $400-$800."
+      },
+      "adjustments": [
+        {
+          "factor": "base_rate",
+          "multiplier": 1,
+          "reason": "Mid-level professional rate in Phnom Penh market ($20/hr base)."
+        },
+        {
+          "factor": "complexity",
+          "multiplier": 1.1,
+          "reason": "Requirement for high-end aesthetic (Stripe/Notion style) and editable templates increases technical oversight."
+        },
+        {
+          "factor": "client_type",
+          "multiplier": 0.9,
+          "reason": "Early-stage startup discount applied to encourage long-term partnership."
+        },
+        {
+          "factor": "urgency",
+          "multiplier": 1.3,
+          "reason": "3-week deadline for a full brand system is considered a rush project, requiring prioritized scheduling."
+        }
+      ],
+      "calculation_breakdown": {
+        "base_market_rate": 20,
+        "after_complexity": 22,
+        "after_client_type": 20,
+        "final_rate": 26
+      },
+      "sources": [
+        "Upwork: Freelance Graphic Design Rates in Cambodia (2024)",
+        "BongSrey / Glassdoor: Cambodia Creative Professional Salary Data",
+        "SalaryExplorer: Graphic Designer Average Salaries in Cambodia",
+        "Adobe Southeast Asia Pricing Guide",
+        "Figma Pricing - Professional Tier for Startups",
+        "Market Comparison: Phnom Penh Agency Rate Cards (General Industry Knowledge)",
+        "(AI Knowledge Base - No live web search)"
+      ],
+      "disclaimer": "This estimate is based on current Cambodia market data for mid-level professionals. The final price may vary based on the specific number of revision rounds and actual complexity of the AI-powered recommendation visualizations required for the investor pitch."
+    }
+  }
+}

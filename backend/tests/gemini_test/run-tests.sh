@@ -1,0 +1,30 @@
+#!/bin/bash
+
+# AUREA Pricing Integration - Quick Start Guide
+# ==============================================
+
+echo "🎯 AUREA Pricing Integration Tests"
+echo "=================================="
+echo ""
+echo "Available test scripts:"
+echo ""
+echo "  1. quick-test.sh          - Fast verification test (~15s)"
+echo "  2. diagnose.sh            - Diagnostic test with detailed output (~30s)"
+echo "  3. test-complete.sh       - Full test with user creation (~30s)"
+echo "  4. test-pricing-integration.sh - Comprehensive test suite (~90s)"
+echo ""
+echo "Usage:"
+echo "  ./quick-test.sh                  # Run quick test"
+echo "  ./diagnose.sh                    # Run diagnostic"
+echo "  ./test-complete.sh              # Full end-to-end test"
+echo "  ./test-pricing-integration.sh   # All scenarios"
+echo ""
+echo "Recent test results:"
+echo ""
+echo "  ✅ Startup Brief: \$26/hr, \$1,352 total, 52 hours"
+echo "  ✅ Corporate Brief: \$45/hr, \$12,420 total, 276 hours"
+echo "  ✅ Test user ID: 88"
+echo "  ✅ All integration tests passing"
+echo ""
+echo "📖 For detailed results, see: TEST_RESULTS_SUMMARY.md"
+echo ""
