@@ -131,6 +131,7 @@ export class GeminiService {
 
   async extractFromPdf(pdfBuffer: Buffer): Promise<{
     projectDetails: any;
+    clientContext: any;
     deliverables: any[];
     metadata?: { model: string };
   }> {
@@ -195,6 +196,14 @@ Return ONLY a valid JSON object (no markdown, no explanations) with this exact s
     "licensing": string | null (License type: "One-Time Used", "Limited Used", "Exclusive License", "Commercial", "MIT", "Apache 2.0", or custom license name. null if not mentioned),
     "usage_rights": string | null (Usage restrictions, distribution rights, or copyright terms. Extract from legal section or terms. null if not specified),
     "result": string | null (Expected outcomes, final deliverables summary, or project goals. null if not described)
+  },
+  "clientContext": {
+    "client_type": string (MUST be one of: "startup", "sme", "corporate", "ngo", "government", "unknown". Infer from company description, budget level, or explicit mentions. Default: "sme" if cannot determine),
+    "client_region": string (MUST be one of: "cambodia", "southeast_asia", "international", "unknown". Extract from location, currency, or context. Default: "cambodia"),
+    "budget_mentioned": number | null (Extract if specific budget/price is mentioned in USD. null if not found),
+    "urgency": string (MUST be one of: "normal", "rush", "urgent". Infer from: "ASAP"/"urgent" = urgent, "quick"/"fast" = rush, otherwise normal. Default: "normal"),
+    "estimated_project_hours": number | null (AI estimation: estimate total hours needed based on deliverables count and complexity. Use industry standards: simple logo = 8-10 hours, branding = 40-60 hours, website = 100-200 hours. null if cannot estimate),
+    "complexity_indicators": string[] (List factors indicating complexity: e.g., ["Multiple deliverables", "Tight deadline", "Enterprise scale", "Custom requirements", "Technical specifications"])
   },
   "deliverables": [
     {
@@ -463,6 +472,18 @@ Now analyze the provided PDF document and extract the project information follow
           result: data.projectDetails?.result || "Project extracted from PDF",
         };
 
+        // Validate and normalize client context
+        const clientContext = {
+          client_type: data.clientContext?.client_type || "sme",
+          client_region: data.clientContext?.client_region || "cambodia",
+          budget_mentioned: data.clientContext?.budget_mentioned || null,
+          urgency: data.clientContext?.urgency || "normal",
+          estimated_project_hours: data.clientContext?.estimated_project_hours || null,
+          complexity_indicators: Array.isArray(data.clientContext?.complexity_indicators) 
+            ? data.clientContext.complexity_indicators 
+            : []
+        };
+
         // Validate and normalize deliverables
         const deliverables = Array.isArray(data.deliverables)
           ? data.deliverables
@@ -482,6 +503,7 @@ Now analyze the provided PDF document and extract the project information follow
 
         return { 
           projectDetails, 
+          clientContext,
           deliverables,
           metadata: { model }
         };
@@ -1534,9 +1556,11 @@ Now validate the user's answer and return the JSON response.`;
    */
   async summarizeExtraction(data: {
     projectDetails: any;
+    clientContext: any;
     deliverables: any[];
   }): Promise<{
     projectDetails: any;
+    clientContext: any;
     deliverables: any[];
     metadata?: { model: string; summarized: boolean };
   }> {
@@ -1647,6 +1671,7 @@ Return ONLY valid JSON (no markdown):
 
       return {
         projectDetails: summarized.projectDetails || data.projectDetails,
+        clientContext: data.clientContext,
         deliverables: summarized.deliverables || data.deliverables,
         metadata: { model, summarized: true }
       };
@@ -1654,6 +1679,7 @@ Return ONLY valid JSON (no markdown):
       console.warn(`Summarization failed: ${error.message}. Returning original data.`);
       return {
         projectDetails: data.projectDetails,
+        clientContext: data.clientContext,
         deliverables: data.deliverables,
         metadata: { model, summarized: false }
       };
@@ -1668,6 +1694,7 @@ Return ONLY valid JSON (no markdown):
    */
   async extractFromPdfWithSummarization(pdfBuffer: Buffer): Promise<{
     projectDetails: any;
+    clientContext: any;
     deliverables: any[];
     metadata?: { model: string; summarized?: boolean };
   }> {
@@ -1689,5 +1716,309 @@ Return ONLY valid JSON (no markdown):
     }
 
     return result;
+  }
+
+  /**
+   * Generate AI-powered project-based pricing estimate using Google Search Grounding.
+   * Similar to Quick Estimate mode, but specifically for extracted projects.
+   * 
+   * @param params - Project details, deliverables, and client context
+   * @returns Comprehensive pricing breakdown with market research
+   */
+  async generateProjectBasedEstimate(params: {
+    projectDetails: any;
+    deliverables: any[];
+    clientContext: any;
+    useGrounding?: boolean;
+  }): Promise<{
+    final_hourly_rate: number;
+    project_total_estimate: number;
+    estimated_hours: number;
+    hourly_rate_range: { min: number; max: number };
+    ai_researched_costs: {
+      software_needed: string;
+      monthly_software_cost: number;
+      equipment_requirements: string;
+    };
+    market_research: {
+      similar_projects_median: number;
+      cambodia_market_position: string;
+      comparable_rates: string;
+    };
+    adjustments: Array<{
+      factor: string;
+      multiplier: number;
+      reason: string;
+    }>;
+    calculation_breakdown: {
+      base_market_rate: number;
+      after_complexity: number;
+      after_client_type: number;
+      final_rate: number;
+    };
+    sources: string[];
+    disclaimer: string;
+  }> {
+    const { projectDetails, deliverables, clientContext, useGrounding = true } = params;
+
+    // Build deliverables summary for AI
+    const deliverablesText = deliverables
+      .map((d: any, idx: number) => 
+        `${idx + 1}. ${d.deliverable_type} (qty: ${d.quantity})${d.items?.length ? ` - includes: ${d.items.join(', ')}` : ''}`
+      )
+      .join('\n');
+
+    // Build COSTAR prompt for project-based pricing
+    const prompt = `# C - CONTEXT
+You are an AI Pricing Research Agent specializing in freelance graphic design pricing for Cambodia. You have been provided with an EXTRACTED PROJECT from a client brief, including detailed deliverables and client context. Your job is to research REAL market data and calculate a comprehensive, market-aligned price for this specific project.
+
+# O - OBJECTIVE
+Research and calculate project-specific pricing that includes:
+1. **Hourly rate** based on project complexity and Cambodia market standards
+2. **Total project estimate** based on estimated hours × hourly rate
+3. **Estimated hours** needed to complete all deliverables
+4. **Market research** showing comparable rates for similar projects
+5. **Cost breakdown** for software/equipment needed
+6. **Adjustments** applied (client type, urgency, complexity)
+7. **Sources** for all data points (via Google Search)
+
+# S - STYLE
+- Research-driven: Use Google Search to find REAL current data
+- Market-aligned: Compare to actual Cambodia freelance rates
+- Project-specific: Consider exact deliverables and complexity
+- Detailed: Break down how you arrived at numbers
+
+# T - TONE
+Professional, data-backed, transparent
+
+# A - AUDIENCE
+Freelance graphic designer in Cambodia needing accurate project pricing for client proposal
+
+# R - RESPONSE
+Return ONLY valid JSON with comprehensive pricing breakdown
+
+---
+
+# PROJECT DETAILS
+
+## Project Information
+- **Project Name**: ${projectDetails.project_name}
+- **Description**: ${projectDetails.description || 'Not specified'}
+- **Duration**: ${projectDetails.duration ? `${projectDetails.duration} days` : 'Not specified'}
+- **Difficulty**: ${projectDetails.difficulty || 'Not specified'}
+
+## Deliverables (${deliverables.length} categories)
+${deliverablesText}
+
+## Client Context
+- **Client Type**: ${clientContext.client_type} (affects pricing: startup < sme < corporate < government)
+- **Client Region**: ${clientContext.client_region}
+- **Budget Mentioned**: ${clientContext.budget_mentioned ? `$${clientContext.budget_mentioned}` : 'Not mentioned'}
+- **Urgency**: ${clientContext.urgency} (normal | rush | urgent - affects pricing)
+- **Complexity Indicators**: ${clientContext.complexity_indicators?.length ? clientContext.complexity_indicators.join(', ') : 'None'}
+
+---
+
+# RESEARCH TASKS (Use Google Search)
+
+## 1. MARKET RATE RESEARCH
+Research current freelance graphic design rates in Cambodia for projects similar to this:
+- Search for: "${projectDetails.project_name || 'graphic design'} freelance rates Cambodia 2026"
+- Search for: "Cambodia graphic designer hourly rate ${projectDetails.difficulty || 'medium'} complexity"
+- Look up rates on platforms: Upwork Cambodia, Fiverr, local job boards
+- Find median rate, 75th percentile rate for this type of work
+- Compare with regional rates (Phnom Penh vs provinces)
+
+## 2. SIMILAR PROJECT PRICING
+Research what similar projects typically cost:
+- Search for: "cost of ${projectDetails.project_name} Cambodia"
+- Search for deliverable-specific pricing: "${deliverables[0]?.deliverable_type} design pricing"
+- Find project total ranges from portfolios, case studies, agencies
+- Note: Look for COMPLETE project prices, not just hourly rates
+
+## 3. HOURS ESTIMATION
+Research typical time required for these deliverables:
+- Search for: "how long to design ${deliverables[0]?.deliverable_type}"
+- Industry standards for each deliverable category
+- Consider complexity level: ${projectDetails.difficulty || 'Medium'}
+- Factor in revisions (typically 2-3 rounds)
+- Account for client communication and project management (add 20%)
+
+## 4. SOFTWARE & TOOLS COSTS
+Research what software/tools are needed for this project:
+${deliverables.map((d: any) => `- ${d.deliverable_type}: what tools?`).join('\n')}
+- Adobe Creative Cloud pricing in Cambodia
+- Figma Pro subscription
+- Any specialized tools needed
+- Calculate monthly cost
+
+## 5. CLIENT TYPE MULTIPLIERS
+Research standard pricing adjustments for client types:
+- ${clientContext.client_type}: typical premium/discount?
+- Corporate clients: +20-30%
+- Startups: -10-20%
+- NGOs: -20%
+- Government: +10-20%
+
+## 6. URGENCY PRICING
+Research rush fee standards:
+- Urgency level: ${clientContext.urgency}
+- "urgent" project rush fees (typically +30-50%)
+- "rush" project fast-track fees (typically +20-30%)
+- Normal timeline: no adjustment
+
+---
+
+# CALCULATION STEPS
+
+1. **Base Market Rate**: Research median hourly rate for ${projectDetails.difficulty || 'Medium'} complexity graphic design in Cambodia
+2. **Complexity Adjustment**: Apply multiplier based on:
+   - Number of deliverables: ${deliverables.length}
+   - Project difficulty: ${projectDetails.difficulty || 'Medium'}
+   - Technical requirements
+3. **Client Type Adjustment**: Apply multiplier for ${clientContext.client_type} client
+4. **Urgency Adjustment**: Apply multiplier for ${clientContext.urgency} timeline
+5. **Hours Estimation**: Calculate total hours needed for all ${deliverables.length} deliverables
+6. **Project Total**: Final hourly rate × estimated hours
+
+---
+
+# RESPONSE FORMAT
+Return ONLY this JSON structure (no markdown, no explanation outside JSON):
+
+{
+  "final_hourly_rate": number (USD, 2 decimal places),
+  "project_total_estimate": number (USD, 2 decimal places),
+  "estimated_hours": number (total hours to complete project, integer),
+  "hourly_rate_range": {
+    "min": number (lower bound for negotiation),
+    "max": number (upper bound for premium positioning)
+  },
+  "ai_researched_costs": {
+    "software_needed": string (list tools: "Adobe CC, Figma Pro, etc."),
+    "monthly_software_cost": number (USD),
+    "equipment_requirements": string (describe: "Mid-spec laptop, graphics tablet, etc.")
+  },
+  "market_research": {
+    "similar_projects_median": number (median rate for similar projects in Cambodia),
+    "cambodia_market_position": string ("entry-level" | "mid-market" | "mid-to-premium" | "premium"),
+    "comparable_rates": string (describe: "Upwork Cambodia: $X-Y, Local agencies: $Z, etc.")
+  },
+  "adjustments": [
+    {
+      "factor": "base_rate" | "complexity" | "client_type" | "urgency" | "deliverables_count",
+      "multiplier": number (e.g., 1.2 = +20%, 0.9 = -10%),
+      "reason": string (explain why this adjustment is applied)
+    }
+  ],
+  "calculation_breakdown": {
+    "base_market_rate": number (starting point from market research),
+    "after_complexity": number (after complexity multiplier),
+    "after_client_type": number (after client type multiplier),
+    "final_rate": number (after all adjustments, same as final_hourly_rate)
+  },
+  "hours_breakdown": {
+    "design_hours": number (core design work),
+    "revision_hours": number (estimated revisions),
+    "communication_hours": number (client meetings, feedback),
+    "total_hours": number (sum of above, same as estimated_hours)
+  },
+  "sources": [
+    "string (list ALL sources used: website names, URLs, reports)"
+  ],
+  "disclaimer": "string (standard disclaimer about estimates, market variations, etc.)"
+}
+
+# CRITICAL RULES
+1. **Use Google Search** to find REAL data - don't make up numbers
+2. **Be Cambodia-specific** - research Cambodia market, not generic rates
+3. **Consider ALL deliverables** - estimate hours for each one
+4. **Show your work** - sources array must list where data came from
+5. **Be conservative** - better to underpromise than overpromise on estimates
+6. **Consider revision rounds** - most projects need 2-3 revision cycles
+7. **Account for project management** - add 15-20% for communication/coordination
+
+Now research and calculate pricing for this project using Google Search.`;
+
+    try {
+      let responseText: string;
+      let webSources: Array<{ uri: string; title: string }> = [];
+
+      if (useGrounding) {
+        // Use Google Search grounding for real-time market data
+        console.log('[ProjectPricing] Using Google Search grounding for market research');
+        const result = await this.generateContentWithGrounding(prompt, 0.2);
+        responseText = result.text;
+        webSources = result.groundingMetadata?.webSearchSources || [];
+        console.log(`[ProjectPricing] Found ${webSources.length} web sources`);
+      } else {
+        // Use AI knowledge base only (no live search)
+        console.log('[ProjectPricing] Using AI Knowledge Base (no grounding)');
+        responseText = await this.generateContent(prompt);
+      }
+
+      // Parse AI response
+      responseText = responseText
+        .replace(/^```json\s*\n?/, '')
+        .replace(/\n?```\s*$/, '')
+        .trim();
+
+      const aiResult = JSON.parse(responseText);
+
+      // Validate required fields
+      if (!aiResult.final_hourly_rate || !aiResult.project_total_estimate || !aiResult.estimated_hours) {
+        throw new Error('AI response missing required pricing fields');
+      }
+
+      // Combine AI-provided sources with actual web sources from grounding
+      const combinedSources = [
+        ...webSources.map(s => s.title ? `${s.title} (${s.uri})` : s.uri),
+        ...(aiResult.sources || [])
+      ];
+
+      if (!useGrounding) {
+        combinedSources.push('(AI Knowledge Base - No live web search)');
+      }
+
+      // Return structured pricing data
+      return {
+        final_hourly_rate: Math.round(aiResult.final_hourly_rate * 100) / 100,
+        project_total_estimate: Math.round(aiResult.project_total_estimate * 100) / 100,
+        estimated_hours: Math.round(aiResult.estimated_hours),
+        hourly_rate_range: {
+          min: Math.round((aiResult.hourly_rate_range?.min || aiResult.final_hourly_rate * 0.8) * 100) / 100,
+          max: Math.round((aiResult.hourly_rate_range?.max || aiResult.final_hourly_rate * 1.2) * 100) / 100
+        },
+        ai_researched_costs: {
+          software_needed: aiResult.ai_researched_costs?.software_needed || 'Standard graphic design software',
+          monthly_software_cost: Math.round(aiResult.ai_researched_costs?.monthly_software_cost || 0),
+          equipment_requirements: aiResult.ai_researched_costs?.equipment_requirements || 'Standard design workstation'
+        },
+        market_research: {
+          similar_projects_median: Math.round((aiResult.market_research?.similar_projects_median || aiResult.final_hourly_rate) * 100) / 100,
+          cambodia_market_position: aiResult.market_research?.cambodia_market_position || 'mid-market',
+          comparable_rates: aiResult.market_research?.comparable_rates || 'Cambodia freelance design market'
+        },
+        adjustments: Array.isArray(aiResult.adjustments) ? aiResult.adjustments : [],
+        calculation_breakdown: {
+          base_market_rate: Math.round((aiResult.calculation_breakdown?.base_market_rate || aiResult.final_hourly_rate / 1.2) * 100) / 100,
+          after_complexity: Math.round((aiResult.calculation_breakdown?.after_complexity || aiResult.final_hourly_rate / 1.1) * 100) / 100,
+          after_client_type: Math.round((aiResult.calculation_breakdown?.after_client_type || aiResult.final_hourly_rate) * 100) / 100,
+          final_rate: Math.round(aiResult.final_hourly_rate * 100) / 100
+        },
+        sources: combinedSources.length > 0 ? combinedSources : ['AI market research', 'Cambodia cost of living data'],
+        disclaimer: aiResult.disclaimer || 'This estimate is AI-generated based on researched market data. Actual project cost may vary based on revisions, scope changes, and final negotiations. Always discuss and agree on pricing before starting work.'
+      };
+    } catch (error: any) {
+      console.error('[ProjectPricing] AI pricing failed:', {
+        message: error.message,
+        stack: error.stack?.split('\n').slice(0, 3).join('\n')
+      });
+
+      // Don't leak internal error details to user
+      throw new Error(
+        'Unable to generate project pricing estimate. Please try manual pricing calculation.'
+      );
+    }
   }
 }

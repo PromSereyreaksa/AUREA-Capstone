@@ -42,7 +42,14 @@ export const extractPdfController = asyncHandler(async (req: Request, res: Respo
   PdfValidator.validatePdfFile(req.file);
   const userId = UserValidator.validateUserId(req.body.user_id);
 
-  const result = await extractProjectUseCase.execute(req.file!.buffer, userId);
+  // Parse query parameters for pricing options
+  const calculatePricing = req.query.calculate_pricing === 'true' || req.query.calculate_pricing === '1';
+  const useGrounding = req.query.use_grounding !== 'false'; // Default true
+
+  const result = await extractProjectUseCase.execute(req.file!.buffer, userId, {
+    auto_calculate_pricing: calculatePricing,
+    use_grounding: useGrounding
+  });
 
   return ResponseHelper.created(res, result, 'PDF extracted and project created successfully');
 });

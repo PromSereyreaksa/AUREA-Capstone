@@ -8,17 +8,39 @@ import { ProjectValidator } from '../../shared/validators';
 import { CalculateProjectRate } from './CalculateProjectRate';
 
 interface ExtractOptions {
-  autoSummarize?: boolean;        // Auto-condense large extractions (default: true)
-  auto_calculate_rate?: boolean;  // Calculate pricing if user has profile
-  client_type?: string;           // For rate calculation
-  client_region?: string;         // For rate calculation
+  autoSummarize?: boolean;          // Auto-condense large extractions (default: true)
+  auto_calculate_rate?: boolean;    // Calculate pricing using UREA profile (requires profile)
+  auto_calculate_pricing?: boolean; // Calculate pricing using AI Quick Estimate mode (default: true)
+  use_grounding?: boolean;          // Enable Google Search grounding for pricing (default: true)
+  client_type?: string;             // For rate calculation (override extracted)
+  client_region?: string;           // For rate calculation (override extracted)
 }
 
 interface ExtractResult {
   project: ProjectPrice;
   deliverables: ProjectDeliverable[];
   metadata?: { model: string; summarized?: boolean };
-  calculated_rate?: number;
+  clientContext?: {
+    client_type: string;
+    client_region: string;
+    budget_mentioned: number | null;
+    urgency: string;
+    estimated_project_hours: number | null;
+    complexity_indicators: string[];
+  };
+  calculated_rate?: number; // Simple rate from UREA profile (legacy)
+  pricing?: {
+    final_hourly_rate: number;
+    project_total_estimate: number;
+    estimated_hours: number;
+    hourly_rate_range: { min: number; max: number };
+    ai_researched_costs: any;
+    market_research: any;
+    adjustments: any[];
+    calculation_breakdown: any;
+    sources: string[];
+    disclaimer: string;
+  };
 }
 
 export class ExtractProjectFromPdf {
@@ -48,7 +70,7 @@ export class ExtractProjectFromPdf {
     // If autoSummarize is true (default), automatically condense large extractions
     const shouldAutoSummarize = options.autoSummarize !== false;
 
-    const { projectDetails, deliverables, metadata } = shouldAutoSummarize
+    const { projectDetails, clientContext, deliverables, metadata } = shouldAutoSummarize
       ? await this.geminiService.extractFromPdfWithSummarization(pdfBuffer)
       : await this.geminiService.extractFromPdf(pdfBuffer);
 
@@ -96,18 +118,46 @@ export class ExtractProjectFromPdf {
       savedDeliverables.push(saved);
     }
 
-    // Build result
+    // Build result with client context
     const result: ExtractResult = {
       project: savedProject,
       deliverables: savedDeliverables,
-      metadata
+      metadata,
+      clientContext: clientContext || undefined
     };
 
-    // OPTIONAL: Auto-calculate project rate if user has pricing profile
+    // NEW: Auto-calculate pricing using AI Quick Estimate mode (project-specific)
+    if (options.auto_calculate_pricing !== false) {
+      try {
+        const useGrounding = options.use_grounding !== false; // Default true
+        
+        console.log('[ExtractProject] Calculating AI-powered project pricing...');
+        const pricingResult = await this.geminiService.generateProjectBasedEstimate({
+          projectDetails: savedProject,
+          deliverables: savedDeliverables,
+          clientContext: clientContext || {
+            client_type: options.client_type || 'sme',
+            client_region: options.client_region || 'cambodia',
+            budget_mentioned: null,
+            urgency: 'normal',
+            estimated_project_hours: null,
+            complexity_indicators: []
+          },
+          useGrounding
+        });
+
+        result.pricing = pricingResult;
+      } catch (error: any) {
+        console.error('[ExtractProject] Auto pricing calculation failed:', error.message);
+        // Don't fail the entire extraction if pricing fails - it's optional
+      }
+    }
+
+    // LEGACY: Auto-calculate project rate if user has pricing profile
     if (options.auto_calculate_rate && this.calculateProjectRateUseCase) {
       try {
-        const clientType = options.client_type || (projectDetails as any).client_type || 'sme';
-        const clientRegion = options.client_region || (projectDetails as any).client_region || 'cambodia';
+        const clientType = options.client_type || clientContext?.client_type || 'sme';
+        const clientRegion = options.client_region || clientContext?.client_region || 'cambodia';
 
         const rateResult = await this.calculateProjectRateUseCase.execute({
           user_id: userId,
