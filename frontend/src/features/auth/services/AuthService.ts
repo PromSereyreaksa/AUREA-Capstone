@@ -10,8 +10,40 @@ interface ApiResponse<T> {
   data: T;
 }
 
+const parseGoogleNameParts = (metadata?: Record<string, any>) => {
+  const givenName = metadata?.given_name as string | undefined;
+  const familyName = metadata?.family_name as string | undefined;
+  const fullName =
+    (metadata?.full_name as string | undefined) ||
+    (metadata?.name as string | undefined);
+
+  if (givenName || familyName) {
+    return {
+      firstName: givenName,
+      lastName: familyName,
+      fullName,
+    };
+  }
+
+  if (fullName) {
+    const parts = fullName.trim().split(/\s+/);
+    return {
+      firstName: parts[0],
+      lastName: parts.length > 1 ? parts.slice(1).join(" ") : undefined,
+      fullName,
+    };
+  }
+
+  return { firstName: undefined, lastName: undefined, fullName: undefined };
+};
+
 export class AuthService implements IAuthService {
-  async signUp(email: string, password: string, firstName?: string, lastName?: string): Promise<User> {
+  async signUp(
+    email: string,
+    password: string,
+    firstName?: string,
+    lastName?: string,
+  ): Promise<User> {
     try {
       const response = await httpClient.post<
         ApiResponse<{ user: User; otp?: string }>
@@ -108,6 +140,9 @@ export class AuthService implements IAuthService {
       throw new Error("No session found after Google authentication");
 
     const googleUser = session.user;
+    const { firstName, lastName, fullName } = parseGoogleNameParts(
+      googleUser.user_metadata,
+    );
 
     // Sync with backend - create or get user
     try {
@@ -116,8 +151,9 @@ export class AuthService implements IAuthService {
       }>("/users/google", {
         google_id: googleUser.id,
         email: googleUser.email,
-        name:
-          googleUser.user_metadata?.full_name || googleUser.user_metadata?.name,
+        name: fullName,
+        first_name: firstName,
+        last_name: lastName,
         avatar_url: googleUser.user_metadata?.avatar_url,
         role: "designer",
       });
@@ -133,6 +169,8 @@ export class AuthService implements IAuthService {
           email: googleUser.email || "",
           role: "designer",
           email_verified: true,
+          first_name: firstName,
+          last_name: lastName,
         }
       );
     } catch (err) {
@@ -143,6 +181,8 @@ export class AuthService implements IAuthService {
         email: googleUser.email || "",
         role: "designer",
         email_verified: true,
+        first_name: firstName,
+        last_name: lastName,
       };
     }
   }
@@ -155,7 +195,10 @@ export class AuthService implements IAuthService {
     }
   }
 
-  async confirmPasswordReset(token: string, newPassword: string): Promise<void> {
+  async confirmPasswordReset(
+    token: string,
+    newPassword: string,
+  ): Promise<void> {
     try {
       await httpClient.post("/users/reset-password", { token, newPassword });
     } catch (error: any) {
@@ -218,6 +261,9 @@ export class AuthService implements IAuthService {
 
     // If we have a Supabase session (Google user)
     if (session?.user) {
+      const { firstName, lastName, fullName } = parseGoogleNameParts(
+        session.user.user_metadata,
+      );
       try {
         // Try to get user from backend using stored token
         if (token) {
@@ -236,9 +282,9 @@ export class AuthService implements IAuthService {
         }>("/users/google", {
           google_id: session.user.id,
           email: session.user.email,
-          name:
-            session.user.user_metadata?.full_name ||
-            session.user.user_metadata?.name,
+          name: fullName,
+          first_name: firstName,
+          last_name: lastName,
           avatar_url: session.user.user_metadata?.avatar_url,
           role: "designer",
         });
@@ -253,6 +299,8 @@ export class AuthService implements IAuthService {
             email: session.user.email || "",
             role: "designer",
             email_verified: true,
+            first_name: firstName,
+            last_name: lastName,
           }
         );
       } catch (err) {
@@ -263,6 +311,8 @@ export class AuthService implements IAuthService {
           email: session.user.email || "",
           role: "designer",
           email_verified: true,
+          first_name: firstName,
+          last_name: lastName,
         };
       }
     }
@@ -271,7 +321,9 @@ export class AuthService implements IAuthService {
     if (!token) return null;
 
     try {
-      const response = await httpClient.get<{ data: { user: User } }>("/users/me");
+      const response = await httpClient.get<{ data: { user: User } }>(
+        "/users/me",
+      );
       return response.data?.user || null;
     } catch (error) {
       // Token invalid or expired

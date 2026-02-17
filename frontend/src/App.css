@@ -52,6 +52,6 @@ textarea {
   font-family: inherit;
 /* Optional: spacing between sections */
 }
-section + section {
+/* section + section {
   padding-top: 5vh;
-}
+} */
