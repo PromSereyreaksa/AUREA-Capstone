@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { GeminiService } from '../../infrastructure/services/GeminiService';
 import { ProjectPriceRepository } from '../../infrastructure/repositories/ProjectPriceRepository';
 import { ProjectDeliverableRepository } from '../../infrastructure/repositories/ProjectDeliverableRepository';
+import { StorageService } from '../../infrastructure/services/StorageService';
 import { ExtractProjectFromPdf } from '../../application/use_cases/ExtractProjectFromPdf';
 import { CreateProjectManually } from '../../application/use_cases/CreateProjectManually';
 import { ProjectValidator, UserValidator, PdfValidator } from '../../shared/validators';
@@ -27,6 +28,7 @@ export const upload = multer({
 const geminiService = new GeminiService();
 const projectPriceRepo = new ProjectPriceRepository();
 const projectDeliverableRepo = new ProjectDeliverableRepository();
+const storageService = new StorageService();
 const extractProjectUseCase = new ExtractProjectFromPdf(
   projectPriceRepo,
   projectDeliverableRepo,
@@ -50,6 +52,26 @@ export const extractPdfController = asyncHandler(async (req: Request, res: Respo
     auto_calculate_pricing: calculatePricing,
     use_grounding: useGrounding
   });
+
+  // Upload PDF to private storage bucket after project is created
+  try {
+    const pdfPath = await storageService.uploadProjectPdf(
+      userId,
+      result.project.project_id,
+      req.file!.buffer,
+      req.file!.originalname
+    );
+
+    // Update the project with the PDF path
+    const updatedProject = await projectPriceRepo.update(result.project.project_id, {
+      project_pdf: pdfPath
+    });
+
+    result.project = updatedProject;
+  } catch (pdfError: any) {
+    // Log but don't fail the request if PDF upload fails
+    console.error('[ExtractPdf] Failed to upload PDF to storage:', pdfError.message);
+  }
 
   return ResponseHelper.created(res, result, 'PDF extracted and project created successfully');
 });
@@ -161,6 +183,15 @@ export const deleteProjectController = asyncHandler(async (req: Request, res: Re
     return ResponseHelper.forbidden(res, 'You do not have access to this project');
   }
 
+  // Delete the PDF from storage if it exists
+  if (project.project_pdf) {
+    try {
+      await storageService.deleteProjectPdf(project.project_pdf);
+    } catch (err) {
+      console.error('[DeleteProject] Failed to delete PDF from storage:', err);
+    }
+  }
+
   // Delete all deliverables first
   await projectDeliverableRepo.deleteByProjectId(projectId);
   
@@ -168,4 +199,34 @@ export const deleteProjectController = asyncHandler(async (req: Request, res: Re
   await projectPriceRepo.delete(projectId);
 
   return ResponseHelper.success(res, { projectId }, 'Project deleted successfully');
+});
+
+// Get signed URL for project PDF download
+export const getProjectPdfController = asyncHandler(async (req: Request, res: Response) => {
+  const userId = UserValidator.validateUserId(req.params.userId);
+  const projectId = ProjectValidator.validateProjectId(req.params.projectId);
+
+  const project = await projectPriceRepo.findById(projectId);
+  
+  if (!project) {
+    return ResponseHelper.notFound(res, 'Project not found');
+  }
+
+  // Verify ownership
+  if (project.user_id !== userId) {
+    return ResponseHelper.forbidden(res, 'You do not have access to this project');
+  }
+
+  if (!project.project_pdf) {
+    return ResponseHelper.notFound(res, 'No PDF file associated with this project');
+  }
+
+  // Generate signed URL (expires in 1 hour)
+  const signedUrl = await storageService.getProjectPdfSignedUrl(project.project_pdf, 3600);
+
+  return ResponseHelper.success(res, {
+    project_id: projectId,
+    download_url: signedUrl,
+    expires_in: 3600 // seconds
+  }, 'PDF download URL generated successfully');
 });

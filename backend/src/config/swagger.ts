@@ -76,6 +76,10 @@ For issues or questions, please contact the development team.
       description: 'User profile CRUD operations including bio, skills, experience, and social links'
     },
     {
+      name: 'Portfolio',
+      description: 'Portfolio management and PDF upload operations'
+    },
+    {
       name: 'AI Extraction',
       description: 'AI-powered PDF extraction using Google Gemini'
     },

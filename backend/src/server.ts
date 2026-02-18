@@ -8,6 +8,7 @@ import userRoutes from './interfaces/routes/userRoutes';
 import pdfExtractRoutes from './interfaces/routes/pdfExtractRoutes';
 import pricingRoutes from './interfaces/routes/pricingRoutes';
 import profileRoutes from './interfaces/routes/profileRoutes';
+import portfolioRoutes from './interfaces/routes/portfolioRoutes';
 import { errorHandler, requestLogger, versionMiddleware, versionCheck, restrictV0ToLocalhost } from './shared/middleware';
 
 // Suppress dotenv logging in non-debug mode
@@ -57,6 +58,7 @@ app.get('/api/v0/docs', swaggerUi.setup(swaggerSpec, {
 app.use('/api/v0', versionMiddleware('v0'), testRoutes);
 app.use('/api/v0/users', versionMiddleware('v0'), userRoutes);
 app.use('/api/v0/profile', versionMiddleware('v0'), profileRoutes);
+app.use('/api/v0/portfolio', versionMiddleware('v0'), portfolioRoutes);
 app.use('/api/v0/pdf', versionMiddleware('v0'), pdfExtractRoutes);
 app.use('/api/v0/pricing', versionMiddleware('v0'), pricingRoutes);
 
@@ -65,6 +67,7 @@ app.use('/api/v0/pricing', versionMiddleware('v0'), pricingRoutes);
 app.use('/api/v1', versionMiddleware('v1'), testRoutes);
 app.use('/api/v1/users', versionMiddleware('v1'), userRoutes);
 app.use('/api/v1/profile', versionMiddleware('v1'), profileRoutes);
+app.use('/api/v1/portfolio', versionMiddleware('v1'), portfolioRoutes);
 app.use('/api/v1/pdf', versionMiddleware('v1'), pdfExtractRoutes);
 app.use('/api/v1/pricing', versionMiddleware('v1'), pricingRoutes);
 

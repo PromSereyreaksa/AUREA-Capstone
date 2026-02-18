@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../auth';
 import { ProfileService } from '../services/ProfileService';
 import type { UserProfile, Portfolio } from '../../../shared/types';
-import { FaArrowLeft, FaPencilAlt, FaMapMarkerAlt, FaEnvelope, FaInstagram, FaBehance, FaDribbble, FaLinkedin, FaTwitter, FaGlobe, FaLink, FaSave, FaTimes, FaPlus, FaTrash } from 'react-icons/fa';
+import { FaArrowLeft, FaPencilAlt, FaMapMarkerAlt, FaEnvelope, FaInstagram, FaBehance, FaDribbble, FaLinkedin, FaTwitter, FaGlobe, FaLink, FaSave, FaTimes, FaPlus, FaTrash, FaCamera } from 'react-icons/fa';
 import '../styles/profile.css';
 
 const profileService = new ProfileService();
@@ -23,6 +23,8 @@ export const DesignerProfilePage = () => {
   const [isAddingSkill, setIsAddingSkill] = useState(false);
   const [newSocialLink, setNewSocialLink] = useState({ platform: '', url: '', handle: '' });
   const [isAddingSocial, setIsAddingSocial] = useState(false);
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+  const avatarInputRef = useRef<HTMLInputElement>(null);
 
   const isOwnProfile = !userId || user?.user_id === parseInt(userId);
 
@@ -178,6 +180,72 @@ export const DesignerProfilePage = () => {
     });
   };
 
+  const handleAvatarClick = () => {
+    if (isOwnProfile && avatarInputRef.current) {
+      avatarInputRef.current.click();
+    }
+  };
+
+  const handleAvatarChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'];
+    if (!allowedTypes.includes(file.type)) {
+      alert('Only JPEG, PNG, and WebP images are allowed');
+      return;
+    }
+
+    // Validate file size (10MB max)
+    if (file.size > 10 * 1024 * 1024) {
+      alert('File size must be less than 10MB');
+      return;
+    }
+
+    try {
+      setIsUploadingAvatar(true);
+      const response = await profileService.uploadAvatar(file);
+      
+      // Update profile with new avatar
+      setProfile(response.profile);
+      if (isEditing) {
+        setEditedProfile(prev => ({ ...prev, profile_avatar: response.profile_avatar }));
+      }
+    } catch (err) {
+      console.error('Error uploading avatar:', err);
+      alert('Failed to upload avatar. Please try again.');
+    } finally {
+      setIsUploadingAvatar(false);
+      // Reset input value so same file can be selected again
+      if (avatarInputRef.current) {
+        avatarInputRef.current.value = '';
+      }
+    }
+  };
+
+  const handleDeleteAvatar = async () => {
+    if (!profile?.profile_avatar) return;
+    
+    if (!confirm('Are you sure you want to delete your avatar?')) return;
+
+    try {
+      setIsUploadingAvatar(true);
+      await profileService.deleteAvatar();
+      
+      // Update profile to remove avatar
+      setProfile(prev => prev ? { ...prev, profile_avatar: '' } : null);
+      if (isEditing) {
+        setEditedProfile(prev => ({ ...prev, profile_avatar: '' }));
+      }
+    } catch (err) {
+      console.error('Error deleting avatar:', err);
+      alert('Failed to delete avatar. Please try again.');
+    } finally {
+      setIsUploadingAvatar(false);
+    }
+  };
+
   const handleBack = () => {
     navigate(-1);
   };
@@ -242,15 +310,48 @@ export const DesignerProfilePage = () => {
       <div className="profile-header">
         <div className="profile-header-content">
           <div className="profile-avatar-section">
-            <div className="profile-avatar">
-              {profile.profile_avatar ? (
+            <div className={`profile-avatar ${isOwnProfile ? 'profile-avatar-editable' : ''}`}>
+              {/* Hidden file input for avatar upload */}
+              <input
+                ref={avatarInputRef}
+                type="file"
+                accept="image/jpeg,image/png,image/jpg,image/webp"
+                onChange={handleAvatarChange}
+                style={{ display: 'none' }}
+              />
+              
+              {isUploadingAvatar ? (
+                <div className="avatar-loading">
+                  <div className="loading-spinner-small"></div>
+                </div>
+              ) : profile.profile_avatar ? (
                 <img src={profile.profile_avatar} alt={displayName} />
               ) : (
                 <div className="profile-avatar-placeholder">
                   {displayName.charAt(0).toUpperCase()}
                 </div>
               )}
+              
+              {/* Camera overlay for own profile */}
+              {isOwnProfile && !isUploadingAvatar && (
+                <div className="avatar-overlay" onClick={handleAvatarClick}>
+                  <FaCamera size={24} />
+                  <span>Change</span>
+                </div>
+              )}
             </div>
+            
+            {/* Delete avatar button */}
+            {isOwnProfile && profile.profile_avatar && !isUploadingAvatar && (
+              <button 
+                onClick={handleDeleteAvatar} 
+                className="delete-avatar-btn"
+                title="Delete avatar"
+              >
+                <FaTrash size={12} />
+              </button>
+            )}
+            
             <div className="profile-basic-info">
               {isEditing ? (
                 <div className="edit-field">

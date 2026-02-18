@@ -1,0 +1,2 @@
+test_id,category,test_name,pdf_file,expected_categories,found_categories,found_items,category_accuracy,items_per_category,field_completeness,duration_extracted,duration_expected,duration_match,difficulty_expected,difficulty_found,difficulty_match,extraction_time_ms,model_used,status,error_message
+0.1,BASELINE,"Perfect Sample - Well Formatted Proposal","/home/long/Desktop/capstone main/AUREA-Capstone/backend/tests/gemini_test/scripts/../samples/pdf/PROJECT PROPOSAL DOCUMENT.pdf",5,5,22,100,4.4,100,Y,90,OFF,Complex,Complex,EXACT,24998,gemini-3-flash-preview,PASSED,

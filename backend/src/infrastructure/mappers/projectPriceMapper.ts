@@ -23,6 +23,10 @@ export function mapProjectPriceToDb(project: ProjectPrice) {
   if (project.calculated_rate !== undefined) {
     result.calculated_rate = project.calculated_rate;
   }
+  // Add project_pdf if present
+  if (project.project_pdf !== undefined) {
+    result.project_pdf = project.project_pdf;
+  }
 
   return result;
 }
@@ -41,6 +45,7 @@ export function mapProjectPriceFromDb(data: any): ProjectPrice {
     data.result,
     data.client_type,
     data.client_region,
-    data.calculated_rate
+    data.calculated_rate,
+    data.project_pdf
   );
 }

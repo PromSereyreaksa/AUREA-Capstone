@@ -1,0 +1,48 @@
+╔══════════════════════════════════════════════════════════════════════════════════════════════════════════╗
+║                                                                                                          ║
+║     █████╗ ██╗   ██╗██████╗ ███████╗ █████╗     ██████╗ ██████╗ ███████╗    ████████╗███████╗███████╗████████╗
+║    ██╔══██╗██║   ██║██╔══██╗██╔════╝██╔══██╗    ██╔══██╗██╔══██╗██╔════╝    ╚══██╔══╝██╔════╝██╔════╝╚══██╔══╝
+║    ███████║██║   ██║██████╔╝█████╗  ███████║    ██████╔╝██║  ██║█████╗         ██║   █████╗  ███████╗   ██║   
+║    ██╔══██║██║   ██║██╔══██╗██╔══╝  ██╔══██║    ██╔═══╝ ██║  ██║██╔══╝         ██║   ██╔══╝  ╚════██║   ██║   
+║    ██║  ██║╚██████╔╝██║  ██║███████╗██║  ██║    ██║     ██████╔╝██║            ██║   ███████╗███████║   ██║   
+║    ╚═╝  ╚═╝ ╚═════╝ ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝    ╚═╝     ╚═════╝ ╚═╝            ╚═╝   ╚══════╝╚══════╝   ╚═╝   
+║                                                                                                          ║
+║                    COMPREHENSIVE MODEL EVALUATION REPORT                                                 ║
+║                    Version 3.0 - Grouped Deliverables with Items                                         ║
+║                                                                                                          ║
+╚══════════════════════════════════════════════════════════════════════════════════════════════════════════╝
+
+Generated: Tue Feb 17 11:57:36 PM +07 2026
+Test Suite Version: 3.0.0
+
+
+═══════════════════════════════════════════════════════════════════════════════
+TEST 0.1: [BASELINE] Perfect Sample - Well Formatted Proposal
+═══════════════════════════════════════════════════════════════════════════════
+Status: PASSED ✓
+File: /home/long/Desktop/capstone main/AUREA-Capstone/backend/tests/gemini_test/scripts/../samples/pdf/PROJECT PROPOSAL DOCUMENT.pdf
+Test Type: standard
+
+Extracted Data:
+  • Project Name: Tech Start Up Branding
+  • Title: Complete Brand Identity Development for Technology Startup
+  • Description: This project focuses on creating a complete brand identity for a technology startup. The scope includes brand research, visual identity development, a...
+  • Duration: 15 days (expected: 90)
+  • Difficulty: Complex (expected: Complex)
+  • Licensing: One-Time Used
+  • Usage Rights: Small Business Usage Rights
+
+Deliverables (Grouped):
+  • Categories: 5 (expected: 5)
+  • Total Items: 22
+  • Avg Items per Category: 4.4
+  • Thin Categories (<3 items): 0
+
+Accuracy Metrics:
+  • Field Completeness: 100%
+  • Category Accuracy: 100%
+  • Duration Match: OFF
+  • Difficulty Match: EXACT
+  • Extraction Time: 24998ms
+  • Model Used: gemini-3-flash-preview
+

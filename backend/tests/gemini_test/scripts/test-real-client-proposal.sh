@@ -12,7 +12,7 @@ RESULTS_DIR="$SCRIPT_DIR/../results"
 
 API_URL="http://localhost:3000/api/v0/pdf/extract"
 PDF_FILE="$SAMPLES_DIR/pdf/00-Real-client-proposal.pdf"
-USER_ID=1
+USER_ID=80  # Set this to an existing user ID in your database
 
 # Colors
 GREEN='\033[0;32m'

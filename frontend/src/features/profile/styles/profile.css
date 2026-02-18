@@ -65,12 +65,90 @@
   overflow: hidden;
   flex-shrink: 0;
   box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.3);
+  position: relative;
 }
 
 .profile-avatar img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+/* Avatar editable state */
+.profile-avatar-editable {
+  cursor: pointer;
+}
+
+.profile-avatar-editable:hover .avatar-overlay {
+  opacity: 1;
+}
+
+/* Avatar upload overlay */
+.avatar-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  color: var(--primary-white);
+  gap: 0.25rem;
+}
+
+.avatar-overlay span {
+  font-size: 0.7rem;
+  font-weight: var(--font-bold);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Avatar loading state */
+.avatar-loading {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--secondary-gray);
+}
+
+.loading-spinner-small {
+  width: 30px;
+  height: 30px;
+  border: 3px solid var(--secondary-gray);
+  border-top-color: var(--primary-orange);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+/* Delete avatar button */
+.delete-avatar-btn {
+  width: 28px;
+  height: 28px;
+  background: #ff4444;
+  color: white;
+  border: 2px solid var(--primary-black);
+  border-radius: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.3);
+  transition: all 0.1s;
+  margin-left: -1rem;
+  align-self: flex-end;
+}
+
+.delete-avatar-btn:hover {
+  background: #ff0000;
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0px rgba(0, 0, 0, 0.3);
 }
 
 .profile-basic-info h1 {
