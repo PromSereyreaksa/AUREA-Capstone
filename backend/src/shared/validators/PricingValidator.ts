@@ -42,7 +42,7 @@ export class PricingValidator extends BaseValidator {
   /**
    * Validate calculate base rate request
    */
-  static validateCalculateBaseRate(data: any): { user_id: number; session_id?: string } {
+  static validateCalculateBaseRate(data: any): { user_id: number; session_id?: string; onboarding_data?: Record<string, any> } {
     this.throwIf(this.isNullOrEmpty(data?.user_id), 'user_id is required');
     const user_id = this.parsePositiveInt(data.user_id, 'user_id');
     
@@ -53,7 +53,12 @@ export class PricingValidator extends BaseValidator {
       session_id = data.session_id.trim();
     }
     
-    return { user_id, session_id };
+    let onboarding_data: Record<string, any> | undefined;
+    if (data?.onboarding_data && typeof data.onboarding_data === 'object') {
+      onboarding_data = data.onboarding_data;
+    }
+    
+    return { user_id, session_id, onboarding_data };
   }
 
   /**

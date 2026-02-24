@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { dashboardService } from "../services";
+import { mockDashboardService } from "../services";
 import type { DashboardStats, RecentProject } from "../services";
 
 interface DashboardCache {
@@ -75,7 +75,7 @@ export const useDashboardData = (): UseDashboardDataReturn => {
           setLoading(true);
         }
 
-        const data = await dashboardService.getDashboardData();
+        const data = await mockDashboardService.getDashboardData();
 
         setStats(data.stats);
         setRecentProjects(data.recentProjects);
