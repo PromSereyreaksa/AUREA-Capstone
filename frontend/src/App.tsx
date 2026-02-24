@@ -29,6 +29,7 @@ import { GuestAccessViewpage } from "./features/guest-access";
 
 import { DashboardPage } from "./features/dashbard";
 import { ProjectsPage } from "./features/projects";
+import { FeeEstimatorPage } from "./features/fee-estimator";
 
 import "./App.css";
 
@@ -79,9 +80,7 @@ function App() {
           />
           <Route
             path="/fee-estimator"
-            element={
-              <div style={{ padding: "2rem" }}>Fee Estimator - Coming Soon</div>
-            }
+            element={<FeeEstimatorPage />}
           />
           <Route
             path="/settings"
