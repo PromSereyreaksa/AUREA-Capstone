@@ -27,6 +27,7 @@ import {
   FeeEstimatorPage,
   BREstimationPage,
   PBEstimationPage,
+  PJEstimationPage,
 } from "./features/fee-estimator";
 
 import { GuestAccessViewpage } from "./features/guest-access";
@@ -80,10 +81,8 @@ function App() {
           {/* Projects Route */}
           <Route path="/projects" element={<ProjectsPage />} />
 
-          {/* Fee Estimator Route */}
+          {/* Fee Estimator Routes */}
           <Route path="/fee-estimator" element={<FeeEstimatorPage />} />
-
-          {/* Fee Estimator Sub-routes */}
           <Route
             path="/fee-estimator/base-rate"
             element={<BREstimationPage />}
@@ -94,14 +93,10 @@ function App() {
           />
           <Route
             path="/fee-estimator/project-base"
-            element={
-              <div style={{ padding: "2rem" }}>
-                Project Rate Calculator - Coming Soon
-              </div>
-            }
+            element={<PJEstimationPage />}
           />
 
-          {/* Placeholder Routes */}
+          {/* Settings Route */}
           <Route
             path="/settings"
             element={

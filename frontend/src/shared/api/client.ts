@@ -35,6 +35,7 @@ export class HttpClient {
     const response = await fetch(`${this.baseUrl}${endpoint}`, {
       method: "GET",
       headers: this.getHeaders(options),
+      cache: "no-store",
     });
 
     if (!response.ok) {

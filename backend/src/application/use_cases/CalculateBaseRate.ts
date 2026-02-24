@@ -9,6 +9,7 @@ import { PricingCalculatorService } from '../../infrastructure/services/PricingC
 interface CalculateBaseRateInput {
   user_id: number;
   session_id?: string; // Optional: if called after onboarding completion
+  onboarding_data?: Record<string, any>; // Optional: if provided directly from frontend
 }
 
 interface CalculateBaseRateOutput {
@@ -37,7 +38,7 @@ export class CalculateBaseRate {
     let existingProfile = await this.pricingProfileRepo.findByUserId(input.user_id);
     
     // 2. If session_id provided, get onboarding data
-    let onboardingData: Record<string, any> = {};
+    let onboardingData: Record<string, any> = input.onboarding_data || {};
     if (input.session_id) {
       const session = await this.onboardingSessionRepo.findById(input.session_id);
       if (!session || session.status !== 'completed') {

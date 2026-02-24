@@ -12,16 +12,12 @@ export class StartOnboarding {
     first_question: string;
     progress: { current: number; total: number; percentage: number };
   }> {
-    // Check if user already has an active session
+    // Check if user already has an active session and abandon it to start fresh
     const existingSession = await this.onboardingSessionRepo.findActiveByUserId(userId);
     
     if (existingSession) {
-      const currentQuestion = existingSession.getCurrentQuestion();
-      return {
-        session_id: existingSession.session_id,
-        first_question: currentQuestion ? currentQuestion.question_text : 'Session completed',
-        progress: existingSession.getProgress()
-      };
+      existingSession.markAbandoned();
+      await this.onboardingSessionRepo.update(existingSession.session_id, existingSession);
     }
 
     // Create new onboarding session with default questions
