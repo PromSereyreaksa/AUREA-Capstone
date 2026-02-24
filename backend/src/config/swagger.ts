@@ -54,7 +54,7 @@ For issues or questions, please contact the development team.
   },
   servers: [
     {
-      url: 'http://localhost:3000/api/v1',
+      url: 'http://localhost:3000',
       description: 'API v1 - Production'
     }
   ],

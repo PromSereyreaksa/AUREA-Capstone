@@ -93,11 +93,18 @@ export const testGeminiController = asyncHandler(async (req: Request, res: Respo
   return ResponseHelper.success(res, status);
 });
 
-// Get user's project history
+// Get user's project history (paginated, 10 per page)
 export const getProjectHistoryController = asyncHandler(async (req: Request, res: Response) => {
   const userId = UserValidator.validateUserId(req.params.userId);
-  const projects = await projectPriceRepo.findByUserId(userId);
-  return ResponseHelper.success(res, projects);
+  const page = Math.max(1, parseInt(req.query.page as string) || 1);
+  const limit = 10;
+
+  const allProjects = await projectPriceRepo.findByUserId(userId);
+  const total = allProjects.length;
+  const start = (page - 1) * limit;
+  const paginatedProjects = allProjects.slice(start, start + limit);
+
+  return ResponseHelper.paginated(res, paginatedProjects, page, limit, total);
 });
 
 // Get single project by ID with deliverables
@@ -106,7 +113,7 @@ export const getProjectByIdController = asyncHandler(async (req: Request, res: R
   const projectId = ProjectValidator.validateProjectId(req.params.projectId);
 
   const project = await projectPriceRepo.findById(projectId);
-  
+
   if (!project) {
     return ResponseHelper.notFound(res, 'Project not found');
   }
@@ -117,7 +124,7 @@ export const getProjectByIdController = asyncHandler(async (req: Request, res: R
   }
 
   const deliverables = await projectDeliverableRepo.findByProjectId(projectId);
-  
+
   return ResponseHelper.success(res, {
     ...project,
     deliverables
@@ -131,7 +138,7 @@ export const updateProjectController = asyncHandler(async (req: Request, res: Re
   ProjectValidator.validateUpdateProjectInput(req.body);
 
   const project = await projectPriceRepo.findById(projectId);
-  
+
   if (!project) {
     return ResponseHelper.notFound(res, 'Project not found');
   }
@@ -152,7 +159,7 @@ export const updateProjectController = asyncHandler(async (req: Request, res: Re
         return projectDeliverableRepo.create(deliverable);
       })
     );
-    
+
     return ResponseHelper.success(res, {
       ...updatedProject,
       deliverables: newDeliverables
@@ -160,7 +167,7 @@ export const updateProjectController = asyncHandler(async (req: Request, res: Re
   }
 
   const deliverables = await projectDeliverableRepo.findByProjectId(projectId);
-  
+
   return ResponseHelper.success(res, {
     ...updatedProject,
     deliverables
@@ -173,7 +180,7 @@ export const deleteProjectController = asyncHandler(async (req: Request, res: Re
   const projectId = ProjectValidator.validateProjectId(req.params.projectId);
 
   const project = await projectPriceRepo.findById(projectId);
-  
+
   if (!project) {
     return ResponseHelper.notFound(res, 'Project not found');
   }
@@ -194,7 +201,7 @@ export const deleteProjectController = asyncHandler(async (req: Request, res: Re
 
   // Delete all deliverables first
   await projectDeliverableRepo.deleteByProjectId(projectId);
-  
+
   // Delete the project
   await projectPriceRepo.delete(projectId);
 
@@ -207,7 +214,7 @@ export const getProjectPdfController = asyncHandler(async (req: Request, res: Re
   const projectId = ProjectValidator.validateProjectId(req.params.projectId);
 
   const project = await projectPriceRepo.findById(projectId);
-  
+
   if (!project) {
     return ResponseHelper.notFound(res, 'Project not found');
   }
