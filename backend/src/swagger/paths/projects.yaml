@@ -8,9 +8,9 @@ paths:
       tags:
         - Project Management
       parameters:
-        - $ref: '#/components/parameters/userIdParam'
+        - $ref: "#/components/parameters/userIdParam"
       responses:
-        '200':
+        "200":
           description: Projects retrieved successfully
           content:
             application/json:
@@ -26,7 +26,7 @@ paths:
                   data:
                     type: array
                     items:
-                      $ref: '#/components/schemas/Project'
+                      $ref: "#/components/schemas/Project"
               example:
                 success: true
                 message: Projects retrieved successfully
@@ -53,13 +53,13 @@ paths:
                     usage_rights: Personal Use
                     result: Logo files
                     created_at: "2026-01-27T09:00:00.000Z"
-        '400':
+        "400":
           description: Invalid user ID
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
-        '404':
+                $ref: "#/components/schemas/Error"
+        "404":
           description: No projects found
           content:
             application/json:
@@ -85,10 +85,10 @@ paths:
       tags:
         - Project Management
       parameters:
-        - $ref: '#/components/parameters/userIdParam'
-        - $ref: '#/components/parameters/projectIdParam'
+        - $ref: "#/components/parameters/userIdParam"
+        - $ref: "#/components/parameters/projectIdParam"
       responses:
-        '200':
+        "200":
           description: Project retrieved successfully
           content:
             application/json:
@@ -99,7 +99,7 @@ paths:
                     type: boolean
                     example: true
                   data:
-                    $ref: '#/components/schemas/ProjectWithDeliverables'
+                    $ref: "#/components/schemas/ProjectWithDeliverables"
               example:
                 success: true
                 data:
@@ -123,17 +123,70 @@ paths:
                       project_id: 1
                       deliverable_type: Responsive Layout
                       quantity: 10
-        '400':
+        "400":
           description: Invalid user ID or project ID
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
-        '403':
-          $ref: '#/components/responses/ForbiddenError'
-        '404':
-          $ref: '#/components/responses/NotFoundError'
+                $ref: "#/components/schemas/Error"
+        "403":
+          $ref: "#/components/responses/ForbiddenError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
 
+  /api/v1/pdf/projects/{userId}/{projectId}/pdf:
+    get:
+      summary: Get signed download URL for project PDF
+      description: |
+        Generates a temporary signed URL to download the PDF associated with a project.
+        The URL is valid for 1 hour (3600 seconds).
+        Returns 404 if no PDF is attached to the project.
+      tags:
+        - Project Management
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/userIdParam"
+        - $ref: "#/components/parameters/projectIdParam"
+      responses:
+        "200":
+          description: Signed PDF download URL generated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: PDF download URL generated successfully
+                  data:
+                    type: object
+                    properties:
+                      project_id:
+                        type: integer
+                        example: 1
+                      download_url:
+                        type: string
+                        format: uri
+                        description: Signed URL valid for 1 hour
+                        example: "https://storage.example.com/project_pdf/signed-url"
+                      expires_in:
+                        type: integer
+                        description: Seconds until URL expires
+                        example: 3600
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "403":
+          $ref: "#/components/responses/ForbiddenError"
+        "404":
+          description: Project or PDF not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
     put:
       summary: Update project
       description: |
@@ -143,8 +196,8 @@ paths:
       tags:
         - Project Management
       parameters:
-        - $ref: '#/components/parameters/userIdParam'
-        - $ref: '#/components/parameters/projectIdParam'
+        - $ref: "#/components/parameters/userIdParam"
+        - $ref: "#/components/parameters/projectIdParam"
       requestBody:
         required: true
         content:
@@ -222,7 +275,7 @@ paths:
                     - deliverable_type: API Integration
                       quantity: 5
       responses:
-        '200':
+        "200":
           description: Project updated successfully
           content:
             application/json:
@@ -239,17 +292,17 @@ paths:
                     type: object
                     properties:
                       project:
-                        $ref: '#/components/schemas/Project'
+                        $ref: "#/components/schemas/Project"
                       deliverables:
                         type: array
                         items:
-                          $ref: '#/components/schemas/Deliverable'
-        '400':
-          $ref: '#/components/responses/ValidationError'
-        '403':
-          $ref: '#/components/responses/ForbiddenError'
-        '404':
-          $ref: '#/components/responses/NotFoundError'
+                          $ref: "#/components/schemas/Deliverable"
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "403":
+          $ref: "#/components/responses/ForbiddenError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
 
     delete:
       summary: Delete project
@@ -260,10 +313,10 @@ paths:
       tags:
         - Project Management
       parameters:
-        - $ref: '#/components/parameters/userIdParam'
-        - $ref: '#/components/parameters/projectIdParam'
+        - $ref: "#/components/parameters/userIdParam"
+        - $ref: "#/components/parameters/projectIdParam"
       responses:
-        '200':
+        "200":
           description: Project deleted successfully
           content:
             application/json:
@@ -287,13 +340,13 @@ paths:
                 message: Project deleted successfully
                 data:
                   projectId: 1
-        '400':
+        "400":
           description: Invalid user ID or project ID
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
-        '403':
-          $ref: '#/components/responses/ForbiddenError'
-        '404':
-          $ref: '#/components/responses/NotFoundError'
+                $ref: "#/components/schemas/Error"
+        "403":
+          $ref: "#/components/responses/ForbiddenError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"

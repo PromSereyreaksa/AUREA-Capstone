@@ -1,0 +1,409 @@
+paths:
+  /api/v1/dashboard/stats:
+    get:
+      summary: Get lightweight dashboard stats
+      description: |
+        Returns only the high-level overview metrics — ideal for stat cards at the top of a dashboard.
+        Much faster than the full dashboard endpoint since it skips projects, benchmarks, and portfolio queries.
+
+        Includes:
+        - Total project count
+        - Base hourly rate (UREA calculated)
+        - Seniority level
+        - Onboarding completion status
+        - Profile completeness percentage (0–100)
+      tags:
+        - Dashboard
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Stats retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Dashboard stats retrieved successfully
+                  data:
+                    type: object
+                    properties:
+                      totalProjects:
+                        type: integer
+                        description: All-time total project count
+                        example: 12
+                      projectsThisWeek:
+                        type: integer
+                        description: Projects created since the start of the current week (Monday)
+                        example: 3
+                      projectsThisMonth:
+                        type: integer
+                        description: Projects created since the start of the current month
+                        example: 7
+                      completedOnboarding:
+                        type: boolean
+                        example: true
+                      baseHourlyRate:
+                        type: number
+                        nullable: true
+                        example: 35.50
+                      seniorityLevel:
+                        type: string
+                        nullable: true
+                        enum: [junior, mid, senior, expert]
+                        example: mid
+                      profileCompleteness:
+                        type: integer
+                        minimum: 0
+                        maximum: 100
+                        example: 70
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+
+  /api/v1/dashboard/recent-projects:
+    get:
+      summary: Get recent projects with client name
+      description: |
+        Returns the user's most recently uploaded/created projects including the client name
+        sourced from the linked invoice record.
+
+        Use this to power the "Recent Projects" list panel on the dashboard.
+      tags:
+        - Dashboard
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: limit
+          in: query
+          required: false
+          description: Maximum number of projects to return (default 5, max 20)
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 20
+            default: 5
+          example: 5
+      responses:
+        "200":
+          description: Recent projects retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Recent projects retrieved successfully
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        project_id:
+                          type: integer
+                          example: 7
+                        project_name:
+                          type: string
+                          example: Brand Identity Design
+                        title:
+                          type: string
+                          nullable: true
+                          example: Full Brand System
+                        difficulty:
+                          type: string
+                          nullable: true
+                          enum: [Easy, Medium, Hard, Complex]
+                          example: Hard
+                        calculated_rate:
+                          type: number
+                          nullable: true
+                          example: 46.15
+                        client_type:
+                          type: string
+                          nullable: true
+                          enum: [startup, sme, corporate, ngo, government]
+                          example: sme
+                        client_region:
+                          type: string
+                          nullable: true
+                          enum: [cambodia, southeast_asia, global]
+                          example: cambodia
+                        client_name:
+                          type: string
+                          nullable: true
+                          description: Client name from the linked invoice (null if no invoice created yet)
+                          example: Techo Academic School
+                        created_at:
+                          type: string
+                          format: date-time
+                          example: "2026-02-10T08:30:00.000Z"
+              example:
+                success: true
+                message: Recent projects retrieved successfully
+                data:
+                  - project_id: 7
+                    project_name: Brand Identity Design
+                    title: Full Brand System
+                    difficulty: Hard
+                    calculated_rate: 46.15
+                    client_type: sme
+                    client_region: cambodia
+                    client_name: Techo Academic School
+                    created_at: "2026-02-10T08:30:00.000Z"
+                  - project_id: 6
+                    project_name: Website Redesign
+                    title: null
+                    difficulty: Medium
+                    calculated_rate: 35.50
+                    client_type: startup
+                    client_region: cambodia
+                    client_name: PhsarDesign Startup
+                    created_at: "2026-02-05T11:00:00.000Z"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+
+  /api/v1/dashboard:
+    get:
+      summary: Get aggregated dashboard data
+      description: |
+        Returns a comprehensive dashboard summary for the authenticated user, including:
+        - **Overview**: total projects, base hourly rate, onboarding status, profile completeness percentage
+        - **Recent Projects**: latest 5 projects with key metrics
+        - **Pricing Profile**: full snapshot of the user's UREA pricing profile
+        - **Market Comparison**: user's rate vs Cambodia market benchmarks for their skill categories
+        - **Portfolio**: portfolio status and visibility
+
+        All data is fetched in a single request for dashboard efficiency.
+
+        User ID is derived from the JWT token — no query parameter needed.
+      tags:
+        - Dashboard
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Dashboard data retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Dashboard data retrieved successfully
+                  data:
+                    type: object
+                    properties:
+                      overview:
+                        type: object
+                        description: High-level summary metrics
+                        properties:
+                          totalProjects:
+                            type: integer
+                            description: All-time total project count
+                            example: 12
+                          projectsThisWeek:
+                            type: integer
+                            description: Projects created since Monday of the current week
+                            example: 3
+                          projectsThisMonth:
+                            type: integer
+                            description: Projects created since the 1st of the current month
+                            example: 7
+                          completedOnboarding:
+                            type: boolean
+                            description: Whether the user has completed the pricing onboarding flow
+                            example: true
+                          baseHourlyRate:
+                            type: number
+                            nullable: true
+                            description: User's calculated UREA base hourly rate in USD
+                            example: 35.50
+                          seniorityLevel:
+                            type: string
+                            nullable: true
+                            enum: [junior, mid, senior, expert]
+                            description: User's seniority level (from pricing profile or user profile)
+                            example: mid
+                          profileCompleteness:
+                            type: integer
+                            minimum: 0
+                            maximum: 100
+                            description: Profile completeness percentage (0–100), based on filled fields in user_profile and pricing_profiles
+                            example: 70
+                      recentProjects:
+                        type: array
+                        description: Up to 5 most recently created projects
+                        items:
+                          type: object
+                          properties:
+                            project_id:
+                              type: integer
+                              example: 7
+                            project_name:
+                              type: string
+                              example: Brand Identity Package
+                            title:
+                              type: string
+                              nullable: true
+                              example: Full Brand System
+                            difficulty:
+                              type: string
+                              nullable: true
+                              enum: [Easy, Medium, Hard, Complex]
+                              example: Hard
+                            calculated_rate:
+                              type: number
+                              nullable: true
+                              description: UREA-calculated hourly rate for this project
+                              example: 46.15
+                            client_type:
+                              type: string
+                              nullable: true
+                              enum: [startup, sme, corporate, ngo, government]
+                              example: sme
+                            client_region:
+                              type: string
+                              nullable: true
+                              enum: [cambodia, southeast_asia, global]
+                              example: cambodia
+                            created_at:
+                              type: string
+                              format: date-time
+                              example: "2026-02-10T08:30:00.000Z"
+                      pricingProfile:
+                        type: object
+                        nullable: true
+                        description: Full snapshot of the user's UREA pricing profile. Null if onboarding not completed.
+                        properties:
+                          base_hourly_rate:
+                            type: number
+                            nullable: true
+                            example: 35.50
+                          desired_monthly_income:
+                            type: number
+                            example: 800
+                          billable_hours_per_month:
+                            type: integer
+                            example: 120
+                          profit_margin:
+                            type: number
+                            description: As a decimal (e.g. 0.15 = 15%)
+                            example: 0.15
+                          experience_years:
+                            type: integer
+                            example: 3
+                          seniority_level:
+                            type: string
+                            enum: [junior, mid, senior, expert]
+                            example: mid
+                          skill_categories:
+                            type: array
+                            items:
+                              type: integer
+                            description: Array of category IDs the user specializes in
+                            example: [1, 3]
+                      marketComparison:
+                        type: object
+                        description: Comparison between the user's rate and market benchmarks
+                        properties:
+                          userRate:
+                            type: number
+                            nullable: true
+                            description: User's current base hourly rate
+                            example: 35.50
+                          benchmarks:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                category_name:
+                                  type: string
+                                  example: Logo Design
+                                median_hourly_rate:
+                                  type: number
+                                  example: 20.00
+                                percentile_75_rate:
+                                  type: number
+                                  example: 30.00
+                                seniority_level:
+                                  type: string
+                                  enum: [junior, mid, senior, expert]
+                                  example: mid
+                      portfolio:
+                        type: object
+                        description: User's portfolio status
+                        properties:
+                          hasPortfolio:
+                            type: boolean
+                            description: True if a portfolio PDF has been uploaded
+                            example: true
+                          isPublic:
+                            type: boolean
+                            description: True if portfolio is publicly viewable
+                            example: false
+                          portfolioUrl:
+                            type: string
+                            nullable: true
+                            format: uri
+                            description: Public URL of the portfolio PDF (null if no portfolio or not public)
+                            example: "https://storage.example.com/user_portfolio/portfolio.pdf"
+              example:
+                success: true
+                message: Dashboard data retrieved successfully
+                data:
+                  overview:
+                    totalProjects: 12
+                    projectsThisWeek: 3
+                    projectsThisMonth: 7
+                    completedOnboarding: true
+                    baseHourlyRate: 35.50
+                    seniorityLevel: mid
+                    profileCompleteness: 70
+                  recentProjects:
+                    - project_id: 7
+                      project_name: Brand Identity Package
+                      title: Full Brand System
+                      difficulty: Hard
+                      calculated_rate: 46.15
+                      client_type: sme
+                      client_region: cambodia
+                      created_at: "2026-02-10T08:30:00.000Z"
+                  pricingProfile:
+                    base_hourly_rate: 35.50
+                    desired_monthly_income: 800
+                    billable_hours_per_month: 120
+                    profit_margin: 0.15
+                    experience_years: 3
+                    seniority_level: mid
+                    skill_categories: [1, 3]
+                  marketComparison:
+                    userRate: 35.50
+                    benchmarks:
+                      - category_name: Logo Design
+                        median_hourly_rate: 20.00
+                        percentile_75_rate: 30.00
+                        seniority_level: mid
+                  portfolio:
+                    hasPortfolio: true
+                    isPublic: false
+                    portfolioUrl: null
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "500":
+          description: Server error while aggregating dashboard data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"

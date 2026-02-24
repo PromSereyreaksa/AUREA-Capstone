@@ -86,6 +86,26 @@ For issues or questions, please contact the development team.
     {
       name: 'Project Management',
       description: 'CRUD operations for projects and deliverables'
+    },
+    {
+      name: 'Pricing - Onboarding',
+      description: 'AI-guided onboarding questionnaire for the UREA pricing framework'
+    },
+    {
+      name: 'Pricing - Calculations',
+      description: 'Base rate and project rate calculations using the UREA formula'
+    },
+    {
+      name: 'Pricing - AI Estimation',
+      description: 'AI-powered quick estimates and portfolio-assisted pricing'
+    },
+    {
+      name: 'Pricing - Profile',
+      description: 'User pricing profile management (base rate, costs, seniority)'
+    },
+    {
+      name: 'Dashboard',
+      description: 'Aggregated dashboard data: overview, recent projects, market comparison, portfolio status'
     }
   ],
   components: {

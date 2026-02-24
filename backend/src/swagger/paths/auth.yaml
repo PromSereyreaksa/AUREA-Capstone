@@ -52,7 +52,7 @@ paths:
               last_name: Doe
               avatar_url: "https://lh3.googleusercontent.com/a/default-user"
       responses:
-        '200':
+        "200":
           description: Google authentication successful
           content:
             application/json:
@@ -66,7 +66,7 @@ paths:
                     type: object
                     properties:
                       user:
-                        $ref: '#/components/schemas/User'
+                        $ref: "#/components/schemas/User"
                       token:
                         type: string
                         description: JWT token for authentication
@@ -100,10 +100,10 @@ paths:
                         created_at: "2026-01-15T08:30:00.000Z"
                         last_login_at: "2026-02-03T10:00:00.000Z"
                       token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-        '400':
-          $ref: '#/components/responses/ValidationError'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
 
   /api/v1/users/signup:
     post:
@@ -160,7 +160,7 @@ paths:
                   first_name: Bob
                   last_name: Client
       responses:
-        '201':
+        "201":
           description: User created successfully. OTP sent to email.
           content:
             application/json:
@@ -186,19 +186,97 @@ paths:
                         type: string
                         description: OTP code (returned in development/testing only, not in production)
                         example: "123456"
-        '400':
-          $ref: '#/components/responses/ValidationError'
-        '409':
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "409":
           description: Email already registered
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
               example:
                 success: false
                 error:
                   message: Email already exists
                   code: DUPLICATE_EMAIL
+
+  /api/v1/users/signin:
+    post:
+      summary: Sign in with email and password
+      description: |
+        Authenticates an existing user with email and password.
+        Returns a JWT token upon successful authentication.
+        Requires email to be verified before sign in.
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                  description: User's registered email
+                  example: user@example.com
+                password:
+                  type: string
+                  description: User's password
+                  example: SecurePass123
+            example:
+              email: user@example.com
+              password: SecurePass123
+      responses:
+        "200":
+          description: Sign in successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Sign in successful
+                  data:
+                    type: object
+                    properties:
+                      user:
+                        $ref: "#/components/schemas/User"
+                      token:
+                        type: string
+                        description: JWT token (expires in 7 days)
+                        example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "401":
+          description: Invalid credentials or email not verified
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              examples:
+                wrongPassword:
+                  summary: Wrong password
+                  value:
+                    success: false
+                    error:
+                      message: Invalid email or password
+                emailNotVerified:
+                  summary: Email not verified
+                  value:
+                    success: false
+                    error:
+                      message: Please verify your email before signing in
+        "404":
+          $ref: "#/components/responses/NotFoundError"
 
   /api/v1/users/verify-otp:
     post:
@@ -233,7 +311,7 @@ paths:
               email: user@example.com
               otp: "123456"
       responses:
-        '200':
+        "200":
           description: Email verified successfully. JWT token returned.
           content:
             application/json:
@@ -260,13 +338,13 @@ paths:
                         description: JWT authentication token (include in Authorization header for protected routes)
                         example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImVtYWlsIjoidXNlckBleGFtcGxlLmNvbSIsInJvbGUiOiJkZXNpZ25lciIsImlhdCI6MTczODA1MDAwMCwiZXhwIjoxNzM4NjU0ODAwfQ.abcdef123456
                       user:
-                        $ref: '#/components/schemas/User'
-        '400':
+                        $ref: "#/components/schemas/User"
+        "400":
           description: Invalid OTP or validation error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
               examples:
                 invalidOTP:
                   summary: Invalid OTP
@@ -282,12 +360,12 @@ paths:
                     error:
                       message: OTP has expired
                       code: OTP_EXPIRED
-        '404':
+        "404":
           description: User not found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
 
   /api/v1/users/resend-otp:
     post:
@@ -315,7 +393,7 @@ paths:
             example:
               email: user@example.com
       responses:
-        '200':
+        "200":
           description: OTP resent successfully or email already verified
           content:
             application/json:
@@ -359,14 +437,14 @@ paths:
                     data:
                       success: false
                       message: Email is already verified
-        '400':
-          $ref: '#/components/responses/ValidationError'
-        '404':
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "404":
           description: User not found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
 
   /api/v1/users/forgot-password:
     post:
@@ -394,7 +472,7 @@ paths:
             example:
               email: user@example.com
       responses:
-        '200':
+        "200":
           description: Password reset email sent (or generic success for non-existent emails)
           content:
             application/json:
@@ -416,9 +494,9 @@ paths:
                       message:
                         type: string
                         example: If an account with that email exists, a password reset link has been sent.
-        '400':
-          $ref: '#/components/responses/ValidationError'
-        '500':
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "500":
           description: Failed to send password reset email
 
   /api/v1/users/reset-password:
@@ -454,7 +532,7 @@ paths:
               token: "a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2"
               newPassword: newSecurePass123
       responses:
-        '200':
+        "200":
           description: Password reset successful
           content:
             application/json:
@@ -476,12 +554,12 @@ paths:
                       message:
                         type: string
                         example: Password has been reset successfully. You can now sign in with your new password.
-        '400':
+        "400":
           description: Invalid or expired token, or validation error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
               examples:
                 invalidToken:
                   summary: Invalid reset token
