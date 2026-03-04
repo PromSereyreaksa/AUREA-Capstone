@@ -86,6 +86,10 @@ For issues or questions, please contact the development team.
     {
       name: 'Project Management',
       description: 'CRUD operations for projects and deliverables'
+    },
+    {
+      name: 'Invoices',
+      description: 'Invoice generation, management, and PDF download'
     }
   ],
   components: {
@@ -281,6 +285,58 @@ For issues or questions, please contact the development team.
             }
           }
         ]
+      },
+      Invoice: {
+        type: 'object',
+        properties: {
+          invoice_id: { type: 'integer', example: 1 },
+          invoice_number: { type: 'string', example: 'INV-20251224-1' },
+          project_id: { type: 'integer', example: 1 },
+          client_name: { type: 'string', example: 'Chea Dara' },
+          client_email: { type: 'string', example: 'cheadara133@gmail.com' },
+          client_location: { type: 'string', example: 'Phnom Penh, Cambodia' },
+          invoice_date: { type: 'string', format: 'date', example: '2025-12-24' },
+          created_at: { type: 'string', format: 'date-time' },
+          updated_at: { type: 'string', format: 'date-time' }
+        }
+      },
+      InvoiceDetail: {
+        type: 'object',
+        properties: {
+          invoice: { $ref: '#/components/schemas/Invoice' },
+          freelancer: {
+            type: 'object',
+            properties: {
+              full_name: { type: 'string', example: 'Prom Sereyreaksa' },
+              email: { type: 'string', example: 'prumsereyreaksa@gmail.com' },
+              location: { type: 'string', example: '6A St, Chroy Chongva, Phnom Penh' }
+            }
+          },
+          project: {
+            type: 'object',
+            properties: {
+              project_name: { type: 'string', example: 'Tech Start Up Branding' },
+              title: { type: 'string' },
+              description: { type: 'string' },
+              duration: { type: 'integer' },
+              difficulty: { type: 'string' },
+              licensing: { type: 'string', example: 'One-Time Use' },
+              usage_rights: { type: 'string', example: 'Small Business' },
+              calculated_rate: { type: 'number', example: 10296 }
+            }
+          },
+          deliverables: {
+            type: 'array',
+            items: {
+              type: 'object',
+              properties: {
+                deliverable_type: { type: 'string', example: 'Logo' },
+                quantity: { type: 'integer', example: 2 },
+                items: { type: 'array', items: { type: 'string' } }
+              }
+            }
+          }
+        }
       }
     },
     responses: {
