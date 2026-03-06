@@ -10,6 +10,7 @@ import pricingRoutes from './interfaces/routes/pricingRoutes';
 import profileRoutes from './interfaces/routes/profileRoutes';
 import portfolioRoutes from './interfaces/routes/portfolioRoutes';
 import dashboardRoutes from './interfaces/routes/dashboardRoutes';
+import invoiceRoutes from './interfaces/routes/invoiceRoutes';
 import { errorHandler, requestLogger, versionMiddleware, versionCheck, restrictV0ToLocalhost } from './shared/middleware';
 
 // Suppress dotenv logging in non-debug mode
@@ -63,6 +64,7 @@ app.use('/api/v0/portfolio', versionMiddleware('v0'), portfolioRoutes);
 app.use('/api/v0/pdf', versionMiddleware('v0'), pdfExtractRoutes);
 app.use('/api/v0/pricing', versionMiddleware('v0'), pricingRoutes);
 app.use('/api/v0/dashboard', versionMiddleware('v0'), dashboardRoutes);
+app.use('/api/v0/invoices', versionMiddleware('v0'), invoiceRoutes);
 
 
 //for users v1
@@ -73,6 +75,7 @@ app.use('/api/v1/portfolio', versionMiddleware('v1'), portfolioRoutes);
 app.use('/api/v1/pdf', versionMiddleware('v1'), pdfExtractRoutes);
 app.use('/api/v1/pricing', versionMiddleware('v1'), pricingRoutes);
 app.use('/api/v1/dashboard', versionMiddleware('v1'), dashboardRoutes);
+app.use('/api/v1/invoices', versionMiddleware('v1'), invoiceRoutes);
 
 // 404 handler
 app.use((req, res) => {

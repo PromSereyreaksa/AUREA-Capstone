@@ -19,6 +19,8 @@ export function mapInvoiceFromDb(data: any): Invoice {
     data.client_name,
     data.client_email,
     data.client_location,
-    data.invoice_date ? new Date(data.invoice_date) : undefined
+    data.invoice_date ? new Date(data.invoice_date) : undefined,
+    data.created_at ? new Date(data.created_at) : undefined,
+    data.updated_at ? new Date(data.updated_at) : undefined
   );
 }

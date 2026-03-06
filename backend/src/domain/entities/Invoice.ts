@@ -6,6 +6,8 @@ export class Invoice {
     public client_name?: string,
     public client_email?: string,
     public client_location?: string,
-    public invoice_date?: Date
+    public invoice_date?: Date,
+    public created_at?: Date,
+    public updated_at?: Date
   ) {}
 }
