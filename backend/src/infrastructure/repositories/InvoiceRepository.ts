@@ -2,7 +2,7 @@ import { IInvoiceRepository } from '../../domain/repositories/IInvoiceRepository
 import { Invoice } from '../../domain/entities/Invoice';
 import { supabase } from '../db/supabaseClient';
 import { mapInvoiceFromDb, mapInvoiceToDb } from '../mappers/invoiceMapper';
-import { DatabaseError } from '../../shared/errors';
+import { DatabaseError, ConflictError } from '../../shared/errors';
 
 export class InvoiceRepository implements IInvoiceRepository {
   async create(invoice: Invoice): Promise<Invoice> {
@@ -16,7 +16,7 @@ export class InvoiceRepository implements IInvoiceRepository {
     if (error) {
       // Handle unique constraint violation (duplicate project_id)
       if (error.code === '23505') {
-        throw new DatabaseError(`An invoice already exists for this project`);
+        throw new ConflictError('An invoice already exists for this project');
       }
       throw new DatabaseError(`Failed to create invoice: ${error.message}`);
     }
