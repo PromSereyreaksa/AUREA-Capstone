@@ -1,11 +1,10 @@
 import PDFDocument from 'pdfkit';
 import { InvoiceDetailData } from '../../application/use_cases/GetInvoice';
 
-// Licensing multiplier mapping
+// Licensing multiplier mapping (normalized keys: lowercase, non-alphanumeric replaced with _)
 const LICENSING_MULTIPLIERS: Record<string, number> = {
-  'one-time': 1.0,
   'one_time': 1.0,
-  'multi-use': 1.2,
+  'one_time_use': 1.0,
   'multi_use': 1.2,
   'exclusive': 1.5,
   'buyout': 2.0,
@@ -38,7 +37,6 @@ export class InvoicePdfService {
         doc.on('error', reject);
 
         const pageWidth = doc.page.width;
-        const contentWidth = pageWidth - 120; // 60px margins each side
 
         // ──────── ORANGE HEADER BAR ────────
         doc.save();
@@ -168,8 +166,11 @@ export class InvoicePdfService {
           y += 18;
         }
 
-        // Licensing multiplier
-        const licensingKey = (data.project.licensing || '').toLowerCase().replace(/\s+/g, '_');
+        // Licensing multiplier - normalize to lowercase, replace non-alphanumeric with _
+        const licensingRaw = (data.project.licensing || '').toLowerCase();
+        const licensingKey = licensingRaw
+          .replace(/[^a-z0-9]+/g, '_')
+          .replace(/^_+|_+$/g, '');
         const licensingMultiplier = LICENSING_MULTIPLIERS[licensingKey] || 1.0;
 
         if (data.project.licensing) {

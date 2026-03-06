@@ -4,6 +4,8 @@ import {
   uploadPortfolioPdfController,
   deletePortfolioPdfController,
   updatePortfolioController,
+  getPublicPortfoliosController,
+  getCategoriesController,
 } from '../controllers/PortfolioController';
 import { authMiddleware } from '../../shared/middleware/authMiddleware';
 import { portfolioPdfUpload } from '../../shared/middleware/uploadMiddleware';
@@ -11,6 +13,11 @@ import { portfolioPdfUpload } from '../../shared/middleware/uploadMiddleware';
 // Portfolio routes for portfolio CRUD operations
 const portfolioRouter = Router();
 
+// Public routes (no authentication required)
+portfolioRouter.get('/public', getPublicPortfoliosController);
+portfolioRouter.get('/categories', getCategoriesController);
+
+// Protected routes (authentication required)
 // Get portfolio
 portfolioRouter.get('/', authMiddleware, getPortfolioController);
 
