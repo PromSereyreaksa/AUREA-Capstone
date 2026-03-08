@@ -89,7 +89,7 @@ Creates a new invoice for a project.
     "client_name": "Chea Dara",
     "client_email": "cheadara133@gmail.com",
     "client_location": "Phnom Penh, Cambodia",
-    "invoice_date": "2026-03-04",
+    "invoice_date": "2026-03-04T00:00:00.000Z",
     "created_at": "2026-03-04T11:44:07.471Z",
     "updated_at": "2026-03-04T11:44:07.471Z"
   }

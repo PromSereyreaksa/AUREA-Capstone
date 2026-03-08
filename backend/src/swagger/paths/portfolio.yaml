@@ -1,4 +1,91 @@
 paths:
+  /api/v1/portfolio/public:
+    get:
+      summary: Browse public portfolios
+      description: |
+        Returns a paginated list of public portfolios that have uploaded PDFs.
+        Supports search by designer name and skills, and filtering by categories.
+        
+        **No authentication required.**
+      tags:
+        - Portfolio
+      parameters:
+        - name: page
+          in: query
+          description: Page number (1-indexed)
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+            example: 1
+        - name: limit
+          in: query
+          description: Number of items per page (max 50)
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 50
+            default: 9
+            example: 9
+        - name: search
+          in: query
+          description: Search term to filter by designer first name, last name, or skills
+          schema:
+            type: string
+            maxLength: 100
+            example: "john"
+        - name: category_ids
+          in: query
+          description: Comma-separated category IDs to filter by (matches ANY)
+          schema:
+            type: string
+            example: "1,2,3"
+      responses:
+        '200':
+          description: Public portfolios retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/PublicPortfolioItem'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+
+  /api/v1/portfolio/categories:
+    get:
+      summary: Get all categories
+      description: |
+        Returns all available categories for portfolio filtering.
+        
+        **No authentication required.**
+      tags:
+        - Portfolio
+      responses:
+        '200':
+          description: Categories retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Categories retrieved successfully"
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Category'
+
   /api/v1/portfolio:
     get:
       summary: Get user's portfolio
@@ -223,3 +310,88 @@ components:
           type: boolean
           description: Whether the portfolio is publicly visible
           example: false
+
+    PublicPortfolioItem:
+      type: object
+      properties:
+        portfolio_id:
+          type: integer
+          description: Unique portfolio identifier
+          example: 1
+        portfolio_url:
+          type: string
+          description: Public URL to the portfolio PDF
+          example: "https://xxx.supabase.co/storage/v1/object/public/user_portfolio/80/abc123.pdf"
+        is_public:
+          type: boolean
+          example: true
+        user_id:
+          type: integer
+          description: ID of the portfolio owner
+          example: 80
+        first_name:
+          type: string
+          description: Designer's first name
+          example: "John"
+        last_name:
+          type: string
+          description: Designer's last name
+          example: "Doe"
+        profile_avatar:
+          type: string
+          nullable: true
+          description: URL to the designer's avatar image
+          example: "https://xxx.supabase.co/storage/v1/object/public/avatars/80.jpg"
+        skills:
+          type: array
+          items:
+            type: string
+          description: Designer's skills
+          example: ["Logo Design", "Branding", "UI/UX"]
+        seniority_level:
+          type: string
+          nullable: true
+          enum: [junior, mid, senior, expert]
+          description: Designer's seniority level
+          example: "mid"
+        categories:
+          type: array
+          items:
+            $ref: '#/components/schemas/Category'
+          description: Categories associated with this portfolio
+
+    Category:
+      type: object
+      properties:
+        category_id:
+          type: integer
+          description: Unique category identifier
+          example: 1
+        category_name:
+          type: string
+          description: Name of the category
+          example: "Logo Design"
+
+    Pagination:
+      type: object
+      properties:
+        page:
+          type: integer
+          description: Current page number
+          example: 1
+        limit:
+          type: integer
+          description: Items per page
+          example: 9
+        total:
+          type: integer
+          description: Total number of items
+          example: 25
+        totalPages:
+          type: integer
+          description: Total number of pages
+          example: 3
+        hasMore:
+          type: boolean
+          description: Whether there are more pages
+          example: true

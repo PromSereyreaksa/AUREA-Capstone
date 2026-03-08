@@ -38,7 +38,8 @@ export class CreateInvoice {
 
     // Generate invoice number: INV-YYYYMMDD-{projectId}
     const now = new Date();
-    const dateStr = now.toISOString().slice(0, 10).replace(/-/g, '');
+    const invoiceDate = data.invoice_date ?? now;
+    const dateStr = invoiceDate.toISOString().slice(0, 10).replace(/-/g, '');
     const invoiceNumber = `INV-${dateStr}-${data.project_id}`;
 
     // Create the invoice entity
