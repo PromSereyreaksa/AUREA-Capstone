@@ -6,6 +6,8 @@ import { IUserProfileRepository } from '../../domain/repositories/IUserProfileRe
 import { IPricingProfileRepository } from '../../domain/repositories/IPricingProfileRepository';
 import { PricingCalculatorService } from '../../infrastructure/services/PricingCalculatorService';
 import { ClientContext } from '../../domain/entities/ClientContext';
+import { DifficultyMultiplier } from '../../domain/entities/DifficultyLevel';
+import { LicensingMultiplier } from '../../domain/entities/LicensingLevel';
 import { NotFoundError, ForbiddenError } from '../../shared/errors';
 
 export interface InvoiceDetailData {
@@ -33,6 +35,9 @@ export interface InvoiceDetailData {
     licensing?: string;
     usage_rights?: string;
     calculated_rate?: number;
+    difficulty_multiplier?: number;
+    licensing_multiplier?: number;
+    total_project_price?: number;
   };
   deliverables: Array<{
     deliverable_type: string;
@@ -82,6 +87,9 @@ export class GetInvoice {
 
     // Calculate project rate if not already set
     let calculatedRate = project.calculated_rate;
+    const difficultyMultiplier = DifficultyMultiplier.getMultiplier(project.difficulty);
+    const licensingMultiplier = LicensingMultiplier.getMultiplier(project.licensing);
+
     if (!calculatedRate) {
       // Try to calculate from pricing profile
       const pricingProfile = await this.pricingProfileRepo.findByUserId(userId);
@@ -98,12 +106,14 @@ export class GetInvoice {
           clientContext
         );
 
-        // Calculate total project price: hourly_rate * duration (in hours)
-        // Assuming duration is in days, convert to hours (8 hours/day)
-        const durationHours = (project.duration || 1) * 8;
-        calculatedRate = calculation.final_hourly_rate * durationHours;
+        // Duration is stored in hours
+        const durationHours = project.duration || 1;
+        const projectPrice = calculation.final_hourly_rate * durationHours * difficultyMultiplier;
+        calculatedRate = Math.round(projectPrice * 100) / 100;
       }
     }
+
+    const totalProjectPrice = Math.round((calculatedRate || 0) * licensingMultiplier * 100) / 100;
 
     const freelancerName = [user.first_name, user.last_name].filter(Boolean).join(' ') || 'N/A';
 
@@ -132,6 +142,9 @@ export class GetInvoice {
         licensing: project.licensing,
         usage_rights: project.usage_rights,
         calculated_rate: calculatedRate,
+        difficulty_multiplier: difficultyMultiplier,
+        licensing_multiplier: licensingMultiplier,
+        total_project_price: totalProjectPrice,
       },
       deliverables: deliverables.map((d) => ({
         deliverable_type: d.deliverable_type,

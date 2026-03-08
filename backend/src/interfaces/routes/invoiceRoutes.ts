@@ -129,6 +129,15 @@ router.get(
  * /api/v1/invoices/{invoiceId}:
  *   get:
  *     summary: Get invoice details with project, deliverables, and freelancer info
+ *     description: |
+ *       Returns complete invoice data including:
+ *       - Invoice metadata (number, dates, client info)
+ *       - Freelancer info (name, email, location)
+ *       - Project details with pricing multipliers:
+ *         difficulty_multiplier, licensing_multiplier, total_project_price, calculated_rate
+ *       - Deliverables list
+ *
+ *       The project.duration is in hours. total_project_price = calculated_rate × licensing_multiplier.
  *     tags: [Invoices]
  *     security:
  *       - bearerAuth: []

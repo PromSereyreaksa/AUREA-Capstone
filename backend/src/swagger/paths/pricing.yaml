@@ -725,3 +725,135 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+
+  /api/v1/pricing/project-breakdown/{projectId}:
+    get:
+      summary: Get full project pricing breakdown
+      description: |
+        Returns a complete pricing breakdown for one project using:
+        - base hourly rate
+        - seniority multiplier
+        - client context multiplier
+        - difficulty multiplier
+        - licensing multiplier
+
+        Final values:
+        - project_price = final_hourly_rate × duration_hours × difficulty_multiplier
+        - total_project_price = project_price × licensing_multiplier
+      tags:
+        - Pricing - Calculations
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Project ID
+          example: 12
+      responses:
+        '200':
+          description: Project pricing breakdown retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Project pricing breakdown retrieved successfully
+                  data:
+                    type: object
+                    properties:
+                      project_id:
+                        type: integer
+                        example: 12
+                      base_rate:
+                        type: number
+                        example: 42.9
+                      seniority_level:
+                        type: string
+                        example: mid
+                      seniority_multiplier:
+                        type: number
+                        example: 1
+                      client_type:
+                        type: string
+                        example: sme
+                      client_region:
+                        type: string
+                        example: cambodia
+                      context_multiplier:
+                        type: number
+                        example: 1
+                      final_hourly_rate:
+                        type: number
+                        example: 42.9
+                      duration_hours:
+                        type: number
+                        example: 120
+                      difficulty:
+                        type: string
+                        example: complex
+                      difficulty_multiplier:
+                        type: number
+                        example: 2.5
+                      licensing:
+                        type: string
+                        example: multi_use
+                      licensing_multiplier:
+                        type: number
+                        example: 1.2
+                      usage_rights:
+                        type: string
+                        example: small_business
+                      project_price:
+                        type: number
+                        example: 12870
+                      total_project_price:
+                        type: number
+                        example: 15444
+                      deliverables:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            deliverable_type:
+                              type: string
+                              example: Logo Design
+                            quantity:
+                              type: number
+                              example: 2
+                            items:
+                              type: array
+                              items:
+                                type: string
+                                example: Main logo
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'

@@ -318,11 +318,14 @@ For issues or questions, please contact the development team.
               project_name: { type: 'string', example: 'Tech Start Up Branding' },
               title: { type: 'string' },
               description: { type: 'string' },
-              duration: { type: 'integer' },
-              difficulty: { type: 'string' },
+              duration: { type: 'integer', description: 'Duration in hours', example: 14 },
+              difficulty: { type: 'string', example: 'Medium' },
               licensing: { type: 'string', example: 'One-Time Use' },
               usage_rights: { type: 'string', example: 'Small Business' },
-              calculated_rate: { type: 'number', example: 10296 }
+              calculated_rate: { type: 'number', description: 'Project price before licensing (final_hourly_rate × duration × difficulty)', example: 900.9 },
+              difficulty_multiplier: { type: 'number', description: 'Multiplier based on difficulty (easy=1.0, medium=1.5, hard=2.0, complex=2.5)', example: 1.5 },
+              licensing_multiplier: { type: 'number', description: 'Multiplier based on licensing (one_time=1.0, multi_use=1.2, limited=1.2, exclusive=1.5, buyout=2.0, royalty=1.3)', example: 1 },
+              total_project_price: { type: 'number', description: 'Final total = calculated_rate × licensing_multiplier', example: 900.9 }
             }
           },
           deliverables: {
