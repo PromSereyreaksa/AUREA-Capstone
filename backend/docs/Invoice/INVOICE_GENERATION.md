@@ -175,7 +175,10 @@ Get complete invoice information including freelancer, project, and deliverables
       "difficulty": "Hard",
       "licensing": "Multi-Use",
       "usage_rights": "Corporate",
-      "calculated_rate": 1500.00
+      "calculated_rate": 1500.00,
+      "difficulty_multiplier": 2.0,
+      "licensing_multiplier": 1.2,
+      "total_project_price": 1800.00
     },
     "deliverables": [
       {
@@ -447,4 +450,5 @@ Schema definitions:
 
 - [Authentication](../Authentication/AUTHENTICATION.md)
 - [Pricing Engine](../CALCULATION_ENGINE/PRICING_ENGINE_REPORT.md)
+- [Pricing Flow](../CALCULATION_ENGINE/PRICING_FLOW.md)
 - [File Upload](../Storage/FILE_UPLOAD.md)

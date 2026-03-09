@@ -1,15 +1,6 @@
 import PDFDocument from 'pdfkit';
 import { InvoiceDetailData } from '../../application/use_cases/GetInvoice';
-
-// Licensing multiplier mapping (normalized keys: lowercase, non-alphanumeric replaced with _)
-const LICENSING_MULTIPLIERS: Record<string, number> = {
-  'one_time': 1.0,
-  'one_time_use': 1.0,
-  'multi_use': 1.2,
-  'exclusive': 1.5,
-  'buyout': 2.0,
-  'royalty': 1.3,
-};
+import { LicensingMultiplier } from '../../domain/entities/LicensingLevel';
 
 export class InvoicePdfService {
   /**
@@ -166,12 +157,8 @@ export class InvoicePdfService {
           y += 18;
         }
 
-        // Licensing multiplier - normalize to lowercase, replace non-alphanumeric with _
-        const licensingRaw = (data.project.licensing || '').toLowerCase();
-        const licensingKey = licensingRaw
-          .replace(/[^a-z0-9]+/g, '_')
-          .replace(/^_+|_+$/g, '');
-        const licensingMultiplier = LICENSING_MULTIPLIERS[licensingKey] || 1.0;
+        const licensingMultiplier = data.project.licensing_multiplier
+          || LicensingMultiplier.getMultiplier(data.project.licensing);
 
         if (data.project.licensing) {
           doc.font('Helvetica').fontSize(10).fillColor('#555555');
@@ -186,7 +173,7 @@ export class InvoicePdfService {
         y += 16;
 
         // ──────── TOTAL PROJECT PRICE ────────
-        const totalPrice = projectPrice * licensingMultiplier;
+        const totalPrice = data.project.total_project_price || (projectPrice * licensingMultiplier);
 
         doc.font('Helvetica-Bold').fontSize(14).fillColor('#000000');
         doc.text('Total Project Price', colDelivX, y);

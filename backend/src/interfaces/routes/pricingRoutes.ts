@@ -234,6 +234,12 @@ router.get(
  * /api/v1/pricing/calculate/project-rate:
  *   post:
  *     summary: Calculate project-specific rate with client context
+ *     description: |
+ *       Calculates the final hourly rate using seniority and client context multipliers.
+ *       When a project_id is provided, also computes the full project total:
+ *       - project_price = final_hourly_rate × duration_hours × difficulty_multiplier
+ *       - total_project_price = project_price × licensing_multiplier
+ *       The project's calculated_rate is persisted to the database.
  *     tags: [Pricing]
  *     security:
  *       - bearerAuth: []
@@ -254,7 +260,7 @@ router.get(
  *                 example: 1
  *               project_id:
  *                 type: integer
- *                 description: Optional project ID to update
+ *                 description: Optional project ID — if provided, stores calculated_rate and returns multiplier fields
  *                 example: 5
  *               client_type:
  *                 type: string
@@ -269,6 +275,63 @@ router.get(
  *     responses:
  *       200:
  *         description: Project rate calculated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     base_rate:
+ *                       type: number
+ *                       example: 42.9
+ *                     seniority_level:
+ *                       type: string
+ *                       example: mid
+ *                     seniority_multiplier:
+ *                       type: number
+ *                       example: 1
+ *                     client_type:
+ *                       type: string
+ *                       example: sme
+ *                     client_region:
+ *                       type: string
+ *                       example: cambodia
+ *                     context_multiplier:
+ *                       type: number
+ *                       example: 1
+ *                     final_hourly_rate:
+ *                       type: number
+ *                       example: 42.9
+ *                     monthly_revenue_estimate:
+ *                       type: number
+ *                       example: 3432
+ *                     annual_revenue_estimate:
+ *                       type: number
+ *                       example: 41184
+ *                     duration_hours:
+ *                       type: number
+ *                       description: Only present when project_id is provided
+ *                       example: 14
+ *                     difficulty_multiplier:
+ *                       type: number
+ *                       description: Only present when project_id is provided (easy=1.0, medium=1.5, hard=2.0, complex=2.5)
+ *                       example: 1.5
+ *                     licensing_multiplier:
+ *                       type: number
+ *                       description: Only present when project_id is provided (one_time=1.0, multi_use=1.2, exclusive=1.5, buyout=2.0)
+ *                       example: 1
+ *                     total_project_price:
+ *                       type: number
+ *                       description: Only present when project_id is provided. project_price × licensing_multiplier
+ *                       example: 900.9
+ *                     project_updated:
+ *                       type: boolean
+ *                       example: true
  *       400:
  *         description: Validation error
  *       401:
@@ -280,6 +343,106 @@ router.post(
   calculationLimiter,
   injectAuthenticatedUserId,
   asyncHandler((req, res) => pricingController.calculateProjectRate(req, res))
+);
+
+/**
+ * @swagger
+ * /api/v1/pricing/project-breakdown/{projectId}:
+ *   get:
+ *     summary: Get full pricing breakdown for a project
+ *     description: |
+ *       Returns all pricing components for a project in a single response:
+ *       base_rate, seniority, client context, difficulty, licensing, deliverables.
+ *
+ *       Formula:
+ *       - project_price = final_hourly_rate × duration_hours × difficulty_multiplier
+ *       - total_project_price = project_price × licensing_multiplier
+ *
+ *       Also persists the computed project_price to the project's calculated_rate column.
+ *     tags: [Pricing]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: projectId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Project ID
+ *     responses:
+ *       200:
+ *         description: Project pricing breakdown retrieved
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     project_id:
+ *                       type: integer
+ *                     base_rate:
+ *                       type: number
+ *                     seniority_level:
+ *                       type: string
+ *                     seniority_multiplier:
+ *                       type: number
+ *                     client_type:
+ *                       type: string
+ *                     client_region:
+ *                       type: string
+ *                     context_multiplier:
+ *                       type: number
+ *                     final_hourly_rate:
+ *                       type: number
+ *                     duration_hours:
+ *                       type: number
+ *                     difficulty:
+ *                       type: string
+ *                     difficulty_multiplier:
+ *                       type: number
+ *                     licensing:
+ *                       type: string
+ *                     licensing_multiplier:
+ *                       type: number
+ *                     usage_rights:
+ *                       type: string
+ *                     project_price:
+ *                       type: number
+ *                       description: final_hourly_rate × duration_hours × difficulty_multiplier
+ *                     total_project_price:
+ *                       type: number
+ *                       description: project_price × licensing_multiplier
+ *                     deliverables:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           deliverable_type:
+ *                             type: string
+ *                           quantity:
+ *                             type: integer
+ *                           items:
+ *                             type: array
+ *                             items:
+ *                               type: string
+ *       400:
+ *         description: Validation error
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden — project belongs to another user
+ *       404:
+ *         description: Project or pricing profile not found
+ */
+router.get(
+  '/project-breakdown/:projectId',
+  authMiddleware,
+  calculationLimiter,
+  asyncHandler((req, res) => pricingController.getProjectPricingBreakdown(req, res))
 );
 
 /**

@@ -5,6 +5,7 @@ import { AnswerOnboardingQuestion } from '../../application/use_cases/AnswerOnbo
 import { CalculateBaseRate } from '../../application/use_cases/CalculateBaseRate';
 import { GetMarketBenchmark } from '../../application/use_cases/GetMarketBenchmark';
 import { CalculateProjectRate } from '../../application/use_cases/CalculateProjectRate';
+import { GetProjectPricingBreakdown } from '../../application/use_cases/GetProjectPricingBreakdown';
 import { QuickEstimateRate } from '../../application/use_cases/QuickEstimateRate';
 import { PortfolioAssistedPricing } from '../../application/use_cases/PortfolioAssistedPricing';
 import { AcceptPortfolioRate } from '../../application/use_cases/AcceptPortfolioRate';
@@ -12,17 +13,20 @@ import { OnboardingSessionRepository } from '../../infrastructure/repositories/O
 import { PricingProfileRepository } from '../../infrastructure/repositories/PricingProfileRepository';
 import { MarketBenchmarkRepository } from '../../infrastructure/repositories/MarketBenchmarkRepository';
 import { ProjectPriceRepository } from '../../infrastructure/repositories/ProjectPriceRepository';
+import { ProjectDeliverableRepository } from '../../infrastructure/repositories/ProjectDeliverableRepository';
 import { CategoryRepository } from '../../infrastructure/repositories/CategoryRepository';
 import { GeminiService } from '../../infrastructure/services/GeminiService';
 import { ResponseHelper } from '../../shared/utils/responseHelper';
 import { HTTP_STATUS } from '../../shared/constants';
 import { ForbiddenError } from '../../shared/errors/AppError';
+import { ValidationError } from '../../shared/errors';
 
 export class PricingController {
   private onboardingSessionRepo: OnboardingSessionRepository;
   private pricingProfileRepo: PricingProfileRepository;
   private marketBenchmarkRepo: MarketBenchmarkRepository;
   private projectPriceRepo: ProjectPriceRepository;
+  private projectDeliverableRepo: ProjectDeliverableRepository;
   private categoryRepo: CategoryRepository;
   private geminiService: GeminiService;
 
@@ -31,6 +35,7 @@ export class PricingController {
     this.pricingProfileRepo = new PricingProfileRepository();
     this.marketBenchmarkRepo = new MarketBenchmarkRepository();
     this.projectPriceRepo = new ProjectPriceRepository();
+    this.projectDeliverableRepo = new ProjectDeliverableRepository();
     this.categoryRepo = new CategoryRepository();
     this.geminiService = new GeminiService();
   }
@@ -152,6 +157,35 @@ export class PricingController {
     const result = await useCase.execute(validated);
 
     ResponseHelper.success(res, result, 'Project rate calculated successfully');
+  }
+
+  /**
+   * GET /api/v1/pricing/project-breakdown/:projectId
+   * Get full project pricing breakdown and total price
+   */
+  async getProjectPricingBreakdown(req: Request, res: Response): Promise<void> {
+    const userId = req.user?.user_id;
+    if (!userId) {
+      throw new ValidationError('Authenticated user_id is required');
+    }
+
+    const projectId = Number(req.params.projectId);
+    if (!Number.isInteger(projectId) || projectId <= 0) {
+      throw new ValidationError('projectId must be a positive integer');
+    }
+
+    const useCase = new GetProjectPricingBreakdown(
+      this.projectPriceRepo,
+      this.projectDeliverableRepo,
+      this.pricingProfileRepo
+    );
+
+    const result = await useCase.execute({
+      user_id: userId,
+      project_id: projectId
+    });
+
+    ResponseHelper.success(res, result, 'Project pricing breakdown retrieved successfully');
   }
 
   /**

@@ -2,6 +2,8 @@ import { IPricingProfileRepository } from '../../domain/repositories/IPricingPro
 import { IProjectPriceRepository } from '../../domain/repositories/IProjectPriceRepository';
 import { ClientContext } from '../../domain/entities/ClientContext';
 import { SeniorityMultiplier } from '../../domain/entities/SeniorityLevel';
+import { DifficultyMultiplier } from '../../domain/entities/DifficultyLevel';
+import { LicensingMultiplier } from '../../domain/entities/LicensingLevel';
 import { PricingCalculatorService } from '../../infrastructure/services/PricingCalculatorService';
 
 interface CalculateProjectRateInput {
@@ -22,6 +24,10 @@ export interface CalculateProjectRateOutput {
   final_hourly_rate: number;
   monthly_revenue_estimate?: number;
   annual_revenue_estimate?: number;
+  duration_hours?: number;
+  difficulty_multiplier?: number;
+  licensing_multiplier?: number;
+  total_project_price?: number;
   project_updated: boolean;
 }
 
@@ -71,13 +77,24 @@ export class CalculateProjectRate {
 
     // 6. Update project if project_id provided
     let projectUpdated = false;
+    let durationHours: number | undefined;
+    let difficultyMultiplier: number | undefined;
+    let licensingMultiplier: number | undefined;
+    let totalProjectPrice: number | undefined;
+
     if (input.project_id) {
-      projectUpdated = await this.updateProjectRate(
+      const updatedProjectData = await this.updateProjectRate(
         input.project_id,
         calculation.final_hourly_rate,
         input.client_type,
         input.client_region
       );
+
+      projectUpdated = updatedProjectData.updated;
+      durationHours = updatedProjectData.duration_hours;
+      difficultyMultiplier = updatedProjectData.difficulty_multiplier;
+      licensingMultiplier = updatedProjectData.licensing_multiplier;
+      totalProjectPrice = updatedProjectData.total_project_price;
     }
 
     return {
@@ -90,39 +107,62 @@ export class CalculateProjectRate {
       final_hourly_rate: calculation.final_hourly_rate,
       monthly_revenue_estimate: monthlyRevenue,
       annual_revenue_estimate: annualRevenue,
+      duration_hours: durationHours,
+      difficulty_multiplier: difficultyMultiplier,
+      licensing_multiplier: licensingMultiplier,
+      total_project_price: totalProjectPrice,
       project_updated: projectUpdated
     };
   }
 
   private async updateProjectRate(
     projectId: number,
-    calculatedRate: number,
+    finalHourlyRate: number,
     clientType: string,
     clientRegion: string
-  ): Promise<boolean> {
+  ): Promise<{
+    updated: boolean;
+    duration_hours?: number;
+    difficulty_multiplier?: number;
+    licensing_multiplier?: number;
+    total_project_price?: number;
+  }> {
     try {
       // First check if project exists
       const project = await this.projectPriceRepo.findById(projectId);
       
       if (!project) {
         console.warn(`Project ${projectId} not found, skipping update`);
-        return false;
+        return { updated: false };
       }
+
+      const durationHours = project.duration || 1;
+      const difficultyMultiplier = DifficultyMultiplier.getMultiplier(project.difficulty);
+      const licensingMultiplier = LicensingMultiplier.getMultiplier(project.licensing);
+      const projectPrice = finalHourlyRate * durationHours * difficultyMultiplier;
+      const roundedProjectPrice = Math.round(projectPrice * 100) / 100;
+      const totalProjectPrice = Math.round(roundedProjectPrice * licensingMultiplier * 100) / 100;
 
       // Update project with calculated rate and client context
       await this.projectPriceRepo.update(projectId, {
-        calculated_rate: calculatedRate,
+        calculated_rate: roundedProjectPrice,
         client_type: clientType,
         client_region: clientRegion
       });
 
-      return true;
+      return {
+        updated: true,
+        duration_hours: durationHours,
+        difficulty_multiplier: difficultyMultiplier,
+        licensing_multiplier: licensingMultiplier,
+        total_project_price: totalProjectPrice
+      };
     } catch (error: any) {
       console.error('[CalculateProjectRate] Error updating project rate:', {
         projectId,
         error: error.message
       });
-      return false;
+      return { updated: false };
     }
   }
 }
