@@ -40,10 +40,9 @@ const RefreshIcon = ({ spinning }: { spinning: boolean }) => (
 
 const DashboardPage = () => {
   const { user } = useAuth();
-  const { stats, recentProjects, loading, error, refetch, isStale } =
-    useDashboardData();
+  const { stats, recentProjects, loading, error, refetch } = useDashboardData();
 
-  // Get user's first name from email or use default
+  // Get user's first name or use default
   const getUserName = () => {
     if (user?.first_name) {
       return user.first_name;
@@ -134,13 +133,6 @@ const DashboardPage = () => {
                 </p>
               </div>
               <div className="flex items-center gap-2">
-                {/* Stale data indicator */}
-                {isStale && !loading && (
-                  <span className="text-xs font-medium text-orange-600 bg-orange-100 px-2 py-1 rounded border border-orange-300">
-                    Updating...
-                  </span>
-                )}
-
                 <div className="flex items-center gap-2 text-xs sm:text-sm font-semibold text-black">
                   <span>{formatDate()}</span>
                   <div className="w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center bg-[#FFE8DC] rounded-lg border-2 border-black shadow-[2px_2px_0_#1a1a1a]">

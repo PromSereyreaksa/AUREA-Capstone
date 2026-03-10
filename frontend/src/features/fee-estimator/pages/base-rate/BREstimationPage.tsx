@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from '../../../auth/context/AuthContext';
-import Sidebar from '../../../../shared/components/Sidebar';
-import { pricingClient } from '../../../../shared/api/pricingClient';
-import BenchmarkModal from './BenchmarkModal';
+import { useAuth } from "../../../auth/context/AuthContext";
+import Sidebar from "../../../../shared/components/Sidebar";
+import { pricingClient } from "../../../../shared/api/pricingClient";
+import BenchmarkModal from "./BenchmarkModal";
 
 const BREstimationPage = () => {
   const { user } = useAuth();
@@ -22,16 +22,65 @@ const BREstimationPage = () => {
   const [onboardingError, setOnboardingError] = useState<string | null>(null);
 
   const ONBOARDING_QUESTIONS = [
-    { key: 'fixed_costs_rent', question: "Let's calculate your sustainable hourly rate! First, what's your monthly rent or workspace cost in USD?", type: 'number' },
-    { key: 'fixed_costs_equipment', question: 'How much do you spend monthly on equipment, software, and tools (e.g., Adobe subscription, laptop maintenance)?', type: 'number' },
-    { key: 'fixed_costs_utilities_insurance_taxes', question: 'What about insurance, utilities, and taxes per month? (Combined amount)', type: 'number' },
-    { key: 'variable_costs_materials', question: 'How much do you spend monthly on materials like stock photos, fonts, or plugins?', type: 'number' },
-    { key: 'desired_income', question: "What's your desired monthly take-home income (after all costs)?", type: 'number' },
-    { key: 'billable_hours', question: 'How many hours per month can you realistically bill to clients? (Most freelancers bill 80-120 hours/month)', type: 'number' },
-    { key: 'profit_margin', question: 'What profit margin do you want? (e.g., 0.15 for 15% sustainability)', type: 'number' },
-    { key: 'experience_years', question: 'How many years of experience do you have in graphic design?', type: 'number' },
-    { key: 'skills', question: 'What services do you offer? (e.g., logo design, branding, web design - comma separated)', type: 'string' },
-    { key: 'seniority_level', question: 'Finally, how would you describe your skill level: junior, mid, senior, or expert?', type: 'string' }
+    {
+      key: "fixed_costs_rent",
+      question:
+        "Let's calculate your sustainable hourly rate! First, what's your monthly rent or workspace cost in USD?",
+      type: "number",
+    },
+    {
+      key: "fixed_costs_equipment",
+      question:
+        "How much do you spend monthly on equipment, software, and tools (e.g., Adobe subscription, laptop maintenance)?",
+      type: "number",
+    },
+    {
+      key: "fixed_costs_utilities_insurance_taxes",
+      question:
+        "What about insurance, utilities, and taxes per month? (Combined amount)",
+      type: "number",
+    },
+    {
+      key: "variable_costs_materials",
+      question:
+        "How much do you spend monthly on materials like stock photos, fonts, or plugins?",
+      type: "number",
+    },
+    {
+      key: "desired_income",
+      question:
+        "What's your desired monthly take-home income (after all costs)?",
+      type: "number",
+    },
+    {
+      key: "billable_hours",
+      question:
+        "How many hours per month can you realistically bill to clients? (Must be 40-200 hours/month)",
+      type: "number",
+    },
+    {
+      key: "profit_margin",
+      question:
+        "What profit margin do you want? (Enter 0.05 for 5% to 0.50 for 50%. Example: 0.15 for 15% sustainability)",
+      type: "number",
+    },
+    {
+      key: "experience_years",
+      question: "How many years of experience do you have in graphic design?",
+      type: "number",
+    },
+    {
+      key: "skills",
+      question:
+        "What services do you offer? (e.g., logo design, branding, web design - comma separated)",
+      type: "string",
+    },
+    {
+      key: "seniority_level",
+      question:
+        "Finally, how would you describe your skill level: junior, mid, senior, or expert?",
+      type: "string",
+    },
   ];
 
   // Result state from AI
@@ -57,12 +106,32 @@ const BREstimationPage = () => {
 
     const currentQ = ONBOARDING_QUESTIONS[currentQuestionIndex];
     let val: any = questionAnswer.trim();
-    
-    if (currentQ.type === 'number') {
+
+    if (currentQ.type === "number") {
       val = parseFloat(val);
       if (isNaN(val)) {
         setOnboardingError("Please enter a valid number");
         return;
+      }
+
+      // Validate profit margin range (5% to 50%)
+      if (currentQ.key === "profit_margin") {
+        if (val < 0.05 || val > 0.5) {
+          setOnboardingError(
+            "Profit margin must be between 0.05 (5%) and 0.5 (50%). For example: 0.15 for 15%",
+          );
+          return;
+        }
+      }
+
+      // Validate billable hours range
+      if (currentQ.key === "billable_hours") {
+        if (val < 40 || val > 200) {
+          setOnboardingError(
+            "Billable hours must be between 40 and 200 hours per month",
+          );
+          return;
+        }
       }
     }
 
@@ -80,9 +149,9 @@ const BREstimationPage = () => {
         if (!user?.user_id) throw new Error("No user ID found");
         const rateResponse = await pricingClient.calculateBaseRate({
           user_id: user.user_id,
-          onboarding_data: newOnboardingData
+          onboarding_data: newOnboardingData,
         });
-        
+
         if (rateResponse.success) {
           setAiCalculation(rateResponse.data);
           setStep("result");
@@ -90,7 +159,11 @@ const BREstimationPage = () => {
           throw new Error("Failed to calculate base rate");
         }
       } catch (calcErr) {
-        setOnboardingError(calcErr instanceof Error ? calcErr.message : "Failed to calculate final rate");
+        setOnboardingError(
+          calcErr instanceof Error
+            ? calcErr.message
+            : "Failed to calculate final rate",
+        );
       } finally {
         setIsSubmittingAnswer(false);
       }
@@ -109,7 +182,12 @@ const BREstimationPage = () => {
       setSaveSuccess(false);
 
       const billableHoursPerMonth = aiCalculation.breakdown.billable_hours;
-      const profitMarginDecimal = aiCalculation.breakdown.profit_margin_percentage;
+      // API returns percentage (e.g. 5), but profile endpoint expects decimal (e.g. 0.05)
+      const rawProfitMargin = Number(
+        aiCalculation.breakdown.profit_margin_percentage,
+      );
+      const profitMarginDecimal =
+        rawProfitMargin > 1 ? rawProfitMargin / 100 : rawProfitMargin;
 
       // Update pricing profile with the calculated values
       const response = await pricingClient.updatePricingProfile(user.user_id, {
@@ -171,7 +249,9 @@ const BREstimationPage = () => {
           {/* Header */}
           <div className="bg-[#FB8500] p-4 sm:p-6 border-b-[3px] border-black animate-[slideDown_0.5s_ease-out]">
             <h1 className="text-xl sm:text-2xl font-black text-white">
-              {step === "onboarding" ? "AI Evaluation Survey" : "Based Rate Estimator"}
+              {step === "onboarding"
+                ? "AI Evaluation Survey"
+                : "Based Rate Estimator"}
             </h1>
           </div>
 
@@ -182,24 +262,33 @@ const BREstimationPage = () => {
                 <section className="bg-white border-[3px] border-black rounded-xl p-6 shadow-[2px_2px_0_#1a1a1a]">
                   <div className="mb-6">
                     <div className="flex justify-between items-center mb-2">
-                      <span className="text-sm font-bold text-[#FB8500]">Progress</span>
+                      <span className="text-sm font-bold text-[#FB8500]">
+                        Progress
+                      </span>
                       <span className="text-sm font-bold text-gray-600">
-                        {Math.round((currentQuestionIndex / ONBOARDING_QUESTIONS.length) * 100)}%
+                        {Math.round(
+                          (currentQuestionIndex / ONBOARDING_QUESTIONS.length) *
+                            100,
+                        )}
+                        %
                       </span>
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-2.5">
-                      <div className="bg-[#FB8500] h-2.5 rounded-full transition-all duration-500" 
-                        style={{ 
-                          width: `${(currentQuestionIndex / ONBOARDING_QUESTIONS.length) * 100}%` 
-                        }}>
-                      </div>
+                      <div
+                        className="bg-[#FB8500] h-2.5 rounded-full transition-all duration-500"
+                        style={{
+                          width: `${(currentQuestionIndex / ONBOARDING_QUESTIONS.length) * 100}%`,
+                        }}
+                      ></div>
                     </div>
                   </div>
 
                   {ONBOARDING_QUESTIONS[currentQuestionIndex] ? (
                     <form onSubmit={submitAnswer} className="space-y-4">
-                      <h3 className="text-xl font-bold text-gray-800 mb-4">{ONBOARDING_QUESTIONS[currentQuestionIndex].question}</h3>
-                      
+                      <h3 className="text-xl font-bold text-gray-800 mb-4">
+                        {ONBOARDING_QUESTIONS[currentQuestionIndex].question}
+                      </h3>
+
                       {onboardingError && (
                         <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
                           {onboardingError}
@@ -208,8 +297,18 @@ const BREstimationPage = () => {
 
                       <div className="relative">
                         <input
-                          type={ONBOARDING_QUESTIONS[currentQuestionIndex].type === 'number' ? 'number' : 'text'}
-                          step={ONBOARDING_QUESTIONS[currentQuestionIndex].type === 'number' ? 'any' : undefined}
+                          type={
+                            ONBOARDING_QUESTIONS[currentQuestionIndex].type ===
+                            "number"
+                              ? "number"
+                              : "text"
+                          }
+                          step={
+                            ONBOARDING_QUESTIONS[currentQuestionIndex].type ===
+                            "number"
+                              ? "any"
+                              : undefined
+                          }
                           value={questionAnswer}
                           onChange={(e) => setQuestionAnswer(e.target.value)}
                           placeholder="Type your answer here..."
@@ -223,24 +322,44 @@ const BREstimationPage = () => {
                       <div className="flex justify-end pt-2">
                         <button
                           type="submit"
-                          disabled={isSubmittingAnswer || !questionAnswer.trim()}
+                          disabled={
+                            isSubmittingAnswer || !questionAnswer.trim()
+                          }
                           className="px-6 py-3 bg-[#FB8500] text-white border-2 border-black rounded-lg text-sm font-bold hover:bg-[#E67700] hover:-translate-y-0.5 hover:shadow-[4px_4px_0_#1a1a1a] transition-all duration-150 shadow-[2px_2px_0_#1a1a1a] disabled:opacity-50 flex items-center gap-2"
                         >
-                          {isSubmittingAnswer ? 'SUBMITTING...' : 'CONTINUE'}
+                          {isSubmittingAnswer ? "SUBMITTING..." : "CONTINUE"}
                         </button>
                       </div>
                     </form>
                   ) : (
                     <div className="flex flex-col items-center justify-center py-8">
-                      <svg className="animate-spin h-8 w-8 text-[#FB8500] mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      <svg
+                        className="animate-spin h-8 w-8 text-[#FB8500] mb-4"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                        ></circle>
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                        ></path>
                       </svg>
-                      <p className="text-gray-600 font-medium">Loading question...</p>
+                      <p className="text-gray-600 font-medium">
+                        Loading question...
+                      </p>
                     </div>
                   )}
                 </section>
-                
+
                 <div className="flex gap-3 pt-4">
                   <button
                     onClick={() => navigate("/fee-estimator")}
@@ -265,22 +384,35 @@ const BREstimationPage = () => {
 
                     <div className="space-y-3">
                       <div className="flex justify-between items-center p-3 bg-[#FFFEF9] rounded-lg border-2 border-gray-200">
-                        <span className="text-gray-700 font-semibold">Annual Equipment Costs</span>
+                        <span className="text-gray-700 font-semibold">
+                          Annual Equipment Costs
+                        </span>
                         <span className="font-bold text-[#FB8500]">
-                          ${(parseFloat(onboardingData.fixed_costs_equipment || "0") * 12).toFixed(2)}
+                          $
+                          {(
+                            parseFloat(
+                              onboardingData.fixed_costs_equipment || "0",
+                            ) * 12
+                          ).toFixed(2)}
                         </span>
                       </div>
                       <div className="flex justify-between items-center p-3 bg-[#FFFEF9] rounded-lg border-2 border-gray-200">
-                        <span className="text-gray-700 font-semibold">Annual Rent/Workspace</span>
+                        <span className="text-gray-700 font-semibold">
+                          Annual Rent/Workspace
+                        </span>
                         <span className="font-bold text-[#FB8500]">
-                          ${(parseFloat(onboardingData.fixed_costs_rent || "0") * 12).toFixed(2)}
+                          $
+                          {(
+                            parseFloat(onboardingData.fixed_costs_rent || "0") *
+                            12
+                          ).toFixed(2)}
                         </span>
                       </div>
                       <div className="flex justify-between items-center p-3 bg-[#FFFEF9] rounded-lg border-2 border-gray-200">
-                        <span className="text-gray-700 font-semibold">Annual Labor Costs</span>
-                        <span className="font-bold text-[#FB8500]">
-                          $0.00
+                        <span className="text-gray-700 font-semibold">
+                          Annual Labor Costs
                         </span>
+                        <span className="font-bold text-[#FB8500]">$0.00</span>
                       </div>
                     </div>
 
@@ -289,7 +421,9 @@ const BREstimationPage = () => {
                         TOTAL EXPENSES
                       </span>
                       <span className="text-xl font-black text-[#FB8500]">
-                        ${(aiCalculation.breakdown.total_monthly_costs).toFixed(2)}/mo
+                        $
+                        {aiCalculation.breakdown.total_monthly_costs.toFixed(2)}
+                        /mo
                       </span>
                     </div>
                   </div>
@@ -305,7 +439,9 @@ const BREstimationPage = () => {
                     <div className="flex justify-between items-center p-3 bg-[#FFFEF9] rounded-lg border-2 border-gray-200">
                       <span className="text-gray-700">Total Expenses</span>
                       <span className="font-semibold text-[#FB8500]">
-                        ${aiCalculation.breakdown.total_monthly_costs.toFixed(2)}/mo
+                        $
+                        {aiCalculation.breakdown.total_monthly_costs.toFixed(2)}
+                        /mo
                       </span>
                     </div>
                     <div className="flex justify-between items-center p-3 bg-[#FFFEF9] rounded-lg border-2 border-gray-200">
@@ -316,14 +452,25 @@ const BREstimationPage = () => {
                     </div>
                     <div className="flex justify-between items-center p-3 bg-[#FFFEF9] rounded-lg border-2 border-gray-200">
                       <span className="text-gray-700">Total Price</span>
-                      <span className="font-semibold text-[#FB8500]">${(aiCalculation.breakdown.total_monthly_costs + aiCalculation.breakdown.desired_income).toFixed(2)}/mo</span>
+                      <span className="font-semibold text-[#FB8500]">
+                        $
+                        {(
+                          aiCalculation.breakdown.total_monthly_costs +
+                          aiCalculation.breakdown.desired_income
+                        ).toFixed(2)}
+                        /mo
+                      </span>
                     </div>
                     <div className="flex justify-between items-center p-3 bg-[#FFFEF9] rounded-lg border-2 border-gray-200">
                       <span className="text-gray-700">
-                        Profit Margin ({(aiCalculation.breakdown.profit_margin_percentage).toFixed(0)}%)
+                        Profit Margin (
+                        {aiCalculation.breakdown.profit_margin_percentage.toFixed(
+                          0,
+                        )}
+                        %)
                       </span>
                       <span className="font-semibold text-[#FB8500]">
-                        ${(aiCalculation.breakdown.profit_amount).toFixed(2)}/mo
+                        ${aiCalculation.breakdown.profit_amount.toFixed(2)}/mo
                       </span>
                     </div>
                     <div className="flex justify-between items-center p-3 bg-[#FFE8DC] rounded-lg border-2 border-[#FB8500]">
@@ -331,11 +478,13 @@ const BREstimationPage = () => {
                         Target Revenue
                       </span>
                       <span className="font-bold text-[#FB8500]">
-                        ${(aiCalculation.breakdown.total_required).toFixed(2)}/mo
+                        ${aiCalculation.breakdown.total_required.toFixed(2)}/mo
                       </span>
                     </div>
                     <div className="flex justify-between items-center p-3 bg-[#FFFEF9] rounded-lg border-2 border-gray-200">
-                      <span className="text-gray-700">Billable Hours Per Month</span>
+                      <span className="text-gray-700">
+                        Billable Hours Per Month
+                      </span>
                       <span className="font-semibold text-[#FB8500]">
                         {aiCalculation.breakdown.billable_hours.toFixed(0)} hrs
                       </span>
@@ -389,7 +538,15 @@ const BREstimationPage = () => {
                     >
                       {isSaving ? (
                         <>
-                          <svg className="animate-spin" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <svg
+                            className="animate-spin"
+                            width="16"
+                            height="16"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                          >
                             <circle cx="12" cy="12" r="10" />
                             <path d="M12 2a10 10 0 0110 10" />
                           </svg>
@@ -429,8 +586,8 @@ const BREstimationPage = () => {
 
           <div className="space-y-6">
             {progressSteps.map((stepItem, index) => (
-              <div 
-                key={stepItem.id} 
+              <div
+                key={stepItem.id}
                 className="relative animate-[slideRight_0.5s_ease-out] opacity-0 [animation-fill-mode:forwards]"
                 style={{ animationDelay: `${index * 0.1}s` }}
               >
@@ -440,10 +597,14 @@ const BREstimationPage = () => {
                 )}
 
                 {/* Step Circle */}
-                <div className="flex items-start gap-3 p-3 rounded-lg transition-all" 
+                <div
+                  className="flex items-start gap-3 p-3 rounded-lg transition-all"
                   style={{
-                    backgroundColor: stepItem.active ? '#FFE8DC' : 'transparent'
-                  }}>
+                    backgroundColor: stepItem.active
+                      ? "#FFE8DC"
+                      : "transparent",
+                  }}
+                >
                   <div
                     className={`w-7 h-7 rounded-full border-2 flex items-center justify-center shrink-0 transition-all ${
                       stepItem.active
@@ -459,7 +620,9 @@ const BREstimationPage = () => {
                         fill="none"
                         stroke="currentColor"
                         strokeWidth="3"
-                        className={stepItem.active ? "text-white" : "text-[#FB8500]"}
+                        className={
+                          stepItem.active ? "text-white" : "text-[#FB8500]"
+                        }
                       >
                         <polyline points="20 6 9 17 4 12" />
                       </svg>
@@ -489,7 +652,9 @@ const BREstimationPage = () => {
                           <li
                             key={idx}
                             className={`text-xs transition-colors ${
-                              stepItem.active ? "text-[#FB8500]" : "text-gray-500"
+                              stepItem.active
+                                ? "text-[#FB8500]"
+                                : "text-gray-500"
                             }`}
                           >
                             {subStep}

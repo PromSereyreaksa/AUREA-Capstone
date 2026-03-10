@@ -45,11 +45,39 @@ export class DashboardService implements IDashboardService {
    */
   async getDashboardData(): Promise<DashboardData> {
     try {
+      // Backend returns data wrapped in { success, message, data }
       const response = await httpClient.get<{
-        data: DashboardData;
+        success: boolean;
+        message?: string;
+        data: {
+          base_rate: number | null;
+          projects_this_week: number;
+          projects_this_month: number;
+          recent_projects: Array<{
+            project_id: number;
+            project_name: string;
+            title: string | null;
+            created_at: string;
+          }>;
+        };
       }>("/dashboard");
 
-      return response.data;
+      const backendData = response.data;
+
+      // Transform backend format to frontend format
+      return {
+        stats: {
+          baseRate: backendData.base_rate,
+          projectsThisWeek: backendData.projects_this_week,
+          projectsThisMonth: backendData.projects_this_month,
+        },
+        recentProjects: backendData.recent_projects.map((project) => ({
+          id: project.project_id,
+          name: project.project_name,
+          clientName: project.title || "Untitled Project",
+          created_at: project.created_at,
+        })),
+      };
     } catch (error: any) {
       console.error("Failed to fetch dashboard data:", error);
       throw new Error(error.message || "Failed to fetch dashboard data");

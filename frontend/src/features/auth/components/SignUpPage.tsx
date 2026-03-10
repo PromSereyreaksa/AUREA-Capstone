@@ -1,19 +1,19 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import '../styles/auth.css';
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import "../styles/auth.css";
 
 export const SignUpPage = () => {
   const navigate = useNavigate();
   const { signUp, signInWithGoogle } = useAuth();
   const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
+    firstName: "",
+    lastName: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
   });
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
 
@@ -26,24 +26,24 @@ export const SignUpPage = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    setError("");
 
     if (formData.password !== formData.confirmPassword) {
-      setError('Passwords do not match');
+      setError("Passwords do not match");
       return;
     }
 
     setLoading(true);
     try {
       await signUp(
-        formData.email, 
+        formData.email,
         formData.password,
         formData.firstName || undefined,
-        formData.lastName || undefined
+        formData.lastName || undefined,
       );
-      navigate('/verify-email');
+      navigate("/verify-email");
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to create account');
+      setError(err instanceof Error ? err.message : "Failed to create account");
     } finally {
       setLoading(false);
     }
@@ -53,7 +53,9 @@ export const SignUpPage = () => {
     try {
       await signInWithGoogle();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to sign in with Google');
+      setError(
+        err instanceof Error ? err.message : "Failed to sign in with Google",
+      );
     }
   };
 
@@ -109,6 +111,7 @@ export const SignUpPage = () => {
                 placeholder="John"
                 value={formData.firstName}
                 onChange={handleChange}
+                required
               />
             </div>
 
@@ -121,6 +124,7 @@ export const SignUpPage = () => {
                 placeholder="Week"
                 value={formData.lastName}
                 onChange={handleChange}
+                required
               />
             </div>
 
@@ -180,7 +184,7 @@ export const SignUpPage = () => {
             {error && <div className="error-message">{error}</div>}
 
             <button type="submit" className="submit-button" disabled={loading}>
-              {loading ? 'Creating account...' : 'SIGN UP'}
+              {loading ? "Creating account..." : "SIGN UP"}
             </button>
           </form>
 
