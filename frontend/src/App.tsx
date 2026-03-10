@@ -4,7 +4,8 @@ import {
   Route,
   Navigate,
 } from "react-router-dom";
-import { AuthProvider } from "./features/auth";
+import type { ReactNode } from "react";
+import { AuthProvider, useAuth } from "./features/auth";
 import {
   SignUpPage,
   SignInPage,
@@ -36,6 +37,20 @@ import { DashboardPage } from "./features/dashbard";
 import { ProjectsPage } from "./features/projects";
 
 import "./App.css";
+
+const ProtectedRoute = ({ children }: { children: ReactNode }) => {
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return <div style={{ padding: "2rem" }}>Loading...</div>;
+  }
+
+  if (!user) {
+    return <Navigate to="/signin" replace />;
+  }
+
+  return children;
+};
 
 function App() {
   return (
@@ -76,7 +91,14 @@ function App() {
           <Route path="/portfolios" element={<GuestAccessViewpage />} />
 
           {/* Dashboard Route */}
-          <Route path="/dashboard" element={<DashboardPage />} />
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <DashboardPage />
+              </ProtectedRoute>
+            }
+          />
 
           {/* Projects Route */}
           <Route path="/projects" element={<ProjectsPage />} />

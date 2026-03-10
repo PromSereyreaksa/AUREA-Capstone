@@ -1,16 +1,57 @@
-import { supabase } from '../db/supabaseClient';
-import { IPricingProfileRepository } from '../../domain/repositories/IPricingProfileRepository';
-import { PricingProfile } from '../../domain/entities/PricingProfile';
-import { mapPricingProfileToDb, mapPricingProfileFromDb } from '../mappers/pricingProfileMapper';
-import { DatabaseError } from '../../shared/errors/AppError';
+import { supabase } from "../db/supabaseClient";
+import { IPricingProfileRepository } from "../../domain/repositories/IPricingProfileRepository";
+import { PricingProfile } from "../../domain/entities/PricingProfile";
+import {
+  mapPricingProfileToDb,
+  mapPricingProfileFromDb,
+} from "../mappers/pricingProfileMapper";
+import { DatabaseError } from "../../shared/errors/AppError";
 
 export class PricingProfileRepository implements IPricingProfileRepository {
-  private tableName = 'pricing_profiles';
-  private userCategoryTable = 'user_category';
+  private tableName = "pricing_profiles";
+  private userCategoryTable = "user_category";
+
+  private mapFixedCostsForUpdate(fixedCosts: any): Record<string, number> {
+    if (fixedCosts && typeof fixedCosts.toDb === "function") {
+      return fixedCosts.toDb();
+    }
+
+    const mapped: Record<string, number> = {};
+    if (fixedCosts?.rent !== undefined)
+      mapped.fixed_cost_rent = Number(fixedCosts.rent);
+    if (fixedCosts?.workspace !== undefined)
+      mapped.fixed_cost_rent = Number(fixedCosts.workspace);
+    if (fixedCosts?.equipment !== undefined)
+      mapped.fixed_cost_equipment = Number(fixedCosts.equipment);
+    if (fixedCosts?.insurance !== undefined)
+      mapped.fixed_cost_insurance = Number(fixedCosts.insurance);
+    if (fixedCosts?.utilities !== undefined)
+      mapped.fixed_cost_utilities = Number(fixedCosts.utilities);
+    if (fixedCosts?.taxes !== undefined)
+      mapped.fixed_cost_taxes = Number(fixedCosts.taxes);
+    return mapped;
+  }
+
+  private mapVariableCostsForUpdate(
+    variableCosts: any,
+  ): Record<string, number> {
+    if (variableCosts && typeof variableCosts.toDb === "function") {
+      return variableCosts.toDb();
+    }
+
+    const mapped: Record<string, number> = {};
+    if (variableCosts?.materials !== undefined)
+      mapped.variable_cost_materials = Number(variableCosts.materials);
+    if (variableCosts?.outsourcing !== undefined)
+      mapped.variable_cost_outsourcing = Number(variableCosts.outsourcing);
+    if (variableCosts?.marketing !== undefined)
+      mapped.variable_cost_marketing = Number(variableCosts.marketing);
+    return mapped;
+  }
 
   async create(profile: PricingProfile): Promise<PricingProfile> {
     const dbData = mapPricingProfileToDb(profile);
-    
+
     const { data, error } = await supabase
       .from(this.tableName)
       .insert(dbData)
@@ -18,7 +59,9 @@ export class PricingProfileRepository implements IPricingProfileRepository {
       .single();
 
     if (error) {
-      throw new DatabaseError(`Failed to create pricing profile: ${error.message}`);
+      throw new DatabaseError(
+        `Failed to create pricing profile: ${error.message}`,
+      );
     }
 
     // Save skill categories to user_category table
@@ -34,15 +77,18 @@ export class PricingProfileRepository implements IPricingProfileRepository {
   async findByUserId(userId: number): Promise<PricingProfile | null> {
     const { data, error } = await supabase
       .from(this.tableName)
-      .select('*')
-      .eq('user_id', userId)
+      .select("*")
+      .eq("user_id", userId)
       .single();
 
     if (error) {
-      if (error.code === 'PGRST116') { // No rows returned
+      if (error.code === "PGRST116") {
+        // No rows returned
         return null;
       }
-      throw new DatabaseError(`Failed to find pricing profile: ${error.message}`);
+      throw new DatabaseError(
+        `Failed to find pricing profile: ${error.message}`,
+      );
     }
 
     if (!data) {
@@ -50,22 +96,31 @@ export class PricingProfileRepository implements IPricingProfileRepository {
     }
 
     const profile = mapPricingProfileFromDb(data);
-    
+
     // Load skill categories
     profile.skill_categories = await this.loadSkillCategories(userId);
-    
+
     return profile;
   }
 
-  async update(profileId: number, profile: Partial<PricingProfile>): Promise<PricingProfile> {
+  async update(
+    profileId: number,
+    profile: Partial<PricingProfile>,
+  ): Promise<PricingProfile> {
     const updateData: any = {};
 
     // Map only provided fields
     if (profile.fixed_costs) {
-      Object.assign(updateData, profile.fixed_costs.toDb());
+      Object.assign(
+        updateData,
+        this.mapFixedCostsForUpdate(profile.fixed_costs),
+      );
     }
     if (profile.variable_costs) {
-      Object.assign(updateData, profile.variable_costs.toDb());
+      Object.assign(
+        updateData,
+        this.mapVariableCostsForUpdate(profile.variable_costs),
+      );
     }
     if (profile.desired_monthly_income !== undefined) {
       updateData.desired_monthly_income = profile.desired_monthly_income;
@@ -89,12 +144,14 @@ export class PricingProfileRepository implements IPricingProfileRepository {
     const { data, error } = await supabase
       .from(this.tableName)
       .update(updateData)
-      .eq('pricing_profile_id', profileId)
+      .eq("pricing_profile_id", profileId)
       .select()
       .single();
 
     if (error) {
-      throw new DatabaseError(`Failed to update pricing profile: ${error.message}`);
+      throw new DatabaseError(
+        `Failed to update pricing profile: ${error.message}`,
+      );
     }
 
     // Update skill categories if provided
@@ -111,21 +168,25 @@ export class PricingProfileRepository implements IPricingProfileRepository {
     const { error } = await supabase
       .from(this.tableName)
       .delete()
-      .eq('pricing_profile_id', profileId);
+      .eq("pricing_profile_id", profileId);
 
     if (error) {
-      throw new DatabaseError(`Failed to delete pricing profile: ${error.message}`);
+      throw new DatabaseError(
+        `Failed to delete pricing profile: ${error.message}`,
+      );
     }
   }
 
   private async loadSkillCategories(userId: number): Promise<number[]> {
     const { data, error } = await supabase
       .from(this.userCategoryTable)
-      .select('category_id')
-      .eq('user_id', userId);
+      .select("category_id")
+      .eq("user_id", userId);
 
     if (error) {
-      throw new DatabaseError(`Failed to load skill categories: ${error.message}`);
+      throw new DatabaseError(
+        `Failed to load skill categories: ${error.message}`,
+      );
     }
 
     return data?.map((row: any) => row.category_id) || [];
@@ -136,34 +197,42 @@ export class PricingProfileRepository implements IPricingProfileRepository {
    * If the insert fails, we attempt to restore the previous state.
    * This is a workaround since Supabase client doesn't support native transactions.
    */
-  private async saveSkillCategories(userId: number, categoryIds: number[]): Promise<void> {
+  private async saveSkillCategories(
+    userId: number,
+    categoryIds: number[],
+  ): Promise<void> {
     // First, backup existing mappings for potential rollback
     const { data: existingData, error: loadError } = await supabase
       .from(this.userCategoryTable)
-      .select('category_id')
-      .eq('user_id', userId);
+      .select("category_id")
+      .eq("user_id", userId);
 
     if (loadError) {
-      throw new DatabaseError(`Failed to load existing skill categories: ${loadError.message}`);
+      throw new DatabaseError(
+        `Failed to load existing skill categories: ${loadError.message}`,
+      );
     }
 
-    const existingCategoryIds = existingData?.map((row: any) => row.category_id) || [];
+    const existingCategoryIds =
+      existingData?.map((row: any) => row.category_id) || [];
 
     // Delete existing mappings
     const { error: deleteError } = await supabase
       .from(this.userCategoryTable)
       .delete()
-      .eq('user_id', userId);
+      .eq("user_id", userId);
 
     if (deleteError) {
-      throw new DatabaseError(`Failed to delete existing skill categories: ${deleteError.message}`);
+      throw new DatabaseError(
+        `Failed to delete existing skill categories: ${deleteError.message}`,
+      );
     }
 
     // Then insert new mappings
     if (categoryIds.length > 0) {
-      const mappings = categoryIds.map(categoryId => ({
+      const mappings = categoryIds.map((categoryId) => ({
         user_id: userId,
-        category_id: categoryId
+        category_id: categoryId,
       }));
 
       const { error: insertError } = await supabase
@@ -172,27 +241,37 @@ export class PricingProfileRepository implements IPricingProfileRepository {
 
       if (insertError) {
         // Attempt rollback - restore previous mappings
-        console.error(`[TRANSACTION] Insert failed, attempting rollback for user ${userId}:`, insertError.message);
-        
+        console.error(
+          `[TRANSACTION] Insert failed, attempting rollback for user ${userId}:`,
+          insertError.message,
+        );
+
         if (existingCategoryIds.length > 0) {
-          const rollbackMappings = existingCategoryIds.map(categoryId => ({
+          const rollbackMappings = existingCategoryIds.map((categoryId) => ({
             user_id: userId,
-            category_id: categoryId
+            category_id: categoryId,
           }));
-          
+
           const { error: rollbackError } = await supabase
             .from(this.userCategoryTable)
             .insert(rollbackMappings);
 
           if (rollbackError) {
-            console.error(`[TRANSACTION] CRITICAL: Rollback failed for user ${userId}:`, rollbackError.message);
-            throw new DatabaseError(`Transaction failed and rollback failed. Data may be inconsistent. Original error: ${insertError.message}`);
+            console.error(
+              `[TRANSACTION] CRITICAL: Rollback failed for user ${userId}:`,
+              rollbackError.message,
+            );
+            throw new DatabaseError(
+              `Transaction failed and rollback failed. Data may be inconsistent. Original error: ${insertError.message}`,
+            );
           }
-          
+
           console.log(`[TRANSACTION] Rollback successful for user ${userId}`);
         }
 
-        throw new DatabaseError(`Failed to save skill categories: ${insertError.message}`);
+        throw new DatabaseError(
+          `Failed to save skill categories: ${insertError.message}`,
+        );
       }
     }
   }

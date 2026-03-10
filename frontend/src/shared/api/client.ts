@@ -31,20 +31,31 @@ export class HttpClient {
     return headers;
   }
 
+  private extractErrorMessage(payload: any): string {
+    if (!payload) return "Request failed";
+    if (typeof payload?.error === "string") return payload.error;
+    if (payload?.error?.message) return payload.error.message;
+    if (payload?.message) return payload.message;
+    return "Request failed";
+  }
+
   async get<T>(endpoint: string, options?: RequestOptions): Promise<T> {
-    const response = await fetch(`${this.baseUrl}${endpoint}`, {
-      method: "GET",
-      headers: this.getHeaders(options),
-      cache: "no-store",
-    });
+    let response: Response;
+    try {
+      response = await fetch(`${this.baseUrl}${endpoint}`, {
+        method: "GET",
+        headers: this.getHeaders(options),
+        cache: "no-store",
+      });
+    } catch {
+      throw new Error(
+        `Failed to fetch. Cannot reach API at ${this.baseUrl}. Ensure backend is running.`,
+      );
+    }
 
     if (!response.ok) {
-      const error = await response
-        .json()
-        .catch(() => ({
-          error: { message: "Network error. Please try again." },
-        }));
-      throw new Error(error.error?.message || "Request failed");
+      const error = await response.json().catch(() => null);
+      throw new Error(this.extractErrorMessage(error));
     }
 
     return response.json();
@@ -62,11 +73,9 @@ export class HttpClient {
     });
 
     if (!response.ok) {
-      const error = await response
-        .json()
-        .catch(() => ({
-          error: { message: "Network error. Please try again." },
-        }));
+      const error = await response.json().catch(() => ({
+        error: { message: "Network error. Please try again." },
+      }));
       throw new Error(error.error?.message || "Request failed");
     }
 
@@ -85,11 +94,9 @@ export class HttpClient {
     });
 
     if (!response.ok) {
-      const error = await response
-        .json()
-        .catch(() => ({
-          error: { message: "Network error. Please try again." },
-        }));
+      const error = await response.json().catch(() => ({
+        error: { message: "Network error. Please try again." },
+      }));
       throw new Error(error.error?.message || "Request failed");
     }
 
@@ -103,11 +110,9 @@ export class HttpClient {
     });
 
     if (!response.ok) {
-      const error = await response
-        .json()
-        .catch(() => ({
-          error: { message: "Network error. Please try again." },
-        }));
+      const error = await response.json().catch(() => ({
+        error: { message: "Network error. Please try again." },
+      }));
       throw new Error(error.error?.message || "Request failed");
     }
 
@@ -125,7 +130,7 @@ export class HttpClient {
   ): Promise<T> {
     // Don't set Content-Type - let browser set it with boundary for FormData
     const headers: Record<string, string> = {};
-    
+
     // Add auth token if available
     const token = localStorage.getItem("auth_token");
     if (token) {
@@ -145,11 +150,9 @@ export class HttpClient {
     });
 
     if (!response.ok) {
-      const error = await response
-        .json()
-        .catch(() => ({
-          error: { message: "Network error. Please try again." },
-        }));
+      const error = await response.json().catch(() => ({
+        error: { message: "Network error. Please try again." },
+      }));
       throw new Error(error.error?.message || "Upload failed");
     }
 
