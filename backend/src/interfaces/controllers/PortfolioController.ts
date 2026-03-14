@@ -151,6 +151,28 @@ export const getPublicPortfoliosController = asyncHandler(async (req: Request, r
 });
 
 /**
+ * GET /api/portfolio/public/:id
+ * Get a single public portfolio by id
+ * No authentication required
+ */
+export const getPublicPortfolioByIdController = asyncHandler(async (req: Request, res: Response) => {
+  const idParam = req.params.id;
+  const portfolioId = Number(idParam);
+
+  if (!idParam || Number.isNaN(portfolioId) || portfolioId <= 0) {
+    return ResponseHelper.error(res, 'Invalid portfolio id', 400);
+  }
+
+  const portfolio = await portfolioRepo.findPublicPortfolioById(portfolioId);
+
+  if (!portfolio) {
+    return ResponseHelper.notFound(res, 'Portfolio not found or not public');
+  }
+
+  return ResponseHelper.success(res, portfolio, 'Public portfolio retrieved successfully');
+});
+
+/**
  * GET /api/portfolio/categories
  * Get all categories for filtering
  * No authentication required

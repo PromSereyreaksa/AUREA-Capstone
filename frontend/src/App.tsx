@@ -30,7 +30,7 @@ import {
   PJEstimationPage,
 } from "./features/fee-estimator";
 
-import { GuestAccessViewpage } from "./features/guest-access";
+import { GuestAccessViewpage, PortfolioDetailPage } from "./features/guest-access";
 
 import { DashboardPage } from "./features/dashbard";
 import { ProjectsPage } from "./features/projects";
@@ -74,6 +74,10 @@ function App() {
 
           {/* Guest Access / Portfolios Route */}
           <Route path="/portfolios" element={<GuestAccessViewpage />} />
+          <Route
+            path="/portfolio/:portfolioId"
+            element={<PortfolioDetailPage />}
+          />
 
           {/* Dashboard Route */}
           <Route path="/dashboard" element={<DashboardPage />} />

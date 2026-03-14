@@ -4,3 +4,4 @@ export { PortfolioHeader } from "./components/PortfolioHeader";
 export { SearchBar } from "./components/SearchBar";
 export { GalleryGrid } from "./components/GalleryGrid";
 export { Pagination } from "./components/Pagination";
+export { PortfolioDetailPage } from "./components/PortfolioDetailPage";

@@ -1,4 +1,4 @@
-interface GalleryItem {
+export interface GalleryItem {
   id: number;
   title: string;
   image: string;
@@ -7,15 +7,17 @@ interface GalleryItem {
 
 interface GalleryGridProps {
   items: GalleryItem[];
+  onItemClick?: (item: GalleryItem) => void;
 }
 
-export const GalleryGrid = ({ items }: GalleryGridProps) => {
+export const GalleryGrid = ({ items, onItemClick }: GalleryGridProps) => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto mb-12">
       {items.map((item) => (
         <div
           key={item.id}
           className="group cursor-pointer border-3 border-black rounded-2xl overflow-hidden bg-black transition-transform duration-300"
+          onClick={() => onItemClick?.(item)}
         >
           <div className="aspect-video relative overflow-hidden">
             <img

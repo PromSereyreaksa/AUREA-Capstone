@@ -6,6 +6,7 @@ import {
   updatePortfolioController,
   getPublicPortfoliosController,
   getCategoriesController,
+  getPublicPortfolioByIdController,
 } from '../controllers/PortfolioController';
 import { authMiddleware } from '../../shared/middleware/authMiddleware';
 import { portfolioPdfUpload } from '../../shared/middleware/uploadMiddleware';
@@ -15,6 +16,7 @@ const portfolioRouter = Router();
 
 // Public routes (no authentication required)
 portfolioRouter.get('/public', getPublicPortfoliosController);
+portfolioRouter.get('/public/:id', getPublicPortfolioByIdController);
 portfolioRouter.get('/categories', getCategoriesController);
 
 // Protected routes (authentication required)

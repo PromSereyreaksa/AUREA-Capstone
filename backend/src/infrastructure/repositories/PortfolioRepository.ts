@@ -1,4 +1,4 @@
-import { IPortfolioRepository, PublicPortfolioFilters, PublicPortfolioResult } from '../../domain/repositories/IPortfolioRepository';
+import { IPortfolioRepository, PublicPortfolioFilters, PublicPortfolioResult, PublicPortfolioItem } from '../../domain/repositories/IPortfolioRepository';
 import { Portfolio } from '../../domain/entities/Portfolio';
 import { supabase } from '../db/supabaseClient';
 import { DatabaseError } from '../../shared/errors';
@@ -92,6 +92,115 @@ export class PortfolioRepository implements IPortfolioRepository {
     if (error) {
       throw new DatabaseError(`Failed to delete portfolio: ${error.message}`);
     }
+  }
+
+  async findPublicPortfolioById(portfolio_id: number): Promise<PublicPortfolioItem | null> {
+    // First, get the portfolio ensuring it is public and has a PDF
+    const { data: portfolio, error: portfolioError } = await supabase
+      .from('portfolio')
+      .select('portfolio_id, user_id, portfolio_url, is_public')
+      .eq('portfolio_id', portfolio_id)
+      .eq('is_public', true)
+      .not('portfolio_url', 'is', null)
+      .maybeSingle();
+
+    if (portfolioError) {
+      throw new DatabaseError(`Failed to fetch public portfolio: ${portfolioError.message}`);
+    }
+
+    if (!portfolio) {
+      return null;
+    }
+
+    const userId = portfolio.user_id;
+
+    // Fetch basic user info
+    const { data: userData, error: usersError } = await supabase
+      .from('users')
+      .select('user_id, first_name, last_name')
+      .eq('user_id', userId)
+      .maybeSingle();
+
+    if (usersError) {
+      const errorMsg = typeof usersError.message === 'string'
+        ? usersError.message
+        : JSON.stringify(usersError);
+      throw new DatabaseError(`Failed to fetch user: ${errorMsg}`);
+    }
+
+    // Fetch profile (avatar, skills, seniority)
+    const { data: profile, error: profileError } = await supabase
+      .from('user_profile')
+      .select('user_id, profile_avatar, skills, seniority_level')
+      .eq('user_id', userId)
+      .maybeSingle();
+
+    if (profileError) {
+      const errorMsg = typeof profileError.message === 'string'
+        ? profileError.message
+        : JSON.stringify(profileError);
+      throw new DatabaseError(`Failed to fetch user profile: ${errorMsg}`);
+    }
+
+    // Fetch categories for this portfolio
+    const { data: userCategoriesData, error: ucError } = await supabase
+      .from('user_category')
+      .select('portfolio_id, category_id')
+      .eq('portfolio_id', portfolio.portfolio_id);
+
+    if (ucError) {
+      const errorMsg = typeof ucError.message === 'string'
+        ? ucError.message
+        : JSON.stringify(ucError);
+      throw new DatabaseError(`Failed to fetch portfolio categories: ${errorMsg}`);
+    }
+
+    let categories: { category_id: number; category_name: string }[] = [];
+
+    if (userCategoriesData && userCategoriesData.length > 0) {
+      const categoryIds = [...new Set(userCategoriesData.map((uc: any) => uc.category_id))];
+
+      const { data: categoriesData, error: categoriesError } = await supabase
+        .from('category')
+        .select('category_id, category_name')
+        .in('category_id', categoryIds);
+
+      if (categoriesError) {
+        const errorMsg = typeof categoriesError.message === 'string'
+          ? categoriesError.message
+          : JSON.stringify(categoriesError);
+        throw new DatabaseError(`Failed to fetch categories: ${errorMsg}`);
+      }
+
+      const categoryLookup = new Map((categoriesData || []).map((c: any) => [c.category_id, c.category_name]));
+
+      categories = userCategoriesData
+        .map((uc: any) => {
+          const categoryName = categoryLookup.get(uc.category_id);
+          return categoryName
+            ? { category_id: uc.category_id, category_name: categoryName }
+            : null;
+        })
+        .filter(
+          (
+            c,
+          ): c is { category_id: number; category_name: string } => c !== null,
+        );
+    }
+
+    const merged = {
+      ...portfolio,
+      user_profile: {
+        first_name: userData?.first_name || '',
+        last_name: userData?.last_name || '',
+        profile_avatar: profile?.profile_avatar || null,
+        skills: profile?.skills || null,
+        seniority_level: profile?.seniority_level || null,
+      },
+      user_category: categories.map((c: any) => ({ category: c })),
+    };
+
+    return mapPublicPortfolioFromDb(merged);
   }
 
   async findPublicPortfolios(filters: PublicPortfolioFilters): Promise<PublicPortfolioResult> {
