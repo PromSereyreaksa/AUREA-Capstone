@@ -26,6 +26,7 @@ export const getPortfolioController = asyncHandler(async (req: Request, res: Res
     portfolio_id: portfolio.portfolio_id,
     user_id: portfolio.user_id,
     portfolio_url: portfolio.portfolio_url, // Public URL to access the PDF
+    portfolio_cover_url: portfolio.portfolio_cover_url,
     is_public: portfolio.is_public,
   }, 'Portfolio retrieved successfully');
 });
@@ -67,6 +68,7 @@ export const uploadPortfolioPdfController = asyncHandler(async (req: Request, re
     portfolio_id: updatedPortfolio.portfolio_id,
     user_id: updatedPortfolio.user_id,
     portfolio_url: updatedPortfolio.portfolio_url,
+    portfolio_cover_url: updatedPortfolio.portfolio_cover_url,
     is_public: updatedPortfolio.is_public,
   }, 'Portfolio PDF uploaded successfully');
 });
@@ -89,7 +91,7 @@ export const deletePortfolioPdfController = asyncHandler(async (req: Request, re
 
   // Update portfolio to remove PDF URL
   await portfolioRepo.update(user_id, {
-    portfolio_url: undefined
+    portfolio_url: null as any
   });
 
   return ResponseHelper.success(res, null, 'Portfolio PDF deleted successfully');
@@ -101,18 +103,107 @@ export const deletePortfolioPdfController = asyncHandler(async (req: Request, re
  */
 export const updatePortfolioController = asyncHandler(async (req: Request, res: Response) => {
   const { user_id } = req.user as any;
-  const { is_public } = req.body;
+  const { is_public, portfolio_url, portfolio_cover_url } = req.body;
+
+  let normalizedPortfolioUrl: string | null | undefined;
+  if (portfolio_url !== undefined) {
+    if (portfolio_url === null || portfolio_url === '') {
+      normalizedPortfolioUrl = null;
+    } else if (typeof portfolio_url === 'string') {
+      const trimmed = portfolio_url.trim();
+      if (trimmed.length > 0 && !/^https?:\/\/.+/i.test(trimmed)) {
+        return ResponseHelper.error(res, 'portfolio_url must be a valid HTTP or HTTPS URL', 400);
+      }
+      normalizedPortfolioUrl = trimmed;
+    } else {
+      return ResponseHelper.error(res, 'portfolio_url must be a string', 400);
+    }
+  }
+
+  let normalizedPortfolioCoverUrl: string | null | undefined;
+  if (portfolio_cover_url !== undefined) {
+    if (portfolio_cover_url === null || portfolio_cover_url === '') {
+      normalizedPortfolioCoverUrl = null;
+    } else if (typeof portfolio_cover_url === 'string') {
+      const trimmed = portfolio_cover_url.trim();
+      if (trimmed.length > 0 && !/^https?:\/\/.+/i.test(trimmed)) {
+        return ResponseHelper.error(res, 'portfolio_cover_url must be a valid HTTP or HTTPS URL', 400);
+      }
+      normalizedPortfolioCoverUrl = trimmed;
+    } else {
+      return ResponseHelper.error(res, 'portfolio_cover_url must be a string', 400);
+    }
+  }
 
   const updatedPortfolio = await portfolioRepo.update(user_id, {
-    is_public
+    is_public,
+    ...(normalizedPortfolioUrl !== undefined
+      ? { portfolio_url: normalizedPortfolioUrl as any }
+      : {}),
+    ...(normalizedPortfolioCoverUrl !== undefined
+      ? { portfolio_cover_url: normalizedPortfolioCoverUrl as any }
+      : {})
   });
 
   return ResponseHelper.success(res, {
     portfolio_id: updatedPortfolio.portfolio_id,
     user_id: updatedPortfolio.user_id,
     portfolio_url: updatedPortfolio.portfolio_url,
+    portfolio_cover_url: updatedPortfolio.portfolio_cover_url,
     is_public: updatedPortfolio.is_public,
   }, 'Portfolio updated successfully');
+});
+
+/**
+ * POST /api/portfolio/cover
+ * Upload portfolio cover image
+ */
+export const uploadPortfolioCoverController = asyncHandler(async (req: Request, res: Response) => {
+  const { user_id } = req.user as any;
+  const file = req.file;
+
+  if (!file) {
+    return ResponseHelper.error(res, 'No cover image provided', 400);
+  }
+
+  const existingPortfolio = await portfolioRepo.findByUserId(user_id);
+  if (existingPortfolio?.portfolio_cover_url) {
+    await storageService.deletePortfolioCover(existingPortfolio.portfolio_cover_url);
+  }
+
+  const publicUrl = await storageService.uploadPortfolioCover(user_id, file);
+  const updatedPortfolio = await portfolioRepo.update(user_id, {
+    portfolio_cover_url: publicUrl
+  });
+
+  return ResponseHelper.success(res, {
+    message: 'Portfolio cover uploaded successfully',
+    portfolio_id: updatedPortfolio.portfolio_id,
+    user_id: updatedPortfolio.user_id,
+    portfolio_url: updatedPortfolio.portfolio_url,
+    portfolio_cover_url: updatedPortfolio.portfolio_cover_url,
+    is_public: updatedPortfolio.is_public,
+  }, 'Portfolio cover uploaded successfully');
+});
+
+/**
+ * DELETE /api/portfolio/cover
+ * Delete portfolio cover image
+ */
+export const deletePortfolioCoverController = asyncHandler(async (req: Request, res: Response) => {
+  const { user_id } = req.user as any;
+
+  const portfolio = await portfolioRepo.findByUserId(user_id);
+  if (!portfolio || !portfolio.portfolio_cover_url) {
+    return ResponseHelper.notFound(res, 'No portfolio cover found');
+  }
+
+  await storageService.deletePortfolioCover(portfolio.portfolio_cover_url);
+  await portfolioRepo.update(user_id, {
+    portfolio_cover_url: null as any
+  });
+
+  return ResponseHelper.success(res, null, 'Portfolio cover deleted successfully');
 });
 
 /**

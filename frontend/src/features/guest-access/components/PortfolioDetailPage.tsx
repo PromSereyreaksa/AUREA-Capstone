@@ -5,7 +5,8 @@ import { httpClient } from "../../../shared/api/client";
 
 interface PublicPortfolioItem {
   portfolio_id: number;
-  portfolio_url: string;
+  portfolio_url: string | null;
+  portfolio_cover_url: string | null;
   is_public: boolean;
   user_id: number;
   first_name: string;
@@ -90,7 +91,21 @@ export const PortfolioDetailPage = () => {
         )}
 
         {!loading && !error && portfolio && (
-          <div className="grid grid-cols-1 md:grid-cols-[1.2fr,1.8fr] gap-10 items-start">
+          <div className="flex flex-col gap-8">
+            <div className="border-2 border-black rounded-2xl overflow-hidden bg-gray-100 aspect-[16/7]">
+              {portfolio.portfolio_cover_url ? (
+                <img
+                  src={portfolio.portfolio_cover_url}
+                  alt="Portfolio cover"
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center text-gray-500 text-sm">
+                  No cover image provided
+                </div>
+              )}
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-[1.2fr,1.8fr] gap-10 items-start">
             <div className="flex flex-col items-center md:items-start gap-4">
               <div className="w-32 h-32 rounded-full overflow-hidden border-2 border-black bg-gray-100 flex items-center justify-center">
                 {portfolio.profile_avatar ? (
@@ -156,20 +171,21 @@ export const PortfolioDetailPage = () => {
                 Portfolio
               </h2>
               <p className="text-gray-700 text-sm">
-                View this designer&apos;s full portfolio document in a new tab.
+                View this designer&apos;s portfolio in a new tab.
               </p>
               <button
                 onClick={handleViewPortfolio}
                 disabled={!portfolio.portfolio_url}
                 className="mt-2 inline-flex items-center justify-center px-6 py-3 rounded-full bg-[#FB8500] text-white font-semibold hover:bg-black transition disabled:bg-gray-300 disabled:text-gray-600"
               >
-                View portfolio PDF
+                View Portfolio
               </button>
               {!portfolio.portfolio_url && (
                 <p className="mt-2 text-xs text-gray-600">
                   This designer has not uploaded a portfolio document yet.
                 </p>
               )}
+            </div>
             </div>
           </div>
         )}

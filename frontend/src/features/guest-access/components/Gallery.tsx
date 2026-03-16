@@ -11,7 +11,8 @@ import type { GalleryItem } from "./GalleryGrid";
 
 interface PublicPortfolioItem {
   portfolio_id: number;
-  portfolio_url: string;
+  portfolio_url: string | null;
+  portfolio_cover_url: string | null;
   is_public: boolean;
   user_id: number;
   first_name: string;
@@ -69,7 +70,7 @@ export default function Gallery() {
             (item.seniority_level
               ? `${item.seniority_level} designer`
               : "Designer Portfolio"),
-          image: item.profile_avatar || "/placeholder.svg",
+          image: item.portfolio_cover_url || item.profile_avatar || "/1.jpg",
         }));
 
         setItems(mappedItems);

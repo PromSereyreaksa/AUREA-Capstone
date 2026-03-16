@@ -50,6 +50,7 @@ export class PortfolioRepository implements IPortfolioRepository {
       const newPortfolio: any = {
         user_id,
         portfolio_url: portfolio.portfolio_url,
+        portfolio_cover_url: portfolio.portfolio_cover_url,
         is_public: portfolio.is_public ?? false,
       };
 
@@ -98,7 +99,7 @@ export class PortfolioRepository implements IPortfolioRepository {
     // First, get the portfolio ensuring it is public and has a PDF
     const { data: portfolio, error: portfolioError } = await supabase
       .from('portfolio')
-      .select('portfolio_id, user_id, portfolio_url, is_public')
+      .select('portfolio_id, user_id, portfolio_url, portfolio_cover_url, is_public')
       .eq('portfolio_id', portfolio_id)
       .eq('is_public', true)
       .not('portfolio_url', 'is', null)
@@ -286,7 +287,7 @@ export class PortfolioRepository implements IPortfolioRepository {
     const buildBaseQuery = () => {
       let q = supabase
         .from('portfolio')
-        .select('portfolio_id, user_id, portfolio_url, is_public, updated_at', { count: 'exact' })
+        .select('portfolio_id, user_id, portfolio_url, portfolio_cover_url, is_public, updated_at', { count: 'exact' })
         .eq('is_public', true)
         .not('portfolio_url', 'is', null);
 

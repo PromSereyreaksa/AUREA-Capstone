@@ -3,13 +3,15 @@ import {
   getPortfolioController,
   uploadPortfolioPdfController,
   deletePortfolioPdfController,
+  uploadPortfolioCoverController,
+  deletePortfolioCoverController,
   updatePortfolioController,
   getPublicPortfoliosController,
   getCategoriesController,
   getPublicPortfolioByIdController,
 } from '../controllers/PortfolioController';
 import { authMiddleware } from '../../shared/middleware/authMiddleware';
-import { portfolioPdfUpload } from '../../shared/middleware/uploadMiddleware';
+import { portfolioPdfUpload, portfolioCoverUpload } from '../../shared/middleware/uploadMiddleware';
 
 // Portfolio routes for portfolio CRUD operations
 const portfolioRouter = Router();
@@ -29,5 +31,7 @@ portfolioRouter.put('/', authMiddleware, updatePortfolioController);
 // Portfolio PDF routes
 portfolioRouter.post('/pdf', authMiddleware, portfolioPdfUpload.single('pdf'), uploadPortfolioPdfController);
 portfolioRouter.delete('/pdf', authMiddleware, deletePortfolioPdfController);
+portfolioRouter.post('/cover', authMiddleware, portfolioCoverUpload.single('cover'), uploadPortfolioCoverController);
+portfolioRouter.delete('/cover', authMiddleware, deletePortfolioCoverController);
 
 export default portfolioRouter;

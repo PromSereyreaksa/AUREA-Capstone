@@ -44,3 +44,26 @@ export const portfolioPdfUpload = multer({
   }
 });
 
+/**
+ * Portfolio cover upload configuration
+ * - Stores files in memory for Supabase upload
+ * - Max size: 10MB
+ * - Allowed types: JPEG, PNG, WebP
+ */
+export const portfolioCoverUpload = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 10 * 1024 * 1024,
+    files: 1
+  },
+  fileFilter: (req, file, cb) => {
+    const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'];
+
+    if (allowedMimeTypes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only JPEG, PNG, and WebP images are allowed'));
+    }
+  }
+});
+

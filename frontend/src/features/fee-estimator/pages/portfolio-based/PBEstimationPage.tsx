@@ -31,6 +31,84 @@ interface RateCalculation {
   };
 }
 
+const mapAnalysisFromResponse = (payload: any): AnalysisResult | null => {
+  if (payload?.analysis) {
+    return payload.analysis as AnalysisResult;
+  }
+
+  if (payload?.portfolio_signals || payload?.confirmed_values) {
+    const signals = payload.portfolio_signals || {};
+    const confirmed = payload.confirmed_values || {};
+    return {
+      seniority_level: confirmed.seniority_level || signals.seniority_level || "mid",
+      skill_areas: confirmed.skill_areas || signals.skill_areas || [],
+      specialization: confirmed.specialization || signals.specialization || "General Design",
+      portfolio_quality_tier:
+        confirmed.portfolio_quality_tier || signals.portfolio_quality_tier || "standard",
+      experience_indicators: {
+        years_estimated: Math.max(1, Math.round((signals?.evidence?.length || 3) * 1.5)),
+        project_count: signals?.evidence?.length || 0,
+        client_types: [],
+      },
+      confidence: confirmed.confidence || signals.confidence || "medium",
+    };
+  }
+
+  return null;
+};
+
+const mapCalculationFromResponse = (payload: any): RateCalculation | null => {
+  if (payload?.rate_calculation) {
+    return payload.rate_calculation as RateCalculation;
+  }
+
+  const suggested = payload?.suggested_rate;
+  if (suggested) {
+    return {
+      recommended_hourly_rate: suggested.hourly_rate || 0,
+      rate_range: {
+        min: suggested.rate_range?.low || suggested.hourly_rate || 0,
+        max: suggested.rate_range?.high || suggested.hourly_rate || 0,
+      },
+      adjustments_applied: {
+        base_rate: suggested.base_rate || suggested.hourly_rate || 0,
+        seniority_multiplier: suggested.seniority_multiplier || 1,
+        portfolio_quality_bonus: 1,
+        client_region_factor: 1,
+      },
+    };
+  }
+
+  const aiRate = payload?.ai_recommended_rate;
+  if (aiRate) {
+    return {
+      recommended_hourly_rate: aiRate.hourly_rate || 0,
+      rate_range: {
+        min: aiRate.rate_range?.low || aiRate.hourly_rate || 0,
+        max: aiRate.rate_range?.high || aiRate.hourly_rate || 0,
+      },
+      adjustments_applied: {
+        base_rate: payload?.ai_calculation_breakdown?.base_rate || aiRate.hourly_rate || 0,
+        seniority_multiplier: payload?.ai_calculation_breakdown?.seniority_multiplier || 1,
+        portfolio_quality_bonus: 1,
+        client_region_factor: payload?.ai_calculation_breakdown?.client_multiplier || 1,
+      },
+    };
+  }
+
+  return null;
+};
+
+const mapReasoningFromResponse = (payload: any): string => {
+  return (
+    payload?.reasoning ||
+    payload?.explainability?.summary ||
+    payload?.ai_recommended_rate?.reasoning ||
+    payload?.suggested_rate?.note ||
+    "Rate recommendation generated."
+  );
+};
+
 const clientTypeOptions = [
   { value: "startup", label: "Startup" },
   { value: "sme", label: "Small/Medium Enterprises" },
@@ -45,9 +123,44 @@ const regionOptions = [
   { value: "global", label: "Global" },
 ];
 
+const LinkIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <path d="M10 13a5 5 0 0 0 7.07 0l3.54-3.54a5 5 0 0 0-7.07-7.07L11 4" />
+    <path d="M14 11a5 5 0 0 0-7.07 0L3.4 14.54a5 5 0 0 0 7.07 7.07L13 20" />
+  </svg>
+);
+
+const FileIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+    <polyline points="14 2 14 8 20 8" />
+  </svg>
+);
+
+const EditIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <path d="M12 20h9" />
+    <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z" />
+  </svg>
+);
+
+const ClipboardIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <rect x="8" y="2" width="8" height="4" rx="1" />
+    <path d="M9 4H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-3" />
+  </svg>
+);
+
+const CheckIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+    <polyline points="20 6 9 17 4 12" />
+  </svg>
+);
+
 const PBEstimationPage = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const hasBackendAuth = Boolean(localStorage.getItem("auth_token"));
   const [step, setStep] = useState<"input" | "analysis" | "result">("input");
   const [inputMode, setInputMode] = useState<"url" | "pdf" | "text" | "manual">("url");
 
@@ -118,7 +231,7 @@ const PBEstimationPage = () => {
   };
 
   const handleAnalyze = async () => {
-    if (!user || !user.user_id) {
+    if (!hasBackendAuth) {
       setAnalysisError("User not authenticated");
       return;
     }
@@ -133,7 +246,7 @@ const PBEstimationPage = () => {
       setAnalysisError(null);
 
       let requestData: any = {
-        user_id: user.user_id,
+        user_id: user?.user_id || 1,
         client_type: clientType,
         client_region: clientRegion,
         use_ai: useAI,
@@ -142,7 +255,7 @@ const PBEstimationPage = () => {
       if (inputMode === "pdf" && portfolioFile) {
         // Handle PDF upload with FormData
         const formData = new FormData();
-        formData.append("user_id", user.user_id.toString());
+        formData.append("user_id", String(user?.user_id || 1));
         formData.append("portfolio_pdf", portfolioFile);
         formData.append("client_type", clientType);
         formData.append("client_region", clientRegion);
@@ -150,9 +263,9 @@ const PBEstimationPage = () => {
 
         const response = await pricingClient.portfolioAssist(formData);
         if (response.success) {
-          setAnalysis(response.data.analysis);
-          setCalculation(response.data.rate_calculation);
-          setReasoning(response.data.reasoning);
+          setAnalysis(mapAnalysisFromResponse(response.data));
+          setCalculation(mapCalculationFromResponse(response.data));
+          setReasoning(mapReasoningFromResponse(response.data));
           setStep("result");
         } else {
           setAnalysisError(response.error?.message || "Analysis failed");
@@ -176,9 +289,9 @@ const PBEstimationPage = () => {
 
         const response = await pricingClient.portfolioAssist(requestData);
         if (response.success) {
-          setAnalysis(response.data.analysis);
-          setCalculation(response.data.rate_calculation);
-          setReasoning(response.data.reasoning);
+          setAnalysis(mapAnalysisFromResponse(response.data));
+          setCalculation(mapCalculationFromResponse(response.data));
+          setReasoning(mapReasoningFromResponse(response.data));
           setStep("result");
         } else {
           setAnalysisError(response.error?.message || "Analysis failed");
@@ -193,7 +306,7 @@ const PBEstimationPage = () => {
   };
 
   const handleAcceptRate = async () => {
-    if (!user || !user.user_id || !calculation) {
+    if (!hasBackendAuth || !calculation) {
       setAcceptError("User not authenticated or rate not calculated");
       return;
     }
@@ -251,10 +364,10 @@ const PBEstimationPage = () => {
                   </h2>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {[
-                      { id: "url", label: "Portfolio URL", icon: "🔗" },
-                      { id: "pdf", label: "PDF Upload", icon: "📄" },
-                      { id: "text", label: "Describe Your Work", icon: "✍️" },
-                      { id: "manual", label: "Manual Entry", icon: "📋" },
+                      { id: "url", label: "Portfolio URL", icon: <LinkIcon /> },
+                      { id: "pdf", label: "PDF Upload", icon: <FileIcon /> },
+                      { id: "text", label: "Describe Your Work", icon: <EditIcon /> },
+                      { id: "manual", label: "Manual Entry", icon: <ClipboardIcon /> },
                     ].map((mode) => (
                       <button
                         key={mode.id}
@@ -265,7 +378,7 @@ const PBEstimationPage = () => {
                             : "border-black bg-white text-gray-700 hover:border-[#FB8500]"
                         }`}
                       >
-                        <span className="text-2xl mr-2">{mode.icon}</span>
+                        <span className="inline-flex items-center justify-center mr-2 align-middle">{mode.icon}</span>
                         {mode.label}
                       </button>
                     ))}
@@ -301,7 +414,10 @@ const PBEstimationPage = () => {
                         className="w-full px-4 py-3 border-2 border-black rounded-lg text-sm font-medium"
                       />
                       {portfolioFile && (
-                        <p className="text-sm text-green-600 mt-2">✓ {portfolioFile.name}</p>
+                        <p className="text-sm text-green-600 mt-2 inline-flex items-center gap-1">
+                          <CheckIcon />
+                          {portfolioFile.name}
+                        </p>
                       )}
                     </div>
                   )}
@@ -451,7 +567,7 @@ const PBEstimationPage = () => {
                   >
                     BACK
                   </button>
-                  {user && user.user_id ? (
+                  {hasBackendAuth ? (
                     <button
                       onClick={handleAnalyze}
                       disabled={isAnalyzing}
@@ -480,8 +596,9 @@ const PBEstimationPage = () => {
               // Result View
               <div className="max-w-2xl space-y-6 animate-[fadeIn_0.4s_ease-out]">
                 {/* Analysis Results */}
-                {analysis && (
+                {(analysis || calculation) && (
                   <>
+                    {analysis && (
                     <section className="bg-[#FFE8DC] border-2 border-black rounded-xl p-6 animate-[slideUp_0.5s_ease-out]">
                       <h2 className="text-lg font-bold text-[#FB8500] mb-4">Portfolio Analysis</h2>
                       <div className="space-y-3 text-sm">
@@ -511,6 +628,7 @@ const PBEstimationPage = () => {
                         </div>
                       </div>
                     </section>
+                    )}
 
                     {/* Rate Calculation */}
                     {calculation && (
@@ -581,7 +699,7 @@ const PBEstimationPage = () => {
                   >
                     ADJUST
                   </button>
-                  {user && user.user_id ? (
+                  {hasBackendAuth ? (
                     <button
                       onClick={handleAcceptRate}
                       disabled={isAccepting}
@@ -668,3 +786,4 @@ const PBEstimationPage = () => {
 };
 
 export default PBEstimationPage;
+

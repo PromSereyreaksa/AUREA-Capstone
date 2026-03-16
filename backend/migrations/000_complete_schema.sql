@@ -79,6 +79,7 @@ CREATE TABLE portfolio (
   portfolio_id SERIAL PRIMARY KEY,
   user_id INT NOT NULL UNIQUE REFERENCES users(user_id) ON DELETE CASCADE,
   portfolio_url VARCHAR(500),  -- Public URL in Supabase Storage user_portfolio bucket
+  portfolio_cover_url VARCHAR(500), -- Public URL for portfolio cover image
   is_public BOOLEAN DEFAULT FALSE,
   created_at TIMESTAMP DEFAULT NOW(),
   updated_at TIMESTAMP DEFAULT NOW()

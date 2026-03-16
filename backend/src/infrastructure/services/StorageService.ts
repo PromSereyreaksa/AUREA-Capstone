@@ -7,6 +7,7 @@ export class StorageService {
   private readonly AVATAR_BUCKET = 'avatars';
   private readonly PROJECT_PDF_BUCKET = 'project_pdf';
   private readonly PORTFOLIO_PDF_BUCKET = 'user_portfolio';
+  private readonly PORTFOLIO_COVER_BUCKET = 'avatars';
   private readonly MAX_AVATAR_SIZE = 5 * 1024 * 1024; // 5MB
   private readonly MAX_PDF_SIZE = 10 * 1024 * 1024; // 10MB
   
@@ -295,5 +296,70 @@ export class StorageService {
 
     // Upload new PDF
     return this.uploadPortfolioPdf(userId, pdfBuffer, originalName);
+  }
+
+  /**
+   * Upload portfolio cover image (public)
+   */
+  async uploadPortfolioCover(userId: number, file: Express.Multer.File): Promise<string> {
+    // Reuse avatar constraints for cover images
+    if (file.size > this.MAX_AVATAR_SIZE) {
+      throw new DatabaseError('File size exceeds 5MB limit');
+    }
+
+    const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'];
+    if (!allowedMimeTypes.includes(file.mimetype)) {
+      throw new DatabaseError('Only JPEG, PNG, and WebP images are allowed');
+    }
+
+    const fileExt = path.extname(file.originalname);
+    const fileName = `${userId}/portfolio-cover-${crypto.randomUUID()}${fileExt}`;
+
+    const { data, error } = await supabase.storage
+      .from(this.PORTFOLIO_COVER_BUCKET)
+      .upload(fileName, file.buffer, {
+        contentType: file.mimetype,
+        upsert: false,
+        cacheControl: '3600',
+      });
+
+    if (error) {
+      throw new DatabaseError(`Failed to upload portfolio cover: ${error.message}`);
+    }
+
+    const { data: publicUrlData } = supabase.storage
+      .from(this.PORTFOLIO_COVER_BUCKET)
+      .getPublicUrl(data.path);
+
+    return publicUrlData.publicUrl;
+  }
+
+  /**
+   * Delete portfolio cover image
+   */
+  async deletePortfolioCover(coverUrl: string): Promise<void> {
+    if (!coverUrl) return;
+
+    try {
+      const url = new URL(coverUrl);
+      const pathSegments = url.pathname.split('/');
+      const bucketIndex = pathSegments.indexOf(this.PORTFOLIO_COVER_BUCKET);
+
+      if (bucketIndex === -1) {
+        throw new Error('Invalid portfolio cover URL format');
+      }
+
+      const filePath = pathSegments.slice(bucketIndex + 1).join('/');
+
+      const { error } = await supabase.storage
+        .from(this.PORTFOLIO_COVER_BUCKET)
+        .remove([filePath]);
+
+      if (error) {
+        console.error(`Failed to delete portfolio cover: ${error.message}`);
+      }
+    } catch (err) {
+      console.error('Error deleting portfolio cover:', err);
+    }
   }
 }
