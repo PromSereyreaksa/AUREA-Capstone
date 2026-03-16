@@ -12,6 +12,8 @@ const initialTimeComplexity: TimeComplexity = {
   duration: 0,
   difficulty: null,
   difficultyMultiplier: 1,
+  client_type: null,
+  client_region: null,
   licensing: {
     commercialRights: 'personal',
     projectLicensing: 'one-time',
@@ -79,7 +81,10 @@ export const useFeeEstimator = () => {
       case 3:
         return state.deliverables.length > 0;
       case 4:
-        return state.timeComplexity.duration > 0 && state.timeComplexity.difficulty !== null;
+        return state.timeComplexity.duration > 0 &&
+          state.timeComplexity.difficulty !== null &&
+          state.timeComplexity.client_type !== null &&
+          state.timeComplexity.client_region !== null;
       default:
         return true;
     }

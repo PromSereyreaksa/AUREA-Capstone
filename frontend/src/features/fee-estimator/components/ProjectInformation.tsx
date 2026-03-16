@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import type { ProjectInformation as ProjectInfoType } from '../types';
+import type { ProjectInformation as ProjectInfoType } from '../shared/types';
 
 interface ProjectInformationProps {
   projectInfo: ProjectInfoType;

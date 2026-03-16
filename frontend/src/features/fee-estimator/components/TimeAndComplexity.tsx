@@ -1,5 +1,5 @@
 import React from 'react';
-import type { TimeComplexity as TimeComplexityType } from '../types';
+import type { TimeComplexity as TimeComplexityType } from '../shared/types';
 
 interface TimeAndComplexityProps {
   timeComplexity: TimeComplexityType;
@@ -27,6 +27,20 @@ const projectLicensingOptions = [
   { value: 'one-time', label: 'One-Time Used' },
   { value: 'limited', label: 'Limited Used' },
   { value: 'exclusive', label: 'Exclusive License' }
+] as const;
+
+const clientTypeOptions = [
+  { value: 'startup', label: 'Startup' },
+  { value: 'sme', label: 'SME' },
+  { value: 'corporate', label: 'Corporate' },
+  { value: 'ngo', label: 'NGO / Non-Profit' },
+  { value: 'government', label: 'Government' }
+] as const;
+
+const clientRegionOptions = [
+  { value: 'cambodia', label: 'Cambodia' },
+  { value: 'southeast_asia', label: 'Southeast Asia' },
+  { value: 'global', label: 'Global' }
 ] as const;
 
 export const TimeAndComplexity: React.FC<TimeAndComplexityProps> = ({
@@ -65,6 +79,14 @@ export const TimeAndComplexity: React.FC<TimeAndComplexityProps> = ({
     });
   };
 
+  const handleClientTypeChange = (client_type: typeof clientTypeOptions[number]['value']) => {
+    onUpdate({ client_type });
+  };
+
+  const handleClientRegionChange = (client_region: typeof clientRegionOptions[number]['value']) => {
+    onUpdate({ client_region });
+  };
+
   const handleCustomLicensingChange = (customLicensing: string) => {
     onUpdate({
       licensing: {
@@ -74,7 +96,10 @@ export const TimeAndComplexity: React.FC<TimeAndComplexityProps> = ({
     });
   };
 
-  const canProceed = timeComplexity.duration > 0 && timeComplexity.difficulty !== null;
+  const canProceed = timeComplexity.duration > 0 &&
+    timeComplexity.difficulty !== null &&
+    timeComplexity.client_type !== null &&
+    timeComplexity.client_region !== null;
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
@@ -157,6 +182,55 @@ export const TimeAndComplexity: React.FC<TimeAndComplexityProps> = ({
             }}>
               x{timeComplexity.difficultyMultiplier}
             </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Client Context Section */}
+      <div className="form-section">
+        <h2 className="form-section-title">Client Context</h2>
+
+        {/* Client Type */}
+        <div className="form-group">
+          <label className="form-label">Client Type</label>
+          <div style={{ position: 'relative', width: '100%' }}>
+            <select
+              value={timeComplexity.client_type || ''}
+              onChange={(e) => handleClientTypeChange(e.target.value as any)}
+              className="form-input"
+              style={{
+                appearance: 'none',
+                backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`,
+                backgroundPosition: 'right 0.5rem center',
+                backgroundRepeat: 'no-repeat',
+                backgroundSize: '1.5em 1.5em',
+                paddingRight: '2.5rem'
+              }}
+            >
+              <option value="">Select Client Type</option>
+              {clientTypeOptions.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        {/* Client Region */}
+        <div className="form-group">
+          <label className="form-label">Client Region</label>
+          <div className="radio-group horizontal">
+            {clientRegionOptions.map((option) => (
+              <div
+                key={option.value}
+                className={`radio-option ${timeComplexity.client_region === option.value ? 'selected' : ''}`}
+                onClick={() => handleClientRegionChange(option.value)}
+              >
+                <div className={`radio-button ${timeComplexity.client_region === option.value ? 'selected' : ''}`} />
+                <span className="radio-label">{option.label}</span>
+              </div>
+            ))}
           </div>
         </div>
       </div>
