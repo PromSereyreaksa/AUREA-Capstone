@@ -28,6 +28,8 @@ export interface TimeComplexity {
   duration: number; // in hours
   difficulty: 'easy' | 'medium' | 'hard' | 'complex' | null;
   difficultyMultiplier: number;
+  client_type: 'startup' | 'sme' | 'corporate' | 'ngo' | 'government' | null;
+  client_region: 'cambodia' | 'southeast_asia' | 'global' | null;
   licensing: {
     commercialRights: 'personal' | 'small-business' | 'large-corporation' | 'full-commercial' | 'other';
     projectLicensing: 'one-time' | 'limited' | 'exclusive';

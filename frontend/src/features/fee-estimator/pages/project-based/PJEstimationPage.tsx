@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../auth/context/AuthContext';
 import Sidebar from '../../../../shared/components/Sidebar';
@@ -9,7 +9,10 @@ import {
   ProjectSummary,
 } from '../../components';
 import { useFeeEstimator } from '../../shared/hooks/useFeeEstimator';
+import { PricingClient } from '../../../../shared/api/pricingClient';
 import '../../shared/styles/fee-estimator.css';
+
+const pricingClient = new PricingClient();
 
 const PJEstimationPage: React.FC = () => {
   const { user } = useAuth();
@@ -30,6 +33,14 @@ const PJEstimationPage: React.FC = () => {
     if (user?.last_name) return user.last_name;
     return "Designer";
   };
+
+  // Check that user has a pricing profile; redirect to base-rate setup if not
+  useEffect(() => {
+    if (!user?.user_id) return;
+    pricingClient.getPricingProfile(user.user_id).catch(() => {
+      navigate('/fee-estimator/base-rate');
+    });
+  }, [user?.user_id, navigate]);
 
   // Map internal steps: we start at step 2 (project info) since mode is already "project-based"
   // Step 1 = Project Information (internal step 2)
@@ -82,11 +93,11 @@ const PJEstimationPage: React.FC = () => {
             projectInfo={state.projectInfo}
             deliverables={state.deliverables}
             timeComplexity={state.timeComplexity}
+            userId={user?.user_id ?? 0}
             onEdit={(step: number) => {
               goToStep(step);
             }}
             onComplete={() => {
-              // TODO: Submit to backend for price calculation
               reset();
               navigate('/fee-estimator');
             }}

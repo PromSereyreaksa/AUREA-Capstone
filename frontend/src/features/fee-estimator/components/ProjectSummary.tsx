@@ -1,21 +1,62 @@
-import React from 'react';
-import type { ProjectInformation, DeliverableItem, TimeComplexity } from '../types';
+import React, { useState } from 'react';
+import type { ProjectInformation, DeliverableItem, TimeComplexity } from '../shared/types';
+import { PricingClient } from '../../../shared/api/pricingClient';
+import type { ProjectRateResponse } from '../../../shared/api/pricingClient';
 
 interface ProjectSummaryProps {
   projectInfo: ProjectInformation;
   deliverables: DeliverableItem[];
   timeComplexity: TimeComplexity;
+  userId: number;
   onEdit: (step: number) => void;
   onComplete: () => void;
 }
+
+const pricingClient = new PricingClient();
+
+const LICENSING_MULTIPLIERS: Record<string, number> = {
+  'one-time': 1.0,
+  'limited': 1.2,
+  'exclusive': 1.5,
+};
 
 export const ProjectSummary: React.FC<ProjectSummaryProps> = ({
   projectInfo,
   deliverables,
   timeComplexity,
+  userId,
   onEdit,
   onComplete
 }) => {
+  const [isCalculating, setIsCalculating] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [result, setResult] = useState<ProjectRateResponse['data'] | null>(null);
+
+  const handleCalculate = async () => {
+    if (!timeComplexity.client_type || !timeComplexity.client_region) {
+      setError('Please go back and set the client type and region.');
+      return;
+    }
+    setIsCalculating(true);
+    setError(null);
+    try {
+      const response = await pricingClient.calculateProjectRate({
+        user_id: userId,
+        client_type: timeComplexity.client_type,
+        client_region: timeComplexity.client_region,
+      });
+      setResult(response.data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Calculation failed. Please try again.');
+    } finally {
+      setIsCalculating(false);
+    }
+  };
+
+  const licensingMultiplier = LICENSING_MULTIPLIERS[timeComplexity.licensing.projectLicensing] ?? 1.0;
+  const totalProjectPrice = result
+    ? Math.round(result.project_rate * timeComplexity.duration * timeComplexity.difficultyMultiplier * licensingMultiplier)
+    : null;
   const formatDifficulty = (difficulty: string | null) => {
     if (!difficulty) return 'Not specified';
     return difficulty.charAt(0).toUpperCase() + difficulty.slice(1);
@@ -245,6 +286,24 @@ export const ProjectSummary: React.FC<ProjectSummaryProps> = ({
                 </div>
               </div>
             </div>
+
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <span style={{ color: '#000000', fontWeight: '600' }}>Client Type</span>
+              <span style={{ color: '#000000', fontWeight: '600' }}>
+                {timeComplexity.client_type
+                  ? { startup: 'Startup', sme: 'SME', corporate: 'Corporate', ngo: 'NGO / Non-Profit', government: 'Government' }[timeComplexity.client_type]
+                  : 'Not specified'}
+              </span>
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <span style={{ color: '#000000', fontWeight: '600' }}>Client Region</span>
+              <span style={{ color: '#000000', fontWeight: '600' }}>
+                {timeComplexity.client_region
+                  ? { cambodia: 'Cambodia', southeast_asia: 'Southeast Asia', global: 'Global' }[timeComplexity.client_region]
+                  : 'Not specified'}
+              </span>
+            </div>
           </div>
         </div>
 
@@ -315,30 +374,118 @@ export const ProjectSummary: React.FC<ProjectSummaryProps> = ({
           </div>
         </div>
 
-        {/* Coming Soon Message */}
-        <div className="coming-soon-container">
-          <div className="coming-soon-icon">
-            <svg width="96" height="96" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <circle cx="12" cy="12" r="10"/>
-              <path d="M12 6v6l4 2"/>
-            </svg>
+        {/* Error Banner */}
+        {error && (
+          <div style={{
+            background: '#FEF2F2',
+            border: '2px solid #EF4444',
+            borderRadius: '0.75rem',
+            padding: '1rem',
+            marginBottom: '1.5rem'
+          }}>
+            <p style={{ color: '#DC2626', margin: 0, fontSize: '0.875rem', fontWeight: '600' }}>{error}</p>
           </div>
-          <h3 className="coming-soon-title">Calculation Coming Soon</h3>
-          <p className="coming-soon-description">
-            The calculation engine is currently under development.<br />
-            Your project information has been saved and you'll be able to get pricing estimates soon.
-          </p>
-        </div>
+        )}
+
+        {/* Calculation Result */}
+        {result && (
+          <div style={{
+            background: '#F0FDF4',
+            border: '2px solid #000000',
+            borderRadius: '0.75rem',
+            padding: '1.5rem',
+            marginBottom: '1.5rem',
+            boxShadow: '2px 2px 0 rgba(0, 0, 0, 0.2)'
+          }}>
+            <h3 style={{
+              color: '#16A34A',
+              fontSize: '1rem',
+              fontWeight: '700',
+              margin: '0 0 1rem 0',
+              textTransform: 'uppercase',
+              letterSpacing: '0.5px'
+            }}>
+              Estimated Project Cost
+            </h3>
+            <div style={{ display: 'grid', gap: '0.75rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ color: '#000000', fontWeight: '600' }}>Adjusted Hourly Rate</span>
+                <span style={{ color: '#16A34A', fontWeight: '700', fontSize: '1.125rem' }}>
+                  ${result.project_rate.toFixed(2)}/hr
+                </span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ color: '#666666', fontSize: '0.875rem' }}>Base Hourly Rate</span>
+                <span style={{ color: '#666666', fontWeight: '600' }}>${result.base_rate.toFixed(2)}/hr</span>
+              </div>
+              {result.adjustments && (
+                <>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{ color: '#666666', fontSize: '0.875rem' }}>Client Type Multiplier</span>
+                    <span style={{ color: '#666666', fontSize: '0.875rem' }}>×{result.adjustments.client_type_multiplier}</span>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{ color: '#666666', fontSize: '0.875rem' }}>Region Multiplier</span>
+                    <span style={{ color: '#666666', fontSize: '0.875rem' }}>×{result.adjustments.region_multiplier}</span>
+                  </div>
+                </>
+              )}
+              <div style={{ height: '1px', background: '#D1D5DB', margin: '0.25rem 0' }} />
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ color: '#000000', fontWeight: '700', textTransform: 'uppercase', fontSize: '0.875rem' }}>
+                  Total Project Estimate
+                </span>
+                <span style={{ color: '#FB8500', fontWeight: '800', fontSize: '1.5rem' }}>
+                  ${totalProjectPrice?.toLocaleString()}
+                </span>
+              </div>
+              {result.recommended_price_range && (
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ color: '#666666', fontSize: '0.875rem' }}>Market Rate Range</span>
+                  <span style={{ color: '#666666', fontSize: '0.875rem' }}>
+                    ${result.recommended_price_range.min.toFixed(0)} – ${result.recommended_price_range.max.toFixed(0)}/hr
+                  </span>
+                </div>
+              )}
+              {result.market_position && (
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ color: '#666666', fontSize: '0.875rem' }}>Market Position</span>
+                  <div style={{
+                    padding: '0.125rem 0.5rem',
+                    background: '#FFE8DC',
+                    border: '1px solid #FB8500',
+                    borderRadius: '0.5rem',
+                    fontSize: '0.75rem',
+                    fontWeight: '600',
+                    color: '#FB8500'
+                  }}>
+                    {result.market_position}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Navigation Buttons */}
       <div className="button-container">
-        <button className="btn btn-secondary" onClick={onComplete}>
-          Edit
+        <button className="btn btn-secondary" onClick={() => onEdit(4)}>
+          Back
         </button>
-        <button className="btn btn-primary" onClick={onComplete}>
-          Next
-        </button>
+        {result ? (
+          <button className="btn btn-primary" onClick={onComplete}>
+            Done
+          </button>
+        ) : (
+          <button
+            className={`btn btn-primary ${isCalculating ? 'disabled' : ''}`}
+            onClick={handleCalculate}
+            disabled={isCalculating}
+          >
+            {isCalculating ? 'Calculating...' : 'Calculate'}
+          </button>
+        )}
       </div>
       </div>
     </div>

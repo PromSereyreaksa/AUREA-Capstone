@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import type { DeliverableItem } from '../types';
+import type { DeliverableItem } from '../shared/types';
 
 interface ScopeAndDeliverableProps {
   deliverables: DeliverableItem[];
