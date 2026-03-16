@@ -1,65 +1,110 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { PortfolioHeader } from "./PortfolioHeader";
 import { SearchBar } from "./SearchBar";
 import { GalleryGrid } from "./GalleryGrid";
 import { Pagination } from "./Pagination";
+import { httpClient } from "../../../shared/api/client";
+import type { GalleryItem } from "./GalleryGrid";
 
-const galleryItems = [
-  {
-    id: 1,
-    name: "sereyreaksa",
-    title: "My best Portfolio",
-    image:
-      "https://images.unsplash.com/photo-1578282055671-61814c8f2e5e?w=500&h=400&fit=crop",
-  },
-  {
-    id: 2,
-    name: "ilong",
-    title: "My worst Portfolio",
-    image:
-      "https://images.unsplash.com/photo-1516594915649-c945b9c922c8?w=500&h=400&fit=crop",
-  },
-  {
-    id: 3,
-    name: "bunheang",
-    title: "hello sir",
-    image:
-      "https://images.unsplash.com/photo-1633356122544-f134324ef6db?w=500&h=400&fit=crop",
-  },
-  {
-    id: 4,
-    name: "sophanith",
-    title: "Young & Free",
-    image:
-      "https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=500&h=400&fit=crop",
-  },
-  {
-    id: 5,
-    name: "belly",
-    title: "Abstract Ocean",
-    image:
-      "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=500&h=400&fit=crop",
-  },
-  {
-    id: 6,
-    name: "hanuman",
-    title: "Dark Wanderer",
-    image:
-      "https://images.unsplash.com/photo-1484693432045-dfb8e4c6d8c4?w=500&h=400&fit=crop",
-  },
-];
+interface PublicPortfolioItem {
+  portfolio_id: number;
+  portfolio_url: string;
+  is_public: boolean;
+  user_id: number;
+  first_name: string;
+  last_name: string;
+  profile_avatar: string | null;
+  skills: string[];
+  seniority_level: string | null;
+  categories: { category_id: number; category_name: string }[];
+}
+
+interface PaginatedResponse<T> {
+  success: boolean;
+  data: T[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+    hasMore: boolean;
+  };
+}
 
 export default function Gallery() {
   const [searchTerm, setSearchTerm] = useState("");
+  const [items, setItems] = useState<GalleryItem[]>([]);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchPortfolios = async () => {
+      setLoading(true);
+      setError(null);
+
+      const params = new URLSearchParams();
+      params.set("page", page.toString());
+      params.set("limit", "9");
+      if (searchTerm.trim()) {
+        params.set("search", searchTerm.trim());
+      }
+
+      try {
+        const response = await httpClient.get<PaginatedResponse<PublicPortfolioItem>>(
+          `/portfolio/public?${params.toString()}`,
+        );
+
+        const mappedItems: GalleryItem[] = response.data.map((item) => ({
+          id: item.portfolio_id,
+          name: `${item.first_name} ${item.last_name}`.trim() || "Unnamed Designer",
+          title:
+            item.categories[0]?.category_name ||
+            (item.seniority_level
+              ? `${item.seniority_level} designer`
+              : "Designer Portfolio"),
+          image: item.profile_avatar || "/placeholder.svg",
+        }));
+
+        setItems(mappedItems);
+        setTotalPages(response.pagination.totalPages || 1);
+      } catch (err: any) {
+        setError(err.message || "Failed to load portfolios");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPortfolios();
+  }, [page, searchTerm]);
+
+  const handleItemClick = (item: GalleryItem) => {
+    navigate(`/portfolio/${item.id}`);
+  };
 
   return (
     <section className="px-6 py-12">
       <PortfolioHeader />
       <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
-      <GalleryGrid items={galleryItems} />
-      <Pagination />
+      {error && (
+        <div className="text-center text-red-600 mb-4">
+          {error}
+        </div>
+      )}
+      {loading && items.length === 0 ? (
+        <div className="text-center text-gray-600">Loading portfolios...</div>
+      ) : (
+        <GalleryGrid items={items} onItemClick={handleItemClick} />
+      )}
+      <div className="mt-8">
+        <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
+      </div>
     </section>
   );
 }

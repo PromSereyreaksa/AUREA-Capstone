@@ -58,6 +58,70 @@ paths:
                   pagination:
                     $ref: '#/components/schemas/Pagination'
 
+  /api/v1/portfolio/public/{id}:
+    get:
+      summary: Get a single public portfolio by id
+      description: |
+        Returns a single public portfolio by its ID.
+
+        - Only portfolios marked as public (`is_public = true`) and with a non-null `portfolio_url` are returned.
+        - If the portfolio does not exist or is not public, a 404 response is returned.
+
+        **No authentication required.**
+      tags:
+        - Portfolio
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Portfolio ID
+          schema:
+            type: integer
+            minimum: 1
+            example: 1
+      responses:
+        '200':
+          description: Public portfolio retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Public portfolio retrieved successfully"
+                  data:
+                    $ref: '#/components/schemas/PublicPortfolioItem'
+        '400':
+          description: Invalid portfolio id
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Invalid portfolio id"
+        '404':
+          description: Portfolio not found or not public
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Portfolio not found or not public"
+
   /api/v1/portfolio/categories:
     get:
       summary: Get all categories

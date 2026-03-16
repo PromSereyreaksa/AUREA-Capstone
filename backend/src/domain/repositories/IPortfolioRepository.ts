@@ -31,4 +31,5 @@ export interface IPortfolioRepository {
   update(user_id: number, portfolio: Partial<Portfolio>): Promise<Portfolio>;
   delete(user_id: number): Promise<void>;
   findPublicPortfolios(filters: PublicPortfolioFilters): Promise<PublicPortfolioResult>;
+  findPublicPortfolioById(portfolio_id: number): Promise<PublicPortfolioItem | null>;
 }
