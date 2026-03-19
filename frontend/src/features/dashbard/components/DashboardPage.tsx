@@ -54,6 +54,10 @@ const DashboardPage = () => {
       return user.last_name;
     }
 
+    if (user?.email) {
+      return user.email.split("@")[0];
+    }
+
     return "Designer";
   };
 
@@ -76,10 +80,10 @@ const DashboardPage = () => {
         {loading && (
           <div className="space-y-6 animate-[pulse_1.5s_ease-in-out_infinite]">
             {/* Header Skeleton */}
-            <div className="flex justify-between items-center">
-              <div className="space-y-2">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+              <div className="space-y-2 w-full sm:w-auto">
                 <div className="h-8 w-48 bg-gray-300 border-2 border-black rounded"></div>
-                <div className="h-4 w-64 bg-gray-200 border-2 border-black rounded"></div>
+                <div className="h-4 w-full sm:w-64 bg-gray-200 border-2 border-black rounded"></div>
               </div>
               <div className="flex gap-2">
                 <div className="w-9 h-9 bg-[#FFE8DC] border-2 border-black rounded-lg shadow-[2px_2px_0_#1a1a1a]"></div>
@@ -125,7 +129,7 @@ const DashboardPage = () => {
         {!loading && !error && stats && (
           <>
             {/* Header Section */}
-            <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0">
+            <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
               <div>
                 <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-black tracking-tight mb-1">
                   Hello {getUserName()}
@@ -134,7 +138,7 @@ const DashboardPage = () => {
                   What's your task going to be today?
                 </p>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex w-full md:w-auto flex-wrap items-center gap-2 md:justify-end">
                 <div className="flex items-center gap-2 text-xs sm:text-sm font-semibold text-black">
                   <span>{formatDate()}</span>
                   <div className="w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center bg-[#FFE8DC] rounded-lg border-2 border-black shadow-[2px_2px_0_#1a1a1a]">
@@ -146,7 +150,7 @@ const DashboardPage = () => {
                 <button
                   onClick={() => refetch()}
                   disabled={loading}
-                  className="w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center bg-[#FFE8DC] rounded-lg border-2 border-black shadow-[2px_2px_0_#1a1a1a] hover:bg-[#FFD4BC] transition-all duration-150 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[3px_3px_0_#1a1a1a] disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="nb-pressable w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center bg-[#FFE8DC] rounded-lg border-2 border-black shadow-[2px_2px_0_#1a1a1a] hover:bg-[#FFD4BC] disabled:opacity-50 disabled:cursor-not-allowed"
                   title="Refresh data"
                 >
                   <RefreshIcon spinning={loading} />
@@ -156,7 +160,7 @@ const DashboardPage = () => {
 
             {/* Stats Section */}
             <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              <div className="animate-[slideUp_0.5s_ease-out] [animation-delay:0.1s] opacity-0 [animation-fill-mode:forwards]">
+              <div className="nb-cut-in-up [animation-delay:0.05s]">
                 <StatCard
                   title="Your Base Rate"
                   value={stats.baseRate !== null ? `$ ${stats.baseRate}` : "-"}
@@ -164,14 +168,14 @@ const DashboardPage = () => {
                   icon="chart"
                 />
               </div>
-              <div className="animate-[slideUp_0.5s_ease-out] [animation-delay:0.2s] opacity-0 [animation-fill-mode:forwards]">
+              <div className="nb-cut-in-up [animation-delay:0.1s]">
                 <StatCard
                   title="Project This week"
                   value={stats.projectsThisWeek}
                   icon="folder"
                 />
               </div>
-              <div className="animate-[slideUp_0.5s_ease-out] [animation-delay:0.3s] opacity-0 [animation-fill-mode:forwards]">
+              <div className="nb-cut-in-up [animation-delay:0.15s]">
                 <StatCard
                   title="Project This Month"
                   value={stats.projectsThisMonth}
@@ -181,7 +185,7 @@ const DashboardPage = () => {
             </section>
 
             {/* Recent Projects Section */}
-            <section className="flex-1 animate-[slideUp_0.6s_ease-out] [animation-delay:0.4s] opacity-0 [animation-fill-mode:forwards]">
+            <section className="flex-1 nb-cut-in-up [animation-delay:0.2s]">
               <RecentProjects
                 projects={recentProjects}
                 onViewAll={() => navigate("/dashboard/history")}

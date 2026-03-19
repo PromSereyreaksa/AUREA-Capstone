@@ -75,8 +75,7 @@
 .back-button:hover {
   background: var(--primary-orange);
   color: var(--primary-white);
-  transform: translate(-1px, -1px);
-  box-shadow: 3px 3px 0px rgba(0, 0, 0, 0.3);
+  box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.2);
 }
 
 .back-button:active {
@@ -140,8 +139,7 @@
 }
 
 .google-button:hover {
-  transform: translate(-1px, -1px);
-  box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.3);
+  box-shadow: 3px 3px 0px rgba(0, 0, 0, 0.2);
 }
 
 .google-button:active {
@@ -304,8 +302,7 @@
 }
 
 .submit-button:hover:not(:disabled) {
-  transform: translate(-2px, -2px);
-  box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.4);
+  box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.3);
 }
 
 .submit-button:active:not(:disabled) {
@@ -434,7 +431,6 @@
   outline: none;
   border: var(--border-thick) solid var(--primary-orange);
   background: #FFF5F0;
-  transform: scale(1.1);
   box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.3);
 }
 

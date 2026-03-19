@@ -2,24 +2,24 @@ import { motion } from "framer-motion";
 
 export const CalloutBanner = () => {
   return (
-    <section className="bg-[#1a1a1a] pb-24 pt-0 relative p-12">
+    <section className="bg-[#1a1a1a] pb-10 sm:pb-16 lg:pb-24 pt-0 relative px-4 sm:px-6 lg:p-12">
       <div className="wide-section">
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
+          initial={{ y: 18, rotate: -0.7 }}
+          whileInView={{ y: 0, rotate: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.8 }}
-          className="bg-white rounded-4xl overflow-hidden brutal-shadow-lg"
+          transition={{ type: "spring", stiffness: 220, damping: 23, mass: 0.9 }}
+          className="bg-white rounded-[2rem] overflow-hidden brutal-shadow-lg"
         > 
           {/* Header */}
-          <div className="bg-white py-4 text-center">
-            <h2 className="text-4xl font-bold">
+          <div className="bg-white px-4 py-4 text-center">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold">
               Made for Designers
             </h2>
           </div>
 
           {/* Colorful Abstract Section */}
-          <div className="relative h-150 overflow-hidden">
+          <div className="relative min-h-[420px] sm:min-h-[540px] lg:h-150 overflow-hidden">
             {/* Background shapes */}
             <div className="absolute inset-0">
               {/* Top left - Green with purple circle */}
@@ -51,13 +51,13 @@ export const CalloutBanner = () => {
               <div className="absolute bottom-0 right-0 w-50 h-50 bg-[#FF5722] rounded-tl-full"></div>
 
               {/* Orange circle top right */}
-              <div className="absolute top-[5%] right-[2%] w-25 h-25 rounded-full bg-[#FF6B35] border-4 border-black"></div>
+              <div className="absolute top-[5%] right-[2%] w-25 h-25 rounded-full bg-[#FF6B35] border-4 border-black nb-sticker-slap"></div>
             </div>
 
             {/* Text Overlay */}
-            <div className="absolute inset-0 flex items-center justify-start pl-12">
+            <div className="absolute inset-0 flex items-center justify-start px-5 py-8 sm:px-8 lg:pl-12">
               <div className="max-w-125">
-                <h3 className="text-[64px] md:text-7xl leading-tight font-semibold">
+                <h3 className="text-[40px] sm:text-[52px] md:text-7xl leading-[0.95] font-semibold">
                   <span className="text-black">DON'T</span>
                   <br />
                   <span className="text-black">KNOW</span>

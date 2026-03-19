@@ -2,18 +2,18 @@ import { motion } from "framer-motion";
 
 export const ProductExplanation = () => {
   return (
-    <section className="bg-[#fafafa] py-24 wide-section p-12">
+    <section className="bg-[#fafafa] py-10 sm:py-16 lg:py-24 wide-section px-4 sm:px-6 lg:p-12">
       <div>
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
+          initial={{ y: 18, rotate: 0.8 }}
+          whileInView={{ y: 0, rotate: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.8 }}
-          className="bg-white rounded-4xl border-4 border-black p-8 md:p-12 brutal-shadow-lg relative"
+          transition={{ type: "spring", stiffness: 220, damping: 22, mass: 0.9 }}
+          className="bg-white rounded-[2rem] border-4 border-black p-5 sm:p-8 md:p-12 brutal-shadow-lg relative"
         >
-          <div className="grid md:grid-cols-2 gap-12 items-center">
+          <div className="grid md:grid-cols-2 gap-8 lg:gap-12 items-center">
             {/* Left - Abstract Illustration */}
-            <div className="relative h-100 rounded-[20px] overflow-hidden">
+            <div className="relative h-72 sm:h-96 md:h-100 rounded-[20px] overflow-hidden">
               <div className="absolute inset-0 bg-[#E8F5E9]">
                 {/* Blue rectangle top left */}
                 <div className="absolute top-[10%] left-[10%] w-30 h-20 bg-[#2196F3] rounded-lg border-3 border-black"></div>
@@ -65,9 +65,9 @@ export const ProductExplanation = () => {
 
             {/* Right - Text Content */}
             <div className="space-y-6">
-              <h2 className="text-[64px] font-bold mb-6 ">Use AUREA</h2>
+              <h2 className="text-[38px] sm:text-[52px] lg:text-[64px] font-bold mb-4 sm:mb-6">Use AUREA</h2>
 
-              <p className="text-gray-700 text-lg leading-relaxed">
+              <p className="text-gray-700 text-base sm:text-lg leading-relaxed">
                 Aurea helps designers price their work with confidence, clarity,
                 and accuracy. By eliminating guesswork and ensuring fair
                 compensation, Aurea empowers creatives to earn what they
@@ -78,10 +78,8 @@ export const ProductExplanation = () => {
           </div>
 
           {/* Join Now Button - Bottom Right Corner, centered on border */}
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="absolute -bottom-8 -right-8 bg-[#ff8c00] text-black px-8 py-4 font-bold text-[32px] border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all inline-flex items-center gap-2 z-10"
+          <button
+            className="nb-pressable mt-8 md:mt-0 md:absolute md:-bottom-8 md:-right-8 bg-[#ff8c00] text-black px-5 sm:px-8 py-3 sm:py-4 font-black text-lg sm:text-[32px] uppercase tracking-[0.08em] border-4 border-black shadow-[4px_4px_0_#000] hover:bg-black hover:text-[#ff8c00] inline-flex items-center justify-center gap-2 z-10 w-full md:w-auto"
           >
             Join now
             <svg
@@ -94,7 +92,7 @@ export const ProductExplanation = () => {
             >
               <path d="M5 12h14M12 5l7 7-7 7" />
             </svg>
-          </motion.button>
+          </button>
         </motion.div>
       </div>
     </section>

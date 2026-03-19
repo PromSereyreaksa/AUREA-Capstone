@@ -7,116 +7,70 @@ const FeeEstimatorGrid = () => {
     {
       id: "base-rate",
       title: "Base Rate Estimation",
-      description: "Calculate your hourly rate.",
+      description: "Calculate the hourly baseline that covers your costs and target income.",
       route: "/fee-estimator/base-rate",
       preview: (
-        <div className="bg-white rounded-lg p-4 border-2 border-black">
-          <div className="bg-[#FB8500] text-white text-xs font-bold px-3 py-1 rounded mb-3">
-            Base(Hour) Rate Calculation
+        <div className="rounded-xl border-2 border-black bg-white p-4 shadow-[3px_3px_0_#1a1a1a]">
+          <div className="mb-3 inline-flex rounded-lg border-2 border-black bg-[#FB8500] px-3 py-1 text-xs font-black uppercase tracking-[0.08em] text-white">
+            Base Rate
           </div>
-          <div className="space-y-2 text-xs">
-            <div>
-              <div className="font-semibold mb-1">Freelance Experience</div>
-              <div className="bg-gray-100 rounded px-2 py-1 border border-gray-300">
-                Beginner (1-2 years)
-              </div>
+          <div className="space-y-2 text-xs font-semibold text-black">
+            <div className="rounded-lg border-2 border-black bg-[#FFF3E8] px-3 py-2">
+              Fixed costs + target income
             </div>
-            <div>
-              <div className="font-semibold mb-1">
-                Annual Work/Freelance Rate
-              </div>
-              <div className="bg-gray-100 rounded px-2 py-1 border border-gray-300">
-                ៛ 3000
-              </div>
+            <div className="rounded-lg border-2 border-black bg-white px-3 py-2">
+              Billable hours + profit margin
             </div>
-            <div>
-              <div className="font-semibold mb-1">
-                Annual Work/Freelance Days
-              </div>
-              <div className="bg-gray-100 rounded px-2 py-1 border border-gray-300">
-                220 (Recommend: 200-240 days)
-              </div>
-            </div>
-            <div>
-              <div className="font-semibold mb-1">Annual Labor Costs</div>
-              <div className="bg-gray-100 rounded px-2 py-1 border border-gray-300">
-                ៛ 1000
-              </div>
+            <div className="rounded-lg border-2 border-black bg-[#FFE8DC] px-3 py-2">
+              Result: sustainable hourly rate
             </div>
           </div>
         </div>
       ),
     },
     {
-      id: "project-base",
+      id: "portfolio-based",
       title: "Portfolio-Based Estimation",
-      description: "Analyze your portfolio to calculate your rate.",
+      description: "Use your portfolio, PDF, or manual profile to get an AI-assisted rate recommendation.",
       route: "/fee-estimator/portfolio-based",
       preview: (
-        <div className="bg-white rounded-lg p-4 border-2 border-black">
-          <div className="bg-[#FB8500] text-white text-xs font-bold px-3 py-1 rounded mb-3">
-            Portfolio Based Calculation
+        <div className="rounded-xl border-2 border-black bg-white p-4 shadow-[3px_3px_0_#1a1a1a]">
+          <div className="mb-3 inline-flex rounded-lg border-2 border-black bg-[#FB8500] px-3 py-1 text-xs font-black uppercase tracking-[0.08em] text-white">
+            Portfolio Rate
           </div>
-          <div className="flex flex-col items-center justify-center py-6 space-y-3">
-            <div className="w-12 h-12 border-2 border-dashed border-gray-400 rounded flex items-center justify-center">
-              <svg
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="#999"
-                strokeWidth="2"
-              >
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                <polyline points="14 2 14 8 20 8" />
-              </svg>
+          <div className="grid gap-2 text-xs font-semibold text-black">
+            <div className="rounded-lg border-2 border-black bg-[#FFF3E8] px-3 py-2">
+              URL / PDF / text / manual input
             </div>
-            <div className="text-xs text-center text-gray-600">
-              <div className="font-semibold mb-1">
-                Share your portfolio
-              </div>
-              <div className="text-[10px] text-gray-500">
-                Upload URL, PDF, or describe your work
-              </div>
+            <div className="rounded-lg border-2 border-black bg-white px-3 py-2">
+              Skill and seniority analysis
             </div>
-          </div>
-          <div className="mt-4 text-xs">
-            <div className="font-semibold mb-2">AI-Powered Analysis</div>
-            <div className="bg-gray-100 rounded px-2 py-1 border border-gray-300 text-gray-400">
-              Get instant rate recommendation
+            <div className="rounded-lg border-2 border-black bg-[#FFE8DC] px-3 py-2">
+              Recommended market-facing hourly rate
             </div>
           </div>
         </div>
       ),
     },
     {
-      id: "project-base",
+      id: "project-based",
       title: "Project-Based Estimation",
-      description: "Estimate fees for a specific project with deliverables.",
+      description: "Estimate a real project using scope, time, complexity, and licensing.",
       route: "/fee-estimator/project-base",
       preview: (
-        <div className="bg-white rounded-lg p-4 border-2 border-black">
-          <div className="bg-[#FB8500] text-white text-xs font-bold px-3 py-1 rounded mb-3">
-            Project Based Calculation
+        <div className="rounded-xl border-2 border-black bg-white p-4 shadow-[3px_3px_0_#1a1a1a]">
+          <div className="mb-3 inline-flex rounded-lg border-2 border-black bg-[#FB8500] px-3 py-1 text-xs font-black uppercase tracking-[0.08em] text-white">
+            Project Rate
           </div>
-          <div className="space-y-2 text-xs">
-            <div>
-              <div className="font-semibold mb-1">Project Details</div>
-              <div className="bg-gray-100 rounded px-2 py-1 border border-gray-300">
-                Upload PDF or enter manually
-              </div>
+          <div className="space-y-2 text-xs font-semibold text-black">
+            <div className="rounded-lg border-2 border-black bg-white px-3 py-2">
+              Project info + deliverables
             </div>
-            <div>
-              <div className="font-semibold mb-1">Scope & Deliverables</div>
-              <div className="bg-gray-100 rounded px-2 py-1 border border-gray-300">
-                Define project deliverables
-              </div>
+            <div className="rounded-lg border-2 border-black bg-[#FFF3E8] px-3 py-2">
+              Duration + client context + rights
             </div>
-            <div>
-              <div className="font-semibold mb-1">Time & Complexity</div>
-              <div className="bg-gray-100 rounded px-2 py-1 border border-gray-300">
-                Duration, difficulty, licensing
-              </div>
+            <div className="rounded-lg border-2 border-black bg-[#FFE8DC] px-3 py-2">
+              Total project estimate + invoice handoff
             </div>
           </div>
         </div>
@@ -125,32 +79,35 @@ const FeeEstimatorGrid = () => {
   ];
 
   return (
-    <div className="max-w-6xl mx-auto">
-      <h2 className="text-lg sm:text-xl font-bold text-[#FB8500] text-center mb-6 sm:mb-8">
-        Please select one option of the estimation
-      </h2>
+    <div className="mx-auto max-w-6xl">
+      <div className="mb-6 text-center sm:mb-8">
+        <p className="text-xs font-extrabold uppercase tracking-[0.18em] text-black">
+          Fee Estimator
+        </p>
+        <h2 className="text-xl font-black text-[#FB8500] sm:text-2xl">
+          Pick the pricing workflow you need
+        </h2>
+      </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
-        {estimationOptions.map((option) => (
+      <div className="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-3 lg:gap-8">
+        {estimationOptions.map((option, index) => (
           <button
             key={option.id}
             onClick={() => navigate(option.route)}
-            className="group bg-white rounded-2xl p-6 border-[3px] border-black shadow-[4px_4px_0_#1a1a1a] hover:shadow-[6px_6px_0_#1a1a1a] hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all duration-150 text-left"
+            className="nb-pressable group flex h-full flex-col rounded-2xl border-[3px] border-black bg-white p-5 text-left shadow-[4px_4px_0_#1a1a1a] sm:p-6"
           >
-            {/* Preview */}
-            <div className="mb-4 transform group-hover:scale-[1.02] transition-transform duration-150">
+            <div className="mb-4 nb-cut-in-up">
               {option.preview}
             </div>
 
-            {/* Title */}
-            <h3 className="text-lg font-extrabold text-[#FB8500] mb-2">
-              {option.title}
-            </h3>
-
-            {/* Description */}
-            <p className="text-sm text-gray-700 font-medium">
-              {option.description}
-            </p>
+            <div className="mt-auto">
+              <h3 className="mb-2 text-lg font-black text-[#FB8500]">
+                {option.title}
+              </h3>
+              <p className="text-sm font-medium leading-6 text-gray-700">
+                {option.description}
+              </p>
+            </div>
           </button>
         ))}
       </div>

@@ -34,19 +34,19 @@ const FolderIcon = () => (
 
 const StatCard = ({ title, value, unit, icon }: StatCardProps) => {
   return (
-    <div className="bg-white rounded-xl p-5 border-[3px] border-black shadow-[2px_2px_0_#1a1a1a] transition-all duration-150 ">
-      <div className="flex justify-between items-center mb-3">
-        <h3 className="text-sm font-semibold text-black">{title}</h3>
+    <div className="bg-white rounded-xl p-4 sm:p-5 border-[3px] border-black shadow-[2px_2px_0_#1a1a1a] min-h-32">
+      <div className="flex justify-between items-start gap-3 mb-3">
+        <h3 className="text-sm font-semibold text-black leading-tight">{title}</h3>
         <div className="w-8 h-8 flex items-center justify-center">
           {icon === "chart" ? <ChartIcon /> : <FolderIcon />}
         </div>
       </div>
-      <div className="flex items-baseline gap-1">
-        <span className="text-4xl font-black text-black tracking-tight">
+      <div className="flex flex-wrap items-baseline gap-1">
+        <span className="text-3xl sm:text-4xl font-black text-black tracking-tight break-all">
           {value}
         </span>
         {unit && (
-          <span className="text-base font-semibold text-black">{unit}</span>
+          <span className="text-sm sm:text-base font-semibold text-black">{unit}</span>
         )}
       </div>
     </div>

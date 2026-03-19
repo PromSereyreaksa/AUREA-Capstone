@@ -27,7 +27,7 @@ const RecentProjects = ({ projects }: RecentProjectsProps) => {
           projects.map((project) => (
             <div
               key={project.id}
-              className="flex items-center gap-3 px-4 py-3 bg-gray-100 rounded-lg border-2 border-black cursor-pointer transition-all duration-150 hover:bg-[#FFE8DC] hover:shadow-[2px_2px_0_#1a1a1a] hover:-translate-x-0.5 hover:-translate-y-0.5"
+              className="flex items-center gap-3 px-4 py-3 bg-gray-100 rounded-lg border-2 border-black cursor-pointer transition-colors duration-150 hover:bg-[#FFE8DC]"
             >
               <div className="w-9 h-9 flex items-center justify-center bg-[#FFE8DC] rounded-md border-2 border-black">
                 <FolderIcon />

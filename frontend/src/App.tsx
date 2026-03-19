@@ -42,7 +42,7 @@ const ProtectedRoute = ({ children }: { children: ReactNode }) => {
   const { user, loading } = useAuth();
 
   if (loading) {
-    return <div style={{ padding: "2rem" }}>Loading...</div>;
+    return null;
   }
 
   if (!user) {
@@ -66,10 +66,21 @@ function App() {
           <Route path="/auth/callback" element={<AuthCallbackPage />} />
 
           {/* Designer profile routes */}
-          <Route path="/designer-profile" element={<DesignerProfilePage />} />
+          <Route
+            path="/designer-profile"
+            element={
+              <ProtectedRoute>
+                <DesignerProfilePage />
+              </ProtectedRoute>
+            }
+          />
           <Route
             path="/designer-profile/:userId"
-            element={<DesignerProfilePage />}
+            element={
+              <ProtectedRoute>
+                <DesignerProfilePage />
+              </ProtectedRoute>
+            }
           />
 
           {/* Landing Page Routes */}
@@ -113,28 +124,56 @@ function App() {
           />
 
           {/* Projects Route */}
-          <Route path="/projects" element={<ProjectsPage />} />
+          <Route
+            path="/projects"
+            element={
+              <ProtectedRoute>
+                <ProjectsPage />
+              </ProtectedRoute>
+            }
+          />
 
           {/* Fee Estimator Routes */}
-          <Route path="/fee-estimator" element={<FeeEstimatorPage />} />
+          <Route
+            path="/fee-estimator"
+            element={
+              <ProtectedRoute>
+                <FeeEstimatorPage />
+              </ProtectedRoute>
+            }
+          />
           <Route
             path="/fee-estimator/base-rate"
-            element={<BREstimationPage />}
+            element={
+              <ProtectedRoute>
+                <BREstimationPage />
+              </ProtectedRoute>
+            }
           />
           <Route
             path="/fee-estimator/portfolio-based"
-            element={<PBEstimationPage />}
+            element={
+              <ProtectedRoute>
+                <PBEstimationPage />
+              </ProtectedRoute>
+            }
           />
           <Route
             path="/fee-estimator/project-base"
-            element={<PJEstimationPage />}
+            element={
+              <ProtectedRoute>
+                <PJEstimationPage />
+              </ProtectedRoute>
+            }
           />
 
           {/* Settings Route */}
           <Route
             path="/settings"
             element={
-              <div style={{ padding: "2rem" }}>Settings - Coming Soon</div>
+              <ProtectedRoute>
+                <div style={{ padding: "2rem" }}>Settings - Coming Soon</div>
+              </ProtectedRoute>
             }
           />
 

@@ -6,6 +6,7 @@ export interface User {
   role: string;
   email_verified: boolean;
   google_id?: string;
+  avatar_url?: string;
   first_name?: string;
   last_name?: string;
   created_at?: Date;
