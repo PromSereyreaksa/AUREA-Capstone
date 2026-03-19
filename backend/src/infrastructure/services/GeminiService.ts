@@ -1095,7 +1095,6 @@ If the portfolio URL cannot be accessed, set confidence to "low" and ask for mor
     url?: string,
     text?: string
   ): Promise<any> {
-    const base64Pdf = pdfBuffer.toString('base64');
     const urlContext = url ? `\nPortfolio URL (for reference): ${url}` : '';
     const textContext = text ? `\nAdditional context: ${text.substring(0, 500)}` : '';
     
@@ -1111,22 +1110,9 @@ Use Google Search to research Cambodia market data:
 4. Appropriate income levels for this skill/experience level
 
 Extract signals from the portfolio's visual design work, project descriptions, and any "About" sections.`;
-
-    // Try with grounding first, fallback to simple generation
-    try {
-      const result = await this.generateContentWithGrounding(prompt, 0.2);
-      let responseText = result.text.replace(/^```json\s*\n?/, '').replace(/\n?```\s*$/, '').trim();
-      const parsed = JSON.parse(responseText);
-      
-      if (result.groundingMetadata?.webSearchSources?.length) {
-        parsed._grounding_sources = result.groundingMetadata.webSearchSources;
-      }
-      
-      return parsed;
-    } catch (groundingError: any) {
-      // Fallback to PDF inline data without grounding
-      return this.analyzePortfolioViaPdfWithRateCalc(pdfBuffer, prompt);
-    }
+    // IMPORTANT: Ensure the uploaded PDF is always included in model input.
+    // Grounding-only generation does not attach inline PDF bytes.
+    return this.analyzePortfolioViaPdfWithRateCalc(pdfBuffer, prompt);
   }
 
   /**

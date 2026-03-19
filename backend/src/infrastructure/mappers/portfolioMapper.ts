@@ -11,6 +11,10 @@ export function mapPortfolioToDb(portfolio: Portfolio) {
   if (portfolio.portfolio_url !== undefined) {
     result.portfolio_url = portfolio.portfolio_url;
   }
+
+  if (portfolio.portfolio_cover_url !== undefined) {
+    result.portfolio_cover_url = portfolio.portfolio_cover_url;
+  }
   
   return result;
 }
@@ -20,6 +24,7 @@ export function mapPortfolioFromDb(data: any): Portfolio {
     data.portfolio_id,
     data.user_id,
     data.portfolio_url,
+    data.portfolio_cover_url,
     data.is_public
   );
 }
@@ -53,6 +58,7 @@ export function mapPublicPortfolioFromDb(data: any): PublicPortfolioItem {
   return {
     portfolio_id: data.portfolio_id,
     portfolio_url: data.portfolio_url,
+    portfolio_cover_url: data.portfolio_cover_url || null,
     is_public: data.is_public,
     user_id: data.user_id,
     first_name: profile.first_name || '',

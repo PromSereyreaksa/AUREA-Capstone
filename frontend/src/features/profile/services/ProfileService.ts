@@ -27,9 +27,44 @@ export class ProfileService implements IProfileService {
     await httpClient.delete('/profile');
   }
 
-  async getPortfolio(userId: number): Promise<Portfolio> {
-    const response = await httpClient.get<{ success: boolean; data: Portfolio }>(`/portfolio/${userId}`);
+  async getPortfolio(_userId?: number): Promise<Portfolio> {
+    const response = await httpClient.get<{ success: boolean; data: Portfolio }>(`/portfolio`);
     return response.data;
+  }
+
+  async updatePortfolio(data: { is_public?: boolean; portfolio_url?: string | null; portfolio_cover_url?: string | null }): Promise<Portfolio> {
+    const response = await httpClient.put<{ success: boolean; data: Portfolio }>('/portfolio', data);
+    return response.data;
+  }
+
+  async uploadPortfolioPdf(file: File): Promise<Portfolio> {
+    const formData = new FormData();
+    formData.append('pdf', file);
+
+    const response = await httpClient.uploadFormData<{ success: boolean; data: Portfolio }>(
+      '/portfolio/pdf',
+      formData
+    );
+    return response.data;
+  }
+
+  async deletePortfolioPdf(): Promise<void> {
+    await httpClient.delete('/portfolio/pdf');
+  }
+
+  async uploadPortfolioCover(file: File): Promise<Portfolio> {
+    const formData = new FormData();
+    formData.append('cover', file);
+
+    const response = await httpClient.uploadFormData<{ success: boolean; data: Portfolio }>(
+      '/portfolio/cover',
+      formData
+    );
+    return response.data;
+  }
+
+  async deletePortfolioCover(): Promise<void> {
+    await httpClient.delete('/portfolio/cover');
   }
 
   async getProjects(userId: number): Promise<Project[]> {

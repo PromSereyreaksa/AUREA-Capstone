@@ -1,4 +1,5 @@
 import { useAuth } from "../../auth/context/AuthContext";
+import { useNavigate } from "react-router-dom";
 import Sidebar from "../../../shared/components/Sidebar";
 import StatCard from "./StatCard";
 import RecentProjects from "./RecentProjects";
@@ -39,6 +40,7 @@ const RefreshIcon = ({ spinning }: { spinning: boolean }) => (
 );
 
 const DashboardPage = () => {
+  const navigate = useNavigate();
   const { user } = useAuth();
   const { stats, recentProjects, loading, error, refetch } = useDashboardData();
 
@@ -180,7 +182,10 @@ const DashboardPage = () => {
 
             {/* Recent Projects Section */}
             <section className="flex-1 animate-[slideUp_0.6s_ease-out] [animation-delay:0.4s] opacity-0 [animation-fill-mode:forwards]">
-              <RecentProjects projects={recentProjects} />
+              <RecentProjects
+                projects={recentProjects}
+                onViewAll={() => navigate("/dashboard/history")}
+              />
             </section>
           </>
         )}

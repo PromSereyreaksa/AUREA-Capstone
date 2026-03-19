@@ -1,9 +1,16 @@
 import React, { useState, useRef } from 'react';
-import type { ProjectInformation as ProjectInfoType } from '../shared/types';
+import type { DeliverableItem, ProjectInformation as ProjectInfoType, TimeComplexity } from '../shared/types';
+import { useAuth } from '../../auth/context/AuthContext';
+import { pricingClient } from '../../../shared/api/pricingClient';
 
 interface ProjectInformationProps {
   projectInfo: ProjectInfoType;
   onUpdate: (projectInfo: Partial<ProjectInfoType>) => void;
+  onApplyExtraction: (
+    extractedProjectInfo: Partial<ProjectInfoType>,
+    extractedDeliverables: DeliverableItem[],
+    extractedTimeComplexity: Partial<TimeComplexity>
+  ) => void;
   onNext: () => void;
   onBack: () => void;
 }
@@ -21,11 +28,14 @@ const UploadIcon: React.FC = () => (
 export const ProjectInformation: React.FC<ProjectInformationProps> = ({
   projectInfo,
   onUpdate,
+  onApplyExtraction,
   onNext,
   onBack
 }) => {
+  const { user } = useAuth();
   const [isDragOver, setIsDragOver] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleDragOver = (e: React.DragEvent) => {
@@ -57,27 +67,81 @@ export const ProjectInformation: React.FC<ProjectInformationProps> = ({
   };
 
   const handleFileUpload = async (file: File) => {
+    if (!user?.user_id) {
+      setUploadError('You must be logged in to extract project data from PDF.');
+      return;
+    }
+
     setIsUploading(true);
+    setUploadError(null);
     
     try {
-      // TODO: Integrate with backend PDF extraction API
-      // For now, just store the file and set upload method
-      onUpdate({
-        uploadMethod: 'pdf',
-        pdfFile: file
-      });
-      
-      // Mock extraction - would be replaced with actual API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // Mock extracted data - this would come from the backend
-      onUpdate({
-        name: 'Tech Start Up Branding',
-        description: 'This project focuses on creating a complete brand identity for a technology startup. The scope includes brand research, visual identity development, and design execution to establish a strong and consistent brand presence. Key deliverables include logo design, color palette selection, brand guidelines, and business card. The branding will be designed to reflect innovation, professionalism, and scalability, targeting early adopters and potential investors.'
-      });
-      
+      const extraction = await pricingClient.extractProjectFromPdf(file, user.user_id);
+      const extractedProject = extraction.data.project;
+      const extractedDeliverables: DeliverableItem[] = (extraction.data.deliverables || []).map((item, index) => ({
+        id: `extracted-${item.deliverable_id || index}`,
+        type: item.deliverable_type,
+        quantity: item.quantity,
+      }));
+
+      const difficultyRaw = (extractedProject.difficulty || '').toLowerCase().trim();
+      const mappedDifficulty: TimeComplexity['difficulty'] =
+        difficultyRaw === 'easy' || difficultyRaw === 'medium' || difficultyRaw === 'hard' || difficultyRaw === 'complex'
+          ? difficultyRaw
+          : null;
+
+      const licensingRaw = (extractedProject.licensing || '').toLowerCase().trim();
+      let mappedProjectLicensing: TimeComplexity['licensing']['projectLicensing'] = 'one-time';
+      if (licensingRaw.includes('exclusive')) {
+        mappedProjectLicensing = 'exclusive';
+      } else if (licensingRaw.includes('limited') || licensingRaw.includes('multi')) {
+        mappedProjectLicensing = 'limited';
+      }
+
+      const context = extraction.data.clientContext || {};
+      const mappedClientType =
+        context.client_type === 'startup' ||
+        context.client_type === 'sme' ||
+        context.client_type === 'corporate' ||
+        context.client_type === 'ngo' ||
+        context.client_type === 'government'
+          ? context.client_type
+          : null;
+      const mappedClientRegion =
+        context.client_region === 'cambodia' ||
+        context.client_region === 'southeast_asia' ||
+        context.client_region === 'global'
+          ? context.client_region
+          : null;
+
+      const difficultyMultiplier =
+        mappedDifficulty === 'complex' ? 2.5 :
+        mappedDifficulty === 'hard' ? 2 :
+        mappedDifficulty === 'medium' ? 1.5 : 1;
+
+      onApplyExtraction(
+        {
+          uploadMethod: 'pdf',
+          pdfFile: file,
+          name: extractedProject.project_name || extractedProject.title || '',
+          description: extractedProject.description || '',
+        },
+        extractedDeliverables,
+        {
+          duration: extractedProject.duration || 0,
+          difficulty: mappedDifficulty,
+          difficultyMultiplier,
+          client_type: mappedClientType,
+          client_region: mappedClientRegion,
+          licensing: {
+            commercialRights: 'personal',
+            projectLicensing: mappedProjectLicensing,
+          },
+        }
+      );
     } catch (error) {
       console.error('File upload failed:', error);
+      setUploadError(error instanceof Error ? error.message : 'PDF extraction failed.');
     } finally {
       setIsUploading(false);
     }
@@ -146,6 +210,20 @@ export const ProjectInformation: React.FC<ProjectInformationProps> = ({
       {/* Project Information Form */}
       <div className="form-section">
         <h2 className="form-section-title">Project Information</h2>
+        {uploadError && (
+          <div style={{
+            background: '#FEF2F2',
+            border: '2px solid #EF4444',
+            borderRadius: '0.75rem',
+            padding: '0.75rem',
+            marginBottom: '1rem',
+            color: '#DC2626',
+            fontSize: '0.875rem',
+            fontWeight: 600
+          }}>
+            {uploadError}
+          </div>
+        )}
         
         <div className="form-group">
           <label htmlFor="projectName" className="form-label">Project Name</label>

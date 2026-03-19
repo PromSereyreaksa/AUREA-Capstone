@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import type { ProjectInformation, DeliverableItem, TimeComplexity } from '../shared/types';
 import { PricingClient } from '../../../shared/api/pricingClient';
 import type { ProjectRateResponse } from '../../../shared/api/pricingClient';
+import { InvoiceModal, invoiceService } from '../../invoice';
 
 interface ProjectSummaryProps {
   projectInfo: ProjectInformation;
@@ -20,6 +21,14 @@ const LICENSING_MULTIPLIERS: Record<string, number> = {
   'exclusive': 1.5,
 };
 
+const USAGE_RIGHTS_LABELS: Record<string, string> = {
+  personal: 'Personal Use',
+  'small-business': 'Small Business',
+  'large-corporation': 'Large Corporation',
+  'full-commercial': 'Full Commercial Right',
+  other: 'Other',
+};
+
 export const ProjectSummary: React.FC<ProjectSummaryProps> = ({
   projectInfo,
   deliverables,
@@ -31,17 +40,53 @@ export const ProjectSummary: React.FC<ProjectSummaryProps> = ({
   const [isCalculating, setIsCalculating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<ProjectRateResponse['data'] | null>(null);
+  const [projectId, setProjectId] = useState<number | null>(null);
+  const [showInvoiceModal, setShowInvoiceModal] = useState(false);
+  const [clientName, setClientName] = useState('');
+  const [clientEmail, setClientEmail] = useState('');
+  const [clientLocation, setClientLocation] = useState('');
+  const [isGeneratingInvoice, setIsGeneratingInvoice] = useState(false);
+  const [invoiceError, setInvoiceError] = useState<string | null>(null);
 
   const handleCalculate = async () => {
     if (!timeComplexity.client_type || !timeComplexity.client_region) {
       setError('Please go back and set the client type and region.');
       return;
     }
+    const validDeliverables = deliverables.filter((item) => item.quantity > 0);
+    if (validDeliverables.length === 0) {
+      setError('Please add at least one deliverable with quantity above 0.');
+      return;
+    }
+
     setIsCalculating(true);
     setError(null);
     try {
+      let currentProjectId = projectId;
+
+      if (!currentProjectId) {
+        const created = await pricingClient.createManualProject({
+          user_id: userId,
+          project_name: projectInfo.name,
+          title: projectInfo.name,
+          description: projectInfo.description,
+          duration: timeComplexity.duration,
+          difficulty: timeComplexity.difficulty || undefined,
+          licensing: timeComplexity.licensing.projectLicensing,
+          usage_rights: USAGE_RIGHTS_LABELS[timeComplexity.licensing.commercialRights] || 'Personal Use',
+          deliverables: validDeliverables.map((item) => ({
+            deliverable_type: item.type,
+            quantity: item.quantity,
+            items: [],
+          })),
+        });
+        currentProjectId = created.data.project.project_id;
+        setProjectId(currentProjectId);
+      }
+
       const response = await pricingClient.calculateProjectRate({
         user_id: userId,
+        project_id: currentProjectId,
         client_type: timeComplexity.client_type,
         client_region: timeComplexity.client_region,
       });
@@ -53,9 +98,49 @@ export const ProjectSummary: React.FC<ProjectSummaryProps> = ({
     }
   };
 
+  const getAdjustedHourlyRate = (): number | null => {
+    if (!result) return null;
+    const withLegacy = result as ProjectRateResponse['data'] & {
+      project_rate?: number;
+      final_hourly_rate?: number;
+    };
+    if (typeof withLegacy.project_rate === 'number') return withLegacy.project_rate;
+    if (typeof withLegacy.final_hourly_rate === 'number') return withLegacy.final_hourly_rate;
+    return null;
+  };
+
+  const handleGenerateInvoice = async () => {
+    if (!projectId) {
+      setInvoiceError('Project not saved yet. Please calculate first.');
+      return;
+    }
+    if (!clientName.trim() || !clientEmail.trim() || !clientLocation.trim()) {
+      setInvoiceError('Client name, email, and address are required.');
+      return;
+    }
+
+    setIsGeneratingInvoice(true);
+    setInvoiceError(null);
+    try {
+      const invoice = await invoiceService.createOrGetProjectInvoice(projectId, {
+        clientName,
+        clientEmail,
+        clientLocation,
+      });
+      await invoiceService.downloadInvoicePdf(invoice.invoice_id, invoice.invoice_number);
+      setShowInvoiceModal(false);
+      onComplete();
+    } catch (err) {
+      setInvoiceError(err instanceof Error ? err.message : 'Failed to generate invoice');
+    } finally {
+      setIsGeneratingInvoice(false);
+    }
+  };
+
   const licensingMultiplier = LICENSING_MULTIPLIERS[timeComplexity.licensing.projectLicensing] ?? 1.0;
+  const adjustedHourlyRate = getAdjustedHourlyRate();
   const totalProjectPrice = result
-    ? Math.round(result.project_rate * timeComplexity.duration * timeComplexity.difficultyMultiplier * licensingMultiplier)
+    ? Math.round((adjustedHourlyRate || 0) * timeComplexity.duration * timeComplexity.difficultyMultiplier * licensingMultiplier)
     : null;
   const formatDifficulty = (difficulty: string | null) => {
     if (!difficulty) return 'Not specified';
@@ -411,22 +496,22 @@ export const ProjectSummary: React.FC<ProjectSummaryProps> = ({
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <span style={{ color: '#000000', fontWeight: '600' }}>Adjusted Hourly Rate</span>
                 <span style={{ color: '#16A34A', fontWeight: '700', fontSize: '1.125rem' }}>
-                  ${result.project_rate.toFixed(2)}/hr
+                  ${adjustedHourlyRate?.toFixed(2) || '0.00'}/hr
                 </span>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <span style={{ color: '#666666', fontSize: '0.875rem' }}>Base Hourly Rate</span>
                 <span style={{ color: '#666666', fontWeight: '600' }}>${result.base_rate.toFixed(2)}/hr</span>
               </div>
-              {result.adjustments && (
+              {(result as any).adjustments && (
                 <>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <span style={{ color: '#666666', fontSize: '0.875rem' }}>Client Type Multiplier</span>
-                    <span style={{ color: '#666666', fontSize: '0.875rem' }}>×{result.adjustments.client_type_multiplier}</span>
+                    <span style={{ color: '#666666', fontSize: '0.875rem' }}>x{(result as any).adjustments.client_type_multiplier}</span>
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <span style={{ color: '#666666', fontSize: '0.875rem' }}>Region Multiplier</span>
-                    <span style={{ color: '#666666', fontSize: '0.875rem' }}>×{result.adjustments.region_multiplier}</span>
+                    <span style={{ color: '#666666', fontSize: '0.875rem' }}>x{(result as any).adjustments.region_multiplier}</span>
                   </div>
                 </>
               )}
@@ -439,11 +524,11 @@ export const ProjectSummary: React.FC<ProjectSummaryProps> = ({
                   ${totalProjectPrice?.toLocaleString()}
                 </span>
               </div>
-              {result.recommended_price_range && (
+              {(result as any).recommended_price_range && (
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <span style={{ color: '#666666', fontSize: '0.875rem' }}>Market Rate Range</span>
                   <span style={{ color: '#666666', fontSize: '0.875rem' }}>
-                    ${result.recommended_price_range.min.toFixed(0)} – ${result.recommended_price_range.max.toFixed(0)}/hr
+                    ${(result as any).recommended_price_range.min.toFixed(0)} to ${(result as any).recommended_price_range.max.toFixed(0)}/hr
                   </span>
                 </div>
               )}
@@ -474,8 +559,8 @@ export const ProjectSummary: React.FC<ProjectSummaryProps> = ({
           Back
         </button>
         {result ? (
-          <button className="btn btn-primary" onClick={onComplete}>
-            Done
+          <button className="btn btn-primary" onClick={() => setShowInvoiceModal(true)}>
+            Generate Invoice
           </button>
         ) : (
           <button
@@ -487,6 +572,23 @@ export const ProjectSummary: React.FC<ProjectSummaryProps> = ({
           </button>
         )}
       </div>
+
+      <InvoiceModal
+        isOpen={showInvoiceModal}
+        clientName={clientName}
+        clientEmail={clientEmail}
+        clientLocation={clientLocation}
+        error={invoiceError}
+        isSubmitting={isGeneratingInvoice}
+        onClientNameChange={setClientName}
+        onClientEmailChange={setClientEmail}
+        onClientLocationChange={setClientLocation}
+        onCancel={() => {
+          setShowInvoiceModal(false);
+          setInvoiceError(null);
+        }}
+        onSubmit={handleGenerateInvoice}
+      />
       </div>
     </div>
   );

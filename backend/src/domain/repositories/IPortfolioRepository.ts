@@ -9,7 +9,8 @@ export interface PublicPortfolioFilters {
 
 export interface PublicPortfolioItem {
   portfolio_id: number;
-  portfolio_url: string;
+  portfolio_url: string | null;
+  portfolio_cover_url: string | null;
   is_public: boolean;
   user_id: number;
   first_name: string;

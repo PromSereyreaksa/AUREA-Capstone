@@ -1232,3 +1232,98 @@
   gap: 0.5rem;
   margin-top: 0.25rem;
 }
+
+.portfolio-actions-row {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.75rem;
+}
+
+.portfolio-visibility-btn,
+.portfolio-remove-btn {
+  width: 100%;
+  margin-top: 0.5rem;
+  padding: 0.65rem 0.75rem;
+  border: var(--border-medium) solid var(--primary-black);
+  border-radius: 0;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  cursor: pointer;
+  transition: all 0.1s ease;
+  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.2);
+}
+
+.portfolio-visibility-btn {
+  background: var(--primary-orange);
+  color: var(--primary-white);
+}
+
+.portfolio-remove-btn {
+  background: var(--primary-white);
+  color: #c62828;
+}
+
+.portfolio-visibility-btn:hover,
+.portfolio-remove-btn:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.25);
+}
+
+.portfolio-visibility-btn:disabled,
+.portfolio-remove-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.portfolio-status-text {
+  margin: 0.75rem 0 0;
+  color: var(--text-gray);
+  font-size: 0.8rem;
+  line-height: 1.5;
+  font-family: var(--font-mono);
+}
+
+.portfolio-error-text {
+  margin: 0.75rem 0 0;
+  color: #b42318;
+  font-size: 0.8rem;
+  line-height: 1.4;
+  font-family: var(--font-mono);
+  font-weight: 700;
+}
+
+.portfolio-cover-preview {
+  margin-bottom: 0.75rem;
+  border: var(--border-medium) solid var(--primary-black);
+  background: var(--secondary-gray);
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+}
+
+.portfolio-cover-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.portfolio-cover-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-gray);
+  font-size: 0.8rem;
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}

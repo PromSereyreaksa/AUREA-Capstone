@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../auth';
 import { ProfileService } from '../services/ProfileService';
 import type { UserProfile, Portfolio } from '../../../shared/types';
-import { FaArrowLeft, FaPencilAlt, FaMapMarkerAlt, FaEnvelope, FaInstagram, FaBehance, FaDribbble, FaLinkedin, FaTwitter, FaGlobe, FaLink, FaSave, FaTimes, FaPlus, FaTrash, FaCamera } from 'react-icons/fa';
+import { FaArrowLeft, FaPencilAlt, FaMapMarkerAlt, FaEnvelope, FaInstagram, FaBehance, FaDribbble, FaLinkedin, FaTwitter, FaGlobe, FaLink, FaSave, FaTimes, FaPlus, FaTrash, FaCamera, FaUpload, FaEye, FaEyeSlash } from 'react-icons/fa';
 import '../styles/profile.css';
 
 const profileService = new ProfileService();
@@ -24,7 +24,14 @@ export const DesignerProfilePage = () => {
   const [newSocialLink, setNewSocialLink] = useState({ platform: '', url: '', handle: '' });
   const [isAddingSocial, setIsAddingSocial] = useState(false);
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+  const [portfolioUrlInput, setPortfolioUrlInput] = useState('');
+  const [isSavingPortfolio, setIsSavingPortfolio] = useState(false);
+  const [isUploadingPortfolioPdf, setIsUploadingPortfolioPdf] = useState(false);
+  const [isUploadingPortfolioCover, setIsUploadingPortfolioCover] = useState(false);
+  const [portfolioError, setPortfolioError] = useState<string | null>(null);
   const avatarInputRef = useRef<HTMLInputElement>(null);
+  const portfolioPdfInputRef = useRef<HTMLInputElement>(null);
+  const portfolioCoverInputRef = useRef<HTMLInputElement>(null);
 
   const isOwnProfile = !userId || user?.user_id === parseInt(userId);
 
@@ -84,9 +91,10 @@ export const DesignerProfilePage = () => {
         // Fetch portfolio
         try {
           const targetUserId = userId ? parseInt(userId) : user?.user_id;
-          if (targetUserId) {
+          if (targetUserId && isOwnProfile) {
             const portfolioData = await profileService.getPortfolio(targetUserId);
             setPortfolio(portfolioData);
+            setPortfolioUrlInput(portfolioData.portfolio_url || '');
           }
         } catch {
           console.log('No portfolio found');
@@ -248,6 +256,139 @@ export const DesignerProfilePage = () => {
 
   const handleBack = () => {
     navigate(-1);
+  };
+
+  const handleSavePortfolioUrl = async () => {
+    if (!isOwnProfile) return;
+    try {
+      setIsSavingPortfolio(true);
+      setPortfolioError(null);
+      const updated = await profileService.updatePortfolio({
+        portfolio_url: portfolioUrlInput.trim() || null,
+      });
+      setPortfolio(updated);
+      setPortfolioUrlInput(updated.portfolio_url || '');
+    } catch (err) {
+      console.error('Error saving portfolio URL:', err);
+      setPortfolioError(err instanceof Error ? err.message : 'Failed to save portfolio URL');
+    } finally {
+      setIsSavingPortfolio(false);
+    }
+  };
+
+  const handleTogglePortfolioPublic = async () => {
+    if (!isOwnProfile) return;
+    try {
+      setIsSavingPortfolio(true);
+      setPortfolioError(null);
+      const updated = await profileService.updatePortfolio({
+        is_public: !(portfolio?.is_public ?? false),
+      });
+      setPortfolio(updated);
+    } catch (err) {
+      console.error('Error updating portfolio visibility:', err);
+      setPortfolioError(err instanceof Error ? err.message : 'Failed to update visibility');
+    } finally {
+      setIsSavingPortfolio(false);
+    }
+  };
+
+  const handlePortfolioPdfClick = () => {
+    portfolioPdfInputRef.current?.click();
+  };
+
+  const handlePortfolioCoverClick = () => {
+    portfolioCoverInputRef.current?.click();
+  };
+
+  const handlePortfolioPdfChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    if (file.type !== 'application/pdf') {
+      setPortfolioError('Only PDF files are allowed');
+      return;
+    }
+    try {
+      setIsUploadingPortfolioPdf(true);
+      setPortfolioError(null);
+      const updated = await profileService.uploadPortfolioPdf(file);
+      setPortfolio(updated);
+      setPortfolioUrlInput(updated.portfolio_url || '');
+    } catch (err) {
+      console.error('Error uploading portfolio PDF:', err);
+      setPortfolioError(err instanceof Error ? err.message : 'Failed to upload portfolio PDF');
+    } finally {
+      setIsUploadingPortfolioPdf(false);
+      if (portfolioPdfInputRef.current) {
+        portfolioPdfInputRef.current.value = '';
+      }
+    }
+  };
+
+  const handlePortfolioCoverChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'];
+    if (!allowedTypes.includes(file.type)) {
+      setPortfolioError('Only JPEG, PNG, and WebP images are allowed for cover');
+      return;
+    }
+
+    if (file.size > 10 * 1024 * 1024) {
+      setPortfolioError('Cover image must be less than 10MB');
+      return;
+    }
+
+    try {
+      setIsUploadingPortfolioCover(true);
+      setPortfolioError(null);
+      const updated = await profileService.uploadPortfolioCover(file);
+      setPortfolio(updated);
+    } catch (err) {
+      console.error('Error uploading portfolio cover:', err);
+      setPortfolioError(err instanceof Error ? err.message : 'Failed to upload portfolio cover');
+    } finally {
+      setIsUploadingPortfolioCover(false);
+      if (portfolioCoverInputRef.current) {
+        portfolioCoverInputRef.current.value = '';
+      }
+    }
+  };
+
+  const handleRemovePortfolioUrl = async () => {
+    try {
+      setIsSavingPortfolio(true);
+      setPortfolioError(null);
+      try {
+        await profileService.deletePortfolioPdf();
+      } catch {
+        // If it's a manual URL (not uploaded PDF), fallback to clearing only the URL.
+      }
+      const updated = await profileService.updatePortfolio({ portfolio_url: null });
+      setPortfolio(updated);
+      setPortfolioUrlInput('');
+    } catch (err) {
+      console.error('Error deleting portfolio PDF:', err);
+      setPortfolioError(err instanceof Error ? err.message : 'Failed to delete portfolio PDF');
+    } finally {
+      setIsSavingPortfolio(false);
+    }
+  };
+
+  const handleDeletePortfolioCover = async () => {
+    try {
+      setIsSavingPortfolio(true);
+      setPortfolioError(null);
+      await profileService.deletePortfolioCover();
+      const updated = await profileService.updatePortfolio({ portfolio_cover_url: null });
+      setPortfolio(updated);
+    } catch (err) {
+      console.error('Error deleting portfolio cover:', err);
+      setPortfolioError(err instanceof Error ? err.message : 'Failed to delete portfolio cover');
+    } finally {
+      setIsSavingPortfolio(false);
+    }
   };
 
   if (loading || authLoading) {
@@ -569,6 +710,122 @@ export const DesignerProfilePage = () => {
               </a>
             )}
           </div>
+
+          {isOwnProfile && (
+            <div className="sidebar-section">
+              <h3>Portfolio Settings</h3>
+              <input
+                ref={portfolioPdfInputRef}
+                type="file"
+                accept="application/pdf"
+                onChange={handlePortfolioPdfChange}
+                style={{ display: 'none' }}
+              />
+              <input
+                ref={portfolioCoverInputRef}
+                type="file"
+                accept="image/jpeg,image/png,image/jpg,image/webp"
+                onChange={handlePortfolioCoverChange}
+                style={{ display: 'none' }}
+              />
+
+              <div className="portfolio-cover-preview">
+                {portfolio?.portfolio_cover_url ? (
+                  <img src={portfolio.portfolio_cover_url} alt="Portfolio cover" />
+                ) : (
+                  <div className="portfolio-cover-placeholder">No cover uploaded</div>
+                )}
+              </div>
+
+              <div className="edit-field">
+                <label>Portfolio Link</label>
+                <input
+                  type="url"
+                  value={portfolioUrlInput}
+                  onChange={(e) => setPortfolioUrlInput(e.target.value)}
+                  placeholder="https://your-portfolio.com or uploaded PDF URL"
+                  className="edit-input"
+                  disabled={isSavingPortfolio || isUploadingPortfolioPdf || isUploadingPortfolioCover}
+                />
+              </div>
+
+              <div className="portfolio-actions-row">
+                <button
+                  onClick={handleSavePortfolioUrl}
+                  className="add-item-save-btn"
+                  disabled={isSavingPortfolio || isUploadingPortfolioPdf || isUploadingPortfolioCover}
+                >
+                  <FaSave size={12} />
+                  {isSavingPortfolio ? 'Saving...' : 'Save Link'}
+                </button>
+                <button
+                  onClick={handlePortfolioPdfClick}
+                  className="add-social-btn"
+                  disabled={isSavingPortfolio || isUploadingPortfolioPdf || isUploadingPortfolioCover}
+                >
+                  <FaUpload size={12} />
+                  {isUploadingPortfolioPdf ? 'Uploading...' : 'Upload PDF'}
+                </button>
+                <button
+                  onClick={handlePortfolioCoverClick}
+                  className="add-social-btn"
+                  disabled={isSavingPortfolio || isUploadingPortfolioPdf || isUploadingPortfolioCover}
+                >
+                  <FaUpload size={12} />
+                  {isUploadingPortfolioCover ? 'Uploading...' : 'Upload Cover'}
+                </button>
+              </div>
+
+              {portfolio?.portfolio_url && (
+                <>
+                  <a
+                    href={portfolio.portfolio_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="contact-link portfolio-link"
+                  >
+                    <FaLink size={16} />
+                    Open Portfolio
+                  </a>
+                  <button
+                    onClick={handleRemovePortfolioUrl}
+                    className="portfolio-remove-btn"
+                    disabled={isSavingPortfolio || isUploadingPortfolioPdf}
+                  >
+                    <FaTrash size={12} />
+                    Remove Portfolio URL
+                  </button>
+                </>
+              )}
+
+              {portfolio?.portfolio_cover_url && (
+                <button
+                  onClick={handleDeletePortfolioCover}
+                  className="portfolio-remove-btn"
+                  disabled={isSavingPortfolio || isUploadingPortfolioPdf || isUploadingPortfolioCover}
+                >
+                  <FaTrash size={12} />
+                  Remove Cover
+                </button>
+              )}
+
+              <button
+                onClick={handleTogglePortfolioPublic}
+                className="portfolio-visibility-btn"
+                disabled={isSavingPortfolio || isUploadingPortfolioPdf || isUploadingPortfolioCover}
+              >
+                {portfolio?.is_public ? <FaEyeSlash size={12} /> : <FaEye size={12} />}
+                {portfolio?.is_public ? 'Make Private' : 'Make Public'}
+              </button>
+              <p className="portfolio-status-text">
+                {portfolio?.is_public
+                  ? 'Your portfolio is visible in the public designer gallery.'
+                  : 'Your portfolio is currently hidden from the public designer gallery.'}
+              </p>
+
+              {portfolioError && <p className="portfolio-error-text">{portfolioError}</p>}
+            </div>
+          )}
 
           {/* Social Links */}
           {isEditing ? (

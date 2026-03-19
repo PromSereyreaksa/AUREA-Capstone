@@ -199,13 +199,124 @@ export interface AcceptPortfolioRateResponse {
   };
 }
 
+export interface CreateManualProjectRequest {
+  user_id: number;
+  project_name: string;
+  title: string;
+  description?: string;
+  duration?: number;
+  difficulty?: string;
+  licensing?: string;
+  usage_rights?: string;
+  deliverables: Array<{
+    deliverable_type: string;
+    quantity: number;
+    items?: string[];
+  }>;
+}
+
+export interface CreateManualProjectResponse {
+  success: boolean;
+  data: {
+    project: {
+      project_id: number;
+      user_id: number;
+      project_name: string;
+      title?: string;
+      description?: string;
+      duration?: number;
+      difficulty?: string;
+      licensing?: string;
+      usage_rights?: string;
+      client_type?: string;
+      client_region?: string;
+      calculated_rate?: number;
+    };
+    deliverables: Array<{
+      deliverable_id: number;
+      project_id: number;
+      deliverable_type: string;
+      quantity: number;
+      items: string[];
+    }>;
+    calculated_rate?: number;
+  };
+}
+
+export interface InvoiceItem {
+  invoice_id: number;
+  invoice_number: string;
+  project_id: number;
+  client_name: string;
+  client_email: string;
+  client_location: string;
+  invoice_date?: string;
+  created_at?: string;
+}
+
+export interface CreateInvoiceRequest {
+  project_id: number;
+  client_name: string;
+  client_email: string;
+  client_location: string;
+  invoice_date?: string;
+}
+
+export interface CreateInvoiceResponse {
+  success: boolean;
+  data: InvoiceItem;
+}
+
+export interface ListInvoicesResponse {
+  success: boolean;
+  data: InvoiceItem[];
+}
+
+export interface ExtractProjectPdfResponse {
+  success: boolean;
+  data: {
+    project: {
+      project_id: number;
+      project_name?: string;
+      title?: string;
+      description?: string;
+      duration?: number;
+      difficulty?: string;
+      licensing?: string;
+      usage_rights?: string;
+    };
+    deliverables: Array<{
+      deliverable_id: number;
+      deliverable_type: string;
+      quantity: number;
+      items: string[];
+    }>;
+    clientContext?: {
+      client_type?: string;
+      client_region?: string;
+      budget_mentioned?: number | null;
+      urgency?: string;
+      estimated_project_hours?: number | null;
+      complexity_indicators?: string[];
+    };
+  };
+}
+
 const pricingBaseUrl = `${API_BASE_URL}/pricing`;
+const projectBaseUrl = `${API_BASE_URL}/pdf`;
+const invoiceBaseUrl = `${API_BASE_URL}/invoices`;
 
 export class PricingClient {
   private client: HttpClient;
+  private projectClient: HttpClient;
+  private invoiceClient: HttpClient;
+  private invoiceBaseUrl: string;
 
   constructor(baseUrl?: string) {
     this.client = new HttpClient(baseUrl ? `${baseUrl}/pricing` : pricingBaseUrl);
+    this.projectClient = new HttpClient(baseUrl ? `${baseUrl}/pdf` : projectBaseUrl);
+    this.invoiceClient = new HttpClient(baseUrl ? `${baseUrl}/invoices` : invoiceBaseUrl);
+    this.invoiceBaseUrl = baseUrl ? `${baseUrl}/invoices` : invoiceBaseUrl;
   }
 
   // Onboarding endpoints
@@ -283,6 +394,69 @@ export class PricingClient {
 
   async acceptPortfolioRate(data: AcceptPortfolioRateRequest): Promise<AcceptPortfolioRateResponse> {
     return this.client.post<AcceptPortfolioRateResponse>('/portfolio-assist/accept', data);
+  }
+
+  // Manual project creation (for project-based estimator)
+  async createManualProject(data: CreateManualProjectRequest): Promise<CreateManualProjectResponse> {
+    return this.projectClient.post<CreateManualProjectResponse>('/create-project', data);
+  }
+
+  // Invoice endpoints
+  async createInvoice(data: CreateInvoiceRequest): Promise<CreateInvoiceResponse> {
+    return this.invoiceClient.post<CreateInvoiceResponse>('/', data);
+  }
+
+  async listInvoices(): Promise<ListInvoicesResponse> {
+    return this.invoiceClient.get<ListInvoicesResponse>('/');
+  }
+
+  async downloadInvoicePdf(invoiceId: number): Promise<Blob> {
+    const token = localStorage.getItem('auth_token');
+    const headers: Record<string, string> = {};
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+
+    const response = await fetch(`${this.invoiceBaseUrl}/${invoiceId}/pdf`, {
+      method: 'GET',
+      headers,
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({
+        error: { message: 'Failed to download invoice PDF' },
+      }));
+      throw new Error(error.error?.message || 'Failed to download invoice PDF');
+    }
+
+    return response.blob();
+  }
+
+  async extractProjectFromPdf(file: File, userId: number): Promise<ExtractProjectPdfResponse> {
+    const token = localStorage.getItem('auth_token');
+    const headers: Record<string, string> = {};
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+
+    const formData = new FormData();
+    formData.append('pdf', file);
+    formData.append('user_id', String(userId));
+
+    const response = await fetch(`${projectBaseUrl}/extract?calculate_pricing=true&use_grounding=true`, {
+      method: 'POST',
+      headers,
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({
+        error: { message: 'PDF extraction failed' },
+      }));
+      throw new Error(error.error?.message || 'PDF extraction failed');
+    }
+
+    return response.json();
   }
 
   // Benchmark data

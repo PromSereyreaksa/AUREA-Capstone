@@ -33,7 +33,7 @@ import {
 
 import { GuestAccessViewpage, PortfolioDetailPage } from "./features/guest-access";
 
-import { DashboardPage } from "./features/dashbard";
+import { DashboardPage, HistoryPage } from "./features/dashbard";
 import { ProjectsPage } from "./features/projects";
 
 import "./App.css";
@@ -100,6 +100,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <DashboardPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/dashboard/history"
+            element={
+              <ProtectedRoute>
+                <HistoryPage />
               </ProtectedRoute>
             }
           />

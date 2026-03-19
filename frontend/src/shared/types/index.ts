@@ -37,6 +37,7 @@ export interface Portfolio {
   portfolio_id: number;
   user_id: number;
   portfolio_url?: string;
+  portfolio_cover_url?: string;
   is_public: boolean;
 }
 
@@ -54,6 +55,7 @@ export interface Portfolio {
   portfolio_id: number;
   user_id: number;
   portfolio_url?: string;
+  portfolio_cover_url?: string;
   is_public: boolean;
 }
 

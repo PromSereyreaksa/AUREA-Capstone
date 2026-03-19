@@ -14,9 +14,20 @@ import '../../shared/styles/fee-estimator.css';
 
 const pricingClient = new PricingClient();
 
+const isMissingPricingProfileError = (message: string): boolean => {
+  const text = message.toLowerCase();
+  return (
+    text.includes("pricing profile not found") ||
+    text.includes("no pricing profile") ||
+    text.includes("complete onboarding")
+  );
+};
+
 const PJEstimationPage: React.FC = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [profileCheckError, setProfileCheckError] = React.useState<string | null>(null);
+  const [showBaseRateRequiredModal, setShowBaseRateRequiredModal] = React.useState(false);
   const {
     state,
     nextStep,
@@ -37,8 +48,14 @@ const PJEstimationPage: React.FC = () => {
   // Check that user has a pricing profile; redirect to base-rate setup if not
   useEffect(() => {
     if (!user?.user_id) return;
-    pricingClient.getPricingProfile(user.user_id).catch(() => {
-      navigate('/fee-estimator/base-rate');
+    setProfileCheckError(null);
+    pricingClient.getPricingProfile(user.user_id).catch((error: unknown) => {
+      const message = error instanceof Error ? error.message : "Failed to load pricing profile";
+      if (isMissingPricingProfileError(message)) {
+        setShowBaseRateRequiredModal(true);
+        return;
+      }
+      setProfileCheckError(message);
     });
   }, [user?.user_id, navigate]);
 
@@ -65,6 +82,11 @@ const PJEstimationPage: React.FC = () => {
           <ProjectInformationForm
             projectInfo={state.projectInfo}
             onUpdate={updateProjectInfo}
+            onApplyExtraction={(projectInfo, deliverables, timeComplexity) => {
+              updateProjectInfo(projectInfo);
+              updateDeliverables(deliverables);
+              updateTimeComplexity(timeComplexity);
+            }}
             onNext={nextStep}
             onBack={handleBack}
           />
@@ -108,6 +130,11 @@ const PJEstimationPage: React.FC = () => {
           <ProjectInformationForm
             projectInfo={state.projectInfo}
             onUpdate={updateProjectInfo}
+            onApplyExtraction={(projectInfo, deliverables, timeComplexity) => {
+              updateProjectInfo(projectInfo);
+              updateDeliverables(deliverables);
+              updateTimeComplexity(timeComplexity);
+            }}
             onNext={nextStep}
             onBack={handleBack}
           />
@@ -144,97 +171,124 @@ const PJEstimationPage: React.FC = () => {
   ];
 
   return (
-    <div className="flex flex-col lg:flex-row min-h-screen bg-[#FB8500] p-3 sm:p-4 md:p-6 gap-3 sm:gap-4 md:gap-6">
-      <Sidebar userName={getUserName()} />
+    <>
+      <div className="flex flex-col lg:flex-row min-h-screen bg-[#FB8500] p-3 sm:p-4 md:p-6 gap-3 sm:gap-4 md:gap-6">
+        <Sidebar userName={getUserName()} />
 
-      <main className="flex-1 bg-white rounded-2xl overflow-hidden border-[3px] border-black shadow-[2px_2px_0_#1a1a1a] flex flex-col lg:flex-row">
-        {/* Main Content */}
-        <div className="fee-estimator-content flex-1 flex flex-col overflow-hidden">
-          {renderCurrentStep()}
-        </div>
-
-        {/* Progress Sidebar */}
-        <aside className="w-full lg:w-64 bg-[#FFFEF9] border-t-[3px] lg:border-t-0 lg:border-l-[3px] border-black p-4 sm:p-6 overflow-y-auto">
-          <div className="flex items-center gap-2 mb-6 animate-[fadeIn_0.5s_ease-out]">
-            <h2 className="text-lg font-extrabold text-[#FB8500]">Progress</h2>
-            <svg
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="#FB8500"
-              strokeWidth="2"
-            >
-              <circle cx="12" cy="12" r="10" />
-              <polyline points="12 6 12 12 16 14" />
-            </svg>
+        <main className="flex-1 bg-white rounded-2xl overflow-hidden border-[3px] border-black shadow-[2px_2px_0_#1a1a1a] flex flex-col lg:flex-row">
+          {/* Main Content */}
+          <div className="fee-estimator-content flex-1 flex flex-col overflow-hidden">
+            {profileCheckError && (
+              <div className="mx-4 mt-4 p-3 border-2 border-red-400 rounded-lg bg-red-50 text-red-700 text-sm font-semibold">
+                Unable to verify your pricing profile: {profileCheckError}
+              </div>
+            )}
+            {renderCurrentStep()}
           </div>
 
-          <div className="space-y-6">
-            {progressSteps.map((stepItem, index) => (
-              <div
-                key={stepItem.id}
-                className="relative animate-[slideRight_0.5s_ease-out] opacity-0 [animation-fill-mode:forwards]"
-                style={{ animationDelay: `${index * 0.1}s` }}
+          {/* Progress Sidebar */}
+          <aside className="w-full lg:w-64 bg-[#FFFEF9] border-t-[3px] lg:border-t-0 lg:border-l-[3px] border-black p-4 sm:p-6 overflow-y-auto">
+            <div className="flex items-center gap-2 mb-6 animate-[fadeIn_0.5s_ease-out]">
+              <h2 className="text-lg font-extrabold text-[#FB8500]">Progress</h2>
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#FB8500"
+                strokeWidth="2"
               >
-                {/* Connector Line */}
-                {index < progressSteps.length - 1 && (
-                  <div className="absolute left-3.5 top-8 bottom-0 w-0.5 bg-[#FB8500]" />
-                )}
+                <circle cx="12" cy="12" r="10" />
+                <polyline points="12 6 12 12 16 14" />
+              </svg>
+            </div>
 
-                {/* Step */}
+            <div className="space-y-6">
+              {progressSteps.map((stepItem, index) => (
                 <div
-                  className="flex items-start gap-3 p-3 rounded-lg transition-all"
-                  style={{
-                    backgroundColor: stepItem.active ? '#FFE8DC' : 'transparent',
-                  }}
+                  key={stepItem.id}
+                  className="relative animate-[slideRight_0.5s_ease-out] opacity-0 [animation-fill-mode:forwards]"
+                  style={{ animationDelay: `${index * 0.1}s` }}
                 >
-                  <div
-                    className={`w-7 h-7 rounded-full border-2 flex items-center justify-center shrink-0 transition-all ${
-                      stepItem.active
-                        ? "bg-[#FB8500] border-[#FB8500]"
-                        : "bg-white border-[#FB8500]"
-                    }`}
-                  >
-                    <span
-                      className={`text-xs font-bold ${
-                        stepItem.active ? "text-white" : "text-[#FB8500]"
-                      }`}
-                    >
-                      {stepItem.id}
-                    </span>
-                  </div>
+                  {/* Connector Line */}
+                  {index < progressSteps.length - 1 && (
+                    <div className="absolute left-3.5 top-8 bottom-0 w-0.5 bg-[#FB8500]" />
+                  )}
 
-                  <div>
-                    <h3
-                      className={`text-sm font-bold mb-2 transition-colors ${
-                        stepItem.active ? "text-[#FB8500]" : "text-gray-600"
+                  {/* Step */}
+                  <div
+                    className="flex items-start gap-3 p-3 rounded-lg transition-all"
+                    style={{
+                      backgroundColor: stepItem.active ? '#FFE8DC' : 'transparent',
+                    }}
+                  >
+                    <div
+                      className={`w-7 h-7 rounded-full border-2 flex items-center justify-center shrink-0 transition-all ${
+                        stepItem.active
+                          ? "bg-[#FB8500] border-[#FB8500]"
+                          : "bg-white border-[#FB8500]"
                       }`}
                     >
-                      {stepItem.label}
-                    </h3>
-                    {stepItem.subSteps.length > 0 && (
-                      <ul className="space-y-1">
-                        {stepItem.subSteps.map((subStep, idx) => (
-                          <li
-                            key={idx}
-                            className={`text-xs transition-colors ${
-                              stepItem.active ? "text-[#FB8500]" : "text-gray-500"
-                            }`}
-                          >
-                            {subStep}
-                          </li>
-                        ))}
-                      </ul>
-                    )}
+                      <span
+                        className={`text-xs font-bold ${
+                          stepItem.active ? "text-white" : "text-[#FB8500]"
+                        }`}
+                      >
+                        {stepItem.id}
+                      </span>
+                    </div>
+
+                    <div>
+                      <h3
+                        className={`text-sm font-bold mb-2 transition-colors ${
+                          stepItem.active ? "text-[#FB8500]" : "text-gray-600"
+                        }`}
+                      >
+                        {stepItem.label}
+                      </h3>
+                      {stepItem.subSteps.length > 0 && (
+                        <ul className="space-y-1">
+                          {stepItem.subSteps.map((subStep, idx) => (
+                            <li
+                              key={idx}
+                              className={`text-xs transition-colors ${
+                                stepItem.active ? "text-[#FB8500]" : "text-gray-500"
+                              }`}
+                            >
+                              {subStep}
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
+          </aside>
+        </main>
+      </div>
+
+      {showBaseRateRequiredModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+          <div className="w-full max-w-md bg-[#FFFEF9] border-[3px] border-black rounded-2xl p-6 shadow-[6px_6px_0_#1a1a1a]">
+            <h3 className="text-xl font-black text-[#FB8500] mb-2">Base Rate Required</h3>
+            <p className="text-sm font-medium text-black mb-5">
+              Please set up your base rate first before using Project-Based Estimation.
+            </p>
+            <button
+              onClick={() => {
+                setShowBaseRateRequiredModal(false);
+                navigate('/fee-estimator/base-rate');
+              }}
+              className="w-full px-4 py-3 bg-[#FB8500] text-white border-2 border-black rounded-lg text-sm font-bold hover:bg-[#E67700] hover:-translate-y-0.5 hover:shadow-[4px_4px_0_#1a1a1a] transition-all duration-150 shadow-[2px_2px_0_#1a1a1a]"
+            >
+              CLOSE
+            </button>
           </div>
-        </aside>
-      </main>
-    </div>
+        </div>
+      )}
+    </>
   );
 };
 
