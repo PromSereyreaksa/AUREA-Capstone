@@ -1,5 +1,12 @@
 @import "tailwindcss";
 
+:root {
+  --nb-motion-fast: 120ms;
+  --nb-motion-enter: 180ms;
+  --nb-motion-panel: 220ms;
+  --nb-ease-sharp: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
 /* 
 * {
   box-sizing: border-box;
@@ -78,4 +85,75 @@ textarea {
 @keyframes scaleIn {
   from { opacity: 0; transform: scale(0.95); }
   to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes nbMarquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+@keyframes nbStickerSlap {
+  from {
+    transform: translate(14px, -10px) rotate(8deg) scale(0.98);
+  }
+  to {
+    transform: translate(0, 0) rotate(-3deg) scale(1);
+  }
+}
+
+@keyframes nbCutInUp {
+  from {
+    transform: translateY(14px);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+.nb-pressable {
+  transition-property: transform, box-shadow, background-color, color, border-color;
+  transition-duration: var(--nb-motion-fast);
+  transition-timing-function: var(--nb-ease-sharp);
+  will-change: transform;
+}
+
+.nb-pressable:active {
+  transform: translate(4px, 4px);
+  box-shadow: 0 0 0 #000 !important;
+}
+
+.nb-marquee {
+  overflow: hidden;
+}
+
+.nb-marquee-track {
+  display: flex;
+  width: max-content;
+  animation: nbMarquee 18s linear infinite;
+}
+
+.nb-marquee-segment {
+  flex: none;
+  white-space: nowrap;
+}
+
+.nb-sticker-slap {
+  animation: nbStickerSlap var(--nb-motion-panel) var(--nb-ease-sharp) both;
+  transform-origin: center;
+}
+
+.nb-cut-in-up {
+  animation: nbCutInUp var(--nb-motion-enter) var(--nb-ease-sharp) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nb-marquee-track,
+  .nb-sticker-slap,
+  .nb-cut-in-up {
+    animation: none !important;
+  }
+
+  .nb-pressable {
+    transition-duration: 1ms;
+  }
 }

@@ -1,50 +1,48 @@
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 
 export const Hero = () => {
+  const navigate = useNavigate();
+  const marqueeText =
+    ' FAIR RATES  /  FAST ESTIMATES  /  NO GUESSWORK  /  BUILT FOR DESIGNERS  / ';
+
   return (
-    <section className="relative min-h-screen overflow-hidden tool-pattern wide-section p-12">
+    <section className="relative overflow-hidden tool-pattern wide-section px-4 pt-4 pb-6 sm:px-6 sm:pt-6 sm:pb-8 lg:px-12 lg:pt-8 lg:pb-10">
       <div>
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          className="bg-white rounded-4xl border-4 border-black md:p-16 brutal-shadow-lg"
+          initial={{ y: 24, rotate: -0.6 }}
+          animate={{ y: 0, rotate: 0 }}
+          transition={{ type: 'spring', stiffness: 220, damping: 22, mass: 0.9 }}
+          className="bg-white rounded-[2rem] border-4 border-black p-6 sm:p-8 md:p-12 lg:p-16 brutal-shadow-lg"
         >
           <div className="max-w-200 mx-auto text-center">
-            <h1 className="text-5xl md:text-7xl font-['Poppins'] font-semibold mb-6 leading-tight">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-['Poppins'] font-semibold mb-4 sm:mb-6 leading-tight">
               Fee Estimator made for{' '}
               <span className="text-[#FB8500] font-bold">Designers</span>
             </h1>
             
-            <p className="text-gray-600 text-lg md:text-xl mb-10">
+            <p className="text-gray-600 text-base sm:text-lg md:text-xl mb-8 sm:mb-10 max-w-3xl mx-auto">
               Accurate, fast, designer-friendly fee estimations
             </p>
             
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="bg-[#FB8500] text-white px-10 py-4 font-medium text-lg shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all border-2 border-black"
+            <button
+              type="button"
+              onClick={() => navigate('/fee-estimator')}
+              className="nb-pressable w-full sm:w-auto bg-[#FB8500] text-white px-6 sm:px-10 py-3 sm:py-4 font-black text-sm sm:text-lg uppercase tracking-[0.12em] sm:tracking-[0.14em] border-2 border-black shadow-[4px_4px_0_#000] hover:bg-black hover:text-[#FB8500]"
             >
               Start Calculating
-            </motion.button>
-            
+            </button>
           </div>
         </motion.div>
-            <div className="mt-16 flex flex-col items-center gap-2 text-black opacity-60">
-              <span className="text-sm font-medium">Explore Features</span>
-              <motion.svg
-                animate={{ y: [0, 10, 0] }}
-                transition={{ repeat: Infinity, duration: 1.5 }}
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-              >
-                <path d="M12 5v14M12 19l-7-7M12 19l7-7" />
-              </motion.svg>
-            </div>
+
+        <div className="mt-5 sm:mt-7 border-4 border-black bg-[#FFEB3B] shadow-[4px_4px_0_#000] nb-marquee">
+          <div className="nb-marquee-track py-2.5 sm:py-3 text-sm sm:text-lg font-black uppercase tracking-[0.12em] sm:tracking-[0.18em] text-black">
+            <span className="nb-marquee-segment pr-10">{marqueeText.repeat(3)}</span>
+            <span className="nb-marquee-segment pr-10" aria-hidden="true">
+              {marqueeText.repeat(3)}
+            </span>
+          </div>
+        </div>
       </div>
     </section>
   );

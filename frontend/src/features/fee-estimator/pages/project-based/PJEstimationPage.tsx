@@ -42,6 +42,7 @@ const PJEstimationPage: React.FC = () => {
   const getUserName = () => {
     if (user?.first_name) return user.first_name;
     if (user?.last_name) return user.last_name;
+    if (user?.email) return user.email.split('@')[0];
     return "Designer";
   };
 
@@ -172,14 +173,17 @@ const PJEstimationPage: React.FC = () => {
 
   return (
     <>
-      <div className="flex flex-col lg:flex-row min-h-screen bg-[#FB8500] p-3 sm:p-4 md:p-6 gap-3 sm:gap-4 md:gap-6">
+      <div
+        className="flex min-h-screen flex-col gap-3 bg-[#FB8500] p-3 sm:gap-4 sm:p-4 md:gap-6 md:p-6 lg:flex-row"
+        style={{ fontFamily: "'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', sans-serif" }}
+      >
         <Sidebar userName={getUserName()} />
 
-        <main className="flex-1 bg-white rounded-2xl overflow-hidden border-[3px] border-black shadow-[2px_2px_0_#1a1a1a] flex flex-col lg:flex-row">
+        <main className="flex flex-1 flex-col overflow-hidden rounded-2xl border-[3px] border-black bg-white shadow-[2px_2px_0_#1a1a1a] lg:flex-row">
           {/* Main Content */}
-          <div className="fee-estimator-content flex-1 flex flex-col overflow-hidden">
+          <div className="flex flex-1 flex-col overflow-hidden bg-[#FFFEF9]">
             {profileCheckError && (
-              <div className="mx-4 mt-4 p-3 border-2 border-red-400 rounded-lg bg-red-50 text-red-700 text-sm font-semibold">
+              <div className="mx-4 mt-4 estimator-alert estimator-alert-error">
                 Unable to verify your pricing profile: {profileCheckError}
               </div>
             )}
@@ -187,74 +191,32 @@ const PJEstimationPage: React.FC = () => {
           </div>
 
           {/* Progress Sidebar */}
-          <aside className="w-full lg:w-64 bg-[#FFFEF9] border-t-[3px] lg:border-t-0 lg:border-l-[3px] border-black p-4 sm:p-6 overflow-y-auto">
-            <div className="flex items-center gap-2 mb-6 animate-[fadeIn_0.5s_ease-out]">
-              <h2 className="text-lg font-extrabold text-[#FB8500]">Progress</h2>
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="#FB8500"
-                strokeWidth="2"
-              >
-                <circle cx="12" cy="12" r="10" />
-                <polyline points="12 6 12 12 16 14" />
-              </svg>
+          <aside className="w-full border-t-[3px] border-black bg-[#FFFEF9] p-4 sm:p-6 lg:w-72 lg:border-l-[3px] lg:border-t-0">
+            <div className="mb-6">
+              <p className="estimator-eyebrow">Progress</p>
+              <h2 className="text-lg font-black uppercase tracking-[0.04em] text-[#FB8500]">
+                Project rate flow
+              </h2>
             </div>
 
-            <div className="space-y-6">
+            <div className="estimator-progress-nav">
               {progressSteps.map((stepItem, index) => (
-                <div
-                  key={stepItem.id}
-                  className="relative animate-[slideRight_0.5s_ease-out] opacity-0 [animation-fill-mode:forwards]"
-                  style={{ animationDelay: `${index * 0.1}s` }}
-                >
+                <div key={stepItem.id} className="estimator-progress-item">
                   {/* Connector Line */}
                   {index < progressSteps.length - 1 && (
-                    <div className="absolute left-3.5 top-8 bottom-0 w-0.5 bg-[#FB8500]" />
+                    <div className="estimator-progress-divider" />
                   )}
 
                   {/* Step */}
-                  <div
-                    className="flex items-start gap-3 p-3 rounded-lg transition-all"
-                    style={{
-                      backgroundColor: stepItem.active ? '#FFE8DC' : 'transparent',
-                    }}
-                  >
-                    <div
-                      className={`w-7 h-7 rounded-full border-2 flex items-center justify-center shrink-0 transition-all ${
-                        stepItem.active
-                          ? "bg-[#FB8500] border-[#FB8500]"
-                          : "bg-white border-[#FB8500]"
-                      }`}
-                    >
-                      <span
-                        className={`text-xs font-bold ${
-                          stepItem.active ? "text-white" : "text-[#FB8500]"
-                        }`}
-                      >
-                        {stepItem.id}
-                      </span>
-                    </div>
+                  <div className={`estimator-progress-step ${stepItem.active ? "is-active" : ""}`}>
+                    <div className="estimator-step-number">{stepItem.id}</div>
 
                     <div>
-                      <h3
-                        className={`text-sm font-bold mb-2 transition-colors ${
-                          stepItem.active ? "text-[#FB8500]" : "text-gray-600"
-                        }`}
-                      >
-                        {stepItem.label}
-                      </h3>
+                      <h3 className="estimator-step-title">{stepItem.label}</h3>
                       {stepItem.subSteps.length > 0 && (
-                        <ul className="space-y-1">
+                        <ul className="estimator-step-sublist">
                           {stepItem.subSteps.map((subStep, idx) => (
-                            <li
-                              key={idx}
-                              className={`text-xs transition-colors ${
-                                stepItem.active ? "text-[#FB8500]" : "text-gray-500"
-                              }`}
-                            >
+                            <li key={idx} className="estimator-step-subtext">
                               {subStep}
                             </li>
                           ))}
@@ -271,20 +233,27 @@ const PJEstimationPage: React.FC = () => {
 
       {showBaseRateRequiredModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-          <div className="w-full max-w-md bg-[#FFFEF9] border-[3px] border-black rounded-2xl p-6 shadow-[6px_6px_0_#1a1a1a]">
-            <h3 className="text-xl font-black text-[#FB8500] mb-2">Base Rate Required</h3>
-            <p className="text-sm font-medium text-black mb-5">
+          <div className="estimator-modal-shell">
+            <div className="border-b-[3px] border-black bg-[#FB8500] p-5">
+              <p className="text-xs font-extrabold uppercase tracking-[0.16em] text-black">
+                Project Based Estimator
+              </p>
+              <h3 className="text-xl font-black text-white">Base Rate Required</h3>
+            </div>
+            <div className="p-6">
+              <p className="text-sm font-medium text-black mb-5">
               Please set up your base rate first before using Project-Based Estimation.
-            </p>
-            <button
-              onClick={() => {
-                setShowBaseRateRequiredModal(false);
-                navigate('/fee-estimator/base-rate');
-              }}
-              className="w-full px-4 py-3 bg-[#FB8500] text-white border-2 border-black rounded-lg text-sm font-bold hover:bg-[#E67700] hover:-translate-y-0.5 hover:shadow-[4px_4px_0_#1a1a1a] transition-all duration-150 shadow-[2px_2px_0_#1a1a1a]"
-            >
-              CLOSE
-            </button>
+              </p>
+              <button
+                onClick={() => {
+                  setShowBaseRateRequiredModal(false);
+                  navigate('/fee-estimator/base-rate');
+                }}
+                className="btn btn-primary nb-pressable w-full"
+              >
+                Go to base rate setup
+              </button>
+            </div>
           </div>
         </div>
       )}

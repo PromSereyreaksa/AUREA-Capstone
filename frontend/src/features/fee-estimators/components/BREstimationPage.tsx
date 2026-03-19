@@ -271,7 +271,7 @@ const BREstimationPage = () => {
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-2.5">
                       <div
-                        className="bg-[#FB8500] h-2.5 rounded-full transition-all duration-500"
+                        className="bg-[#FB8500] h-2.5 rounded-full transition-[width] duration-500"
                         style={{
                           width: `${(currentQuestionIndex / ONBOARDING_QUESTIONS.length) * 100}%`,
                         }}
@@ -321,7 +321,7 @@ const BREstimationPage = () => {
                           disabled={
                             isSubmittingAnswer || !questionAnswer.trim()
                           }
-                          className="px-6 py-3 bg-[#FB8500] text-white border-2 border-black rounded-lg text-sm font-bold hover:bg-[#E67700] hover:-translate-y-0.5 hover:shadow-[4px_4px_0_#1a1a1a] transition-all duration-150 shadow-[2px_2px_0_#1a1a1a] disabled:opacity-50 flex items-center gap-2"
+                          className="px-6 py-3 bg-[#FB8500] text-white border-2 border-black rounded-lg text-sm font-bold hover:bg-[#E67700] transition-colors duration-150 shadow-[2px_2px_0_#1a1a1a] disabled:opacity-50 flex items-center gap-2"
                         >
                           {isSubmittingAnswer ? "SUBMITTING..." : "CONTINUE"}
                         </button>
@@ -359,7 +359,7 @@ const BREstimationPage = () => {
                 <div className="flex gap-3 pt-4">
                   <button
                     onClick={() => navigate("/fee-estimator")}
-                    className="px-6 py-3 border-2 border-black rounded-lg text-sm font-bold hover:bg-gray-100 hover:-translate-y-0.5 hover:shadow-[3px_3px_0_#1a1a1a] transition-all duration-150"
+                    className="px-6 py-3 border-2 border-black rounded-lg text-sm font-bold hover:bg-gray-100 transition-colors duration-150"
                   >
                     BACK TO ESTIMATOR
                   </button>
@@ -515,14 +515,14 @@ const BREstimationPage = () => {
                   <button
                     onClick={handleStartOnboarding}
                     disabled={isSaving}
-                    className="px-6 py-3 border-2 border-black rounded-lg text-sm font-bold hover:bg-gray-100 hover:-translate-y-0.5 hover:shadow-[3px_3px_0_#1a1a1a] transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="px-6 py-3 border-2 border-black rounded-lg text-sm font-bold hover:bg-gray-100 transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     START OVER
                   </button>
                   <button
                     onClick={() => setShowBenchmark(true)}
                     disabled={isSaving}
-                    className="px-6 py-3 border-2 border-black rounded-lg text-sm font-bold hover:bg-gray-100 hover:-translate-y-0.5 hover:shadow-[3px_3px_0_#1a1a1a] transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="px-6 py-3 border-2 border-black rounded-lg text-sm font-bold hover:bg-gray-100 transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     VIEW BENCHMARK
                   </button>
@@ -530,7 +530,7 @@ const BREstimationPage = () => {
                     <button
                       onClick={handleSaveRate}
                       disabled={isSaving}
-                      className="px-6 py-3 bg-[#FB8500] text-white border-2 border-black rounded-lg text-sm font-bold hover:bg-[#E67700] hover:-translate-y-0.5 hover:shadow-[4px_4px_0_#1a1a1a] transition-all duration-150 shadow-[2px_2px_0_#1a1a1a] disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                      className="px-6 py-3 bg-[#FB8500] text-white border-2 border-black rounded-lg text-sm font-bold hover:bg-[#E67700] transition-colors duration-150 shadow-[2px_2px_0_#1a1a1a] disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                     >
                       {isSaving ? (
                         <>
@@ -594,7 +594,7 @@ const BREstimationPage = () => {
 
                 {/* Step Circle */}
                 <div
-                  className="flex items-start gap-3 p-3 rounded-lg transition-all"
+                  className="flex items-start gap-3 p-3 rounded-lg transition-colors duration-150"
                   style={{
                     backgroundColor: stepItem.active
                       ? "#FFE8DC"
@@ -602,7 +602,7 @@ const BREstimationPage = () => {
                   }}
                 >
                   <div
-                    className={`w-7 h-7 rounded-full border-2 flex items-center justify-center shrink-0 transition-all ${
+                    className={`w-7 h-7 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors duration-150 ${
                       stepItem.active
                         ? "bg-[#FB8500] border-[#FB8500]"
                         : "bg-white border-[#FB8500]"

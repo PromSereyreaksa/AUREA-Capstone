@@ -4,7 +4,7 @@ import { useAuth } from "../../auth/context/AuthContext";
 const ProjectsPage = () => {
   const { user } = useAuth();
 
-  // Get user's first name from email or use default
+  // Get user's first name or use default
   const getUserName = () => {
     if (user?.first_name) {
       return user.first_name;
@@ -12,6 +12,10 @@ const ProjectsPage = () => {
 
     if (user?.last_name) {
       return user.last_name;
+    }
+
+    if (user?.email) {
+      return user.email.split("@")[0];
     }
 
     return "Designer";

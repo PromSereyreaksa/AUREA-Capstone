@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Navbar from "../../../shared/components/Navbar";
+import UserAvatar from "../../../shared/components/UserAvatar";
 import { httpClient } from "../../../shared/api/client";
 
 interface PublicPortfolioItem {
@@ -107,21 +108,13 @@ export const PortfolioDetailPage = () => {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-[1.2fr,1.8fr] gap-10 items-start">
             <div className="flex flex-col items-center md:items-start gap-4">
-              <div className="w-32 h-32 rounded-full overflow-hidden border-2 border-black bg-gray-100 flex items-center justify-center">
-                {portfolio.profile_avatar ? (
-                  <img
-                    src={portfolio.profile_avatar}
-                    alt={`${portfolio.first_name} ${portfolio.last_name}`}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <span className="text-2xl font-bold text-gray-500">
-                    {`${portfolio.first_name} ${portfolio.last_name}`
-                      .trim()
-                      .charAt(0) || "D"}
-                  </span>
-                )}
-              </div>
+              <UserAvatar
+                name={`${portfolio.first_name} ${portfolio.last_name}`.trim() || "Designer"}
+                imageUrl={portfolio.profile_avatar}
+                seed={portfolio.user_id}
+                className="h-32 w-32 rounded-full border-2 border-black"
+                initialsClassName="text-2xl"
+              />
               <div className="text-center md:text-left">
                 <h1 className="text-3xl md:text-4xl font-black text-black">
                   {`${portfolio.first_name} ${portfolio.last_name}`.trim() ||
@@ -176,7 +169,7 @@ export const PortfolioDetailPage = () => {
               <button
                 onClick={handleViewPortfolio}
                 disabled={!portfolio.portfolio_url}
-                className="mt-2 inline-flex items-center justify-center px-6 py-3 rounded-full bg-[#FB8500] text-white font-semibold hover:bg-black transition disabled:bg-gray-300 disabled:text-gray-600"
+                className="mt-2 inline-flex items-center justify-center px-6 py-3 rounded-full bg-[#FB8500] text-white font-semibold transition-colors hover:bg-black disabled:bg-gray-300 disabled:text-gray-600"
               >
                 View Portfolio
               </button>

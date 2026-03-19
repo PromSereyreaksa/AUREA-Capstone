@@ -1,5 +1,9 @@
 import React, { useState } from 'react';
-import type { ProjectInformation, DeliverableItem, TimeComplexity } from '../shared/types';
+import type {
+  ProjectInformation,
+  DeliverableItem,
+  TimeComplexity,
+} from '../shared/types';
 import { PricingClient } from '../../../shared/api/pricingClient';
 import type { ProjectRateResponse } from '../../../shared/api/pricingClient';
 import { InvoiceModal, invoiceService } from '../../invoice';
@@ -17,8 +21,8 @@ const pricingClient = new PricingClient();
 
 const LICENSING_MULTIPLIERS: Record<string, number> = {
   'one-time': 1.0,
-  'limited': 1.2,
-  'exclusive': 1.5,
+  limited: 1.2,
+  exclusive: 1.5,
 };
 
 const USAGE_RIGHTS_LABELS: Record<string, string> = {
@@ -35,7 +39,7 @@ export const ProjectSummary: React.FC<ProjectSummaryProps> = ({
   timeComplexity,
   userId,
   onEdit,
-  onComplete
+  onComplete,
 }) => {
   const [isCalculating, setIsCalculating] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -48,12 +52,14 @@ export const ProjectSummary: React.FC<ProjectSummaryProps> = ({
   const [isGeneratingInvoice, setIsGeneratingInvoice] = useState(false);
   const [invoiceError, setInvoiceError] = useState<string | null>(null);
 
+  const validDeliverables = deliverables.filter((item) => item.quantity > 0);
+
   const handleCalculate = async () => {
     if (!timeComplexity.client_type || !timeComplexity.client_region) {
       setError('Please go back and set the client type and region.');
       return;
     }
-    const validDeliverables = deliverables.filter((item) => item.quantity > 0);
+
     if (validDeliverables.length === 0) {
       setError('Please add at least one deliverable with quantity above 0.');
       return;
@@ -61,6 +67,7 @@ export const ProjectSummary: React.FC<ProjectSummaryProps> = ({
 
     setIsCalculating(true);
     setError(null);
+
     try {
       let currentProjectId = projectId;
 
@@ -73,13 +80,16 @@ export const ProjectSummary: React.FC<ProjectSummaryProps> = ({
           duration: timeComplexity.duration,
           difficulty: timeComplexity.difficulty || undefined,
           licensing: timeComplexity.licensing.projectLicensing,
-          usage_rights: USAGE_RIGHTS_LABELS[timeComplexity.licensing.commercialRights] || 'Personal Use',
+          usage_rights:
+            USAGE_RIGHTS_LABELS[timeComplexity.licensing.commercialRights] ||
+            'Personal Use',
           deliverables: validDeliverables.map((item) => ({
             deliverable_type: item.type,
             quantity: item.quantity,
             items: [],
           })),
         });
+
         currentProjectId = created.data.project.project_id;
         setProjectId(currentProjectId);
       }
@@ -90,9 +100,14 @@ export const ProjectSummary: React.FC<ProjectSummaryProps> = ({
         client_type: timeComplexity.client_type,
         client_region: timeComplexity.client_region,
       });
+
       setResult(response.data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Calculation failed. Please try again.');
+      setError(
+        err instanceof Error
+          ? err.message
+          : 'Calculation failed. Please try again.',
+      );
     } finally {
       setIsCalculating(false);
     }
@@ -100,12 +115,20 @@ export const ProjectSummary: React.FC<ProjectSummaryProps> = ({
 
   const getAdjustedHourlyRate = (): number | null => {
     if (!result) return null;
+
     const withLegacy = result as ProjectRateResponse['data'] & {
       project_rate?: number;
       final_hourly_rate?: number;
     };
-    if (typeof withLegacy.project_rate === 'number') return withLegacy.project_rate;
-    if (typeof withLegacy.final_hourly_rate === 'number') return withLegacy.final_hourly_rate;
+
+    if (typeof withLegacy.project_rate === 'number') {
+      return withLegacy.project_rate;
+    }
+
+    if (typeof withLegacy.final_hourly_rate === 'number') {
+      return withLegacy.final_hourly_rate;
+    }
+
     return null;
   };
 
@@ -114,6 +137,7 @@ export const ProjectSummary: React.FC<ProjectSummaryProps> = ({
       setInvoiceError('Project not saved yet. Please calculate first.');
       return;
     }
+
     if (!clientName.trim() || !clientEmail.trim() || !clientLocation.trim()) {
       setInvoiceError('Client name, email, and address are required.');
       return;
@@ -121,27 +145,42 @@ export const ProjectSummary: React.FC<ProjectSummaryProps> = ({
 
     setIsGeneratingInvoice(true);
     setInvoiceError(null);
+
     try {
       const invoice = await invoiceService.createOrGetProjectInvoice(projectId, {
         clientName,
         clientEmail,
         clientLocation,
       });
-      await invoiceService.downloadInvoicePdf(invoice.invoice_id, invoice.invoice_number);
+
+      await invoiceService.downloadInvoicePdf(
+        invoice.invoice_id,
+        invoice.invoice_number,
+      );
+
       setShowInvoiceModal(false);
       onComplete();
     } catch (err) {
-      setInvoiceError(err instanceof Error ? err.message : 'Failed to generate invoice');
+      setInvoiceError(
+        err instanceof Error ? err.message : 'Failed to generate invoice',
+      );
     } finally {
       setIsGeneratingInvoice(false);
     }
   };
 
-  const licensingMultiplier = LICENSING_MULTIPLIERS[timeComplexity.licensing.projectLicensing] ?? 1.0;
+  const licensingMultiplier =
+    LICENSING_MULTIPLIERS[timeComplexity.licensing.projectLicensing] ?? 1.0;
   const adjustedHourlyRate = getAdjustedHourlyRate();
   const totalProjectPrice = result
-    ? Math.round((adjustedHourlyRate || 0) * timeComplexity.duration * timeComplexity.difficultyMultiplier * licensingMultiplier)
+    ? Math.round(
+        (adjustedHourlyRate || 0) *
+          timeComplexity.duration *
+          timeComplexity.difficultyMultiplier *
+          licensingMultiplier,
+      )
     : null;
+
   const formatDifficulty = (difficulty: string | null) => {
     if (!difficulty) return 'Not specified';
     return difficulty.charAt(0).toUpperCase() + difficulty.slice(1);
@@ -149,446 +188,340 @@ export const ProjectSummary: React.FC<ProjectSummaryProps> = ({
 
   const formatCommercialRights = (rights: string) => {
     switch (rights) {
-      case 'personal': return 'Personal Use';
-      case 'small-business': return 'Small Business';
-      case 'large-corporation': return 'Large Corporation';
-      case 'full-commercial': return 'Full Commercial Right';
-      case 'other': return 'Other';
-      default: return rights;
+      case 'personal':
+        return 'Personal Use';
+      case 'small-business':
+        return 'Small Business';
+      case 'large-corporation':
+        return 'Large Corporation';
+      case 'full-commercial':
+        return 'Full Commercial Right';
+      case 'other':
+        return 'Other';
+      default:
+        return rights;
     }
   };
 
   const formatProjectLicensing = (licensing: string) => {
     switch (licensing) {
-      case 'one-time': return 'One-Time Used';
-      case 'limited': return 'Limited Used';
-      case 'exclusive': return 'Exclusive License';
-      default: return licensing;
+      case 'one-time':
+        return 'One-Time Use';
+      case 'limited':
+        return 'Limited Use';
+      case 'exclusive':
+        return 'Exclusive License';
+      default:
+        return licensing;
     }
   };
 
+  const clientTypeLabel = timeComplexity.client_type
+    ? {
+        startup: 'Startup',
+        sme: 'SME',
+        corporate: 'Corporate',
+        ngo: 'NGO / Non-Profit',
+        government: 'Government',
+      }[timeComplexity.client_type]
+    : 'Not specified';
+
+  const clientRegionLabel = timeComplexity.client_region
+    ? {
+        cambodia: 'Cambodia',
+        southeast_asia: 'Southeast Asia',
+        global: 'Global',
+      }[timeComplexity.client_region]
+    : 'Not specified';
+
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+    <div className="estimator-shell">
       <div className="fee-estimator-header">
         <h1 className="fee-estimator-title">Project Based Estimator</h1>
       </div>
 
       <div className="fee-estimator-body">
-      <div className="form-section">
-        <h2 className="form-section-title">Project Summary</h2>
+        <div className="form-section nb-cut-in-up">
+          <h2 className="form-section-title">Project Summary</h2>
 
-        {/* Project Information */}
-        <div style={{ 
-          background: 'white', 
-          border: '2px solid #000000', 
-          borderRadius: '0.75rem', 
-          padding: '1.5rem', 
-          marginBottom: '1.5rem',
-          boxShadow: '2px 2px 0 rgba(0, 0, 0, 0.2)'
-        }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
-            <h3 style={{ 
-              color: '#000000', 
-              fontSize: '1rem', 
-              fontWeight: '700', 
-              margin: 0, 
-              textTransform: 'uppercase',
-              letterSpacing: '0.5px'
-            }}>
-              Project Name:
-            </h3>
-            <button 
-              onClick={() => onEdit(2)}
-              style={{
-                background: 'transparent',
-                border: 'none',
-                color: '#FB8500',
-                cursor: 'pointer',
-                fontSize: '0.875rem',
-                fontWeight: '600',
-                textTransform: 'uppercase',
-                letterSpacing: '0.3px',
-                textDecoration: 'underline'
-              }}
-            >
-              Edit
-            </button>
-          </div>
-          <p style={{ color: '#000000', margin: '0 0 1rem 0', fontSize: '0.875rem' }}>
-            {projectInfo.name}
-          </p>
-          
-          <h4 style={{ 
-            color: '#000000', 
-            fontSize: '0.875rem', 
-            fontWeight: '700', 
-            margin: '0 0 0.5rem 0',
-            textTransform: 'uppercase',
-            letterSpacing: '0.3px'
-          }}>
-            Project Description:
-          </h4>
-          <p style={{ color: '#666666', margin: 0, fontSize: '0.875rem', lineHeight: 1.5 }}>
-            {projectInfo.description}
-          </p>
-        </div>
-
-        {/* Scope and Deliverable */}
-        <div style={{ 
-          background: 'white', 
-          border: '2px solid #000000', 
-          borderRadius: '0.75rem', 
-          padding: '1.5rem', 
-          marginBottom: '1.5rem',
-          boxShadow: '2px 2px 0 rgba(0, 0, 0, 0.2)'
-        }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-            <h3 style={{ 
-              color: '#FB8500', 
-              fontSize: '1rem', 
-              fontWeight: '700', 
-              margin: 0, 
-              textTransform: 'uppercase',
-              letterSpacing: '0.5px'
-            }}>
-              Scope and Deliverable
-            </h3>
-            <button 
-              onClick={() => onEdit(3)}
-              style={{
-                background: 'transparent',
-                border: 'none',
-                color: '#FB8500',
-                cursor: 'pointer',
-                fontSize: '0.875rem',
-                fontWeight: '600',
-                textTransform: 'uppercase',
-                letterSpacing: '0.3px',
-                textDecoration: 'underline'
-              }}
-            >
-              Edit
-            </button>
-          </div>
-          
-          <div style={{ fontSize: '0.875rem', color: '#666666', marginBottom: '1rem' }}>
-            Project Deliverable
-          </div>
-          
-          {deliverables.filter(item => item.quantity > 0).map((item, index) => (
-            <div key={item.id} style={{ 
-              display: 'flex', 
-              justifyContent: 'space-between', 
-              alignItems: 'center',
-              padding: '0.5rem 0',
-              borderBottom: index < deliverables.filter(d => d.quantity > 0).length - 1 ? '1px solid #E5E5E5' : 'none'
-            }}>
-              <span style={{ color: '#000000', fontWeight: '600' }}>
-                {item.type}
-              </span>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <span style={{ color: '#000000', fontWeight: '600' }}>{item.quantity}</span>
-                <span style={{ color: '#666666', fontSize: '0.75rem', textTransform: 'uppercase' }}>
-                  Quantity
-                </span>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Time and Complexity */}
-        <div style={{ 
-          background: 'white', 
-          border: '2px solid #000000', 
-          borderRadius: '0.75rem', 
-          padding: '1.5rem', 
-          marginBottom: '1.5rem',
-          boxShadow: '2px 2px 0 rgba(0, 0, 0, 0.2)'
-        }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-            <h3 style={{ 
-              color: '#FB8500', 
-              fontSize: '1rem', 
-              fontWeight: '700', 
-              margin: 0, 
-              textTransform: 'uppercase',
-              letterSpacing: '0.5px'
-            }}>
-              Time and Complexity
-            </h3>
-            <button 
-              onClick={() => onEdit(4)}
-              style={{
-                background: 'transparent',
-                border: 'none',
-                color: '#FB8500',
-                cursor: 'pointer',
-                fontSize: '0.875rem',
-                fontWeight: '600',
-                textTransform: 'uppercase',
-                letterSpacing: '0.3px',
-                textDecoration: 'underline'
-              }}
-            >
-              Edit
-            </button>
-          </div>
-          
-          <div style={{ display: 'grid', gap: '1rem' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <span style={{ color: '#000000', fontWeight: '600' }}>
-                Project Duration Estimation
-              </span>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <span style={{ color: '#000000', fontWeight: '600' }}>{timeComplexity.duration}</span>
-                <span style={{ color: '#666666', fontSize: '0.75rem', textTransform: 'uppercase' }}>
-                  Hours
-                </span>
-              </div>
-            </div>
-            
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <span style={{ color: '#000000', fontWeight: '600' }}>
-                Project Difficulty
-              </span>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <span style={{ color: '#000000', fontWeight: '600' }}>
-                  {formatDifficulty(timeComplexity.difficulty)}
-                </span>
-                <span style={{ color: '#666666', fontSize: '0.75rem' }}>
-                  Multiplier: 
-                </span>
-                <div style={{
-                  padding: '0.125rem 0.5rem',
-                  background: '#FFE8DC',
-                  border: '1px solid #FB8500',
-                  borderRadius: '0.5rem',
-                  fontSize: '0.75rem',
-                  fontWeight: '600',
-                  color: '#FB8500'
-                }}>
-                  x{timeComplexity.difficultyMultiplier}
+          <div className="estimator-stack">
+            <section className="estimator-panel">
+              <div className="estimator-panel-header">
+                <div>
+                  <p className="estimator-eyebrow">Project Info</p>
+                  <h3 className="estimator-kicker">{projectInfo.name}</h3>
                 </div>
+                <button
+                  type="button"
+                  className="estimator-edit-btn"
+                  onClick={() => onEdit(2)}
+                >
+                  Edit
+                </button>
               </div>
+              <p className="estimator-body-copy">
+                {projectInfo.description || 'No description added yet.'}
+              </p>
+            </section>
+
+            <section className="estimator-panel estimator-panel-muted">
+              <div className="estimator-panel-header">
+                <div>
+                  <p className="estimator-eyebrow">Scope</p>
+                  <h3 className="estimator-kicker">Deliverables</h3>
+                </div>
+                <button
+                  type="button"
+                  className="estimator-edit-btn"
+                  onClick={() => onEdit(3)}
+                >
+                  Edit
+                </button>
+              </div>
+              <div className="estimator-stat-list">
+                {validDeliverables.map((item) => (
+                  <div key={item.id} className="estimator-stat-row">
+                    <span>{item.type}</span>
+                    <span className="estimator-badge">{item.quantity} pcs</span>
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            <div className="estimator-grid-two">
+              <section className="estimator-panel">
+                <div className="estimator-panel-header">
+                  <div>
+                    <p className="estimator-eyebrow">Timing</p>
+                    <h3 className="estimator-kicker">Complexity & Context</h3>
+                  </div>
+                  <button
+                    type="button"
+                    className="estimator-edit-btn"
+                    onClick={() => onEdit(4)}
+                  >
+                    Edit
+                  </button>
+                </div>
+                <div className="estimator-stat-list">
+                  <div className="estimator-stat-row">
+                    <span>Project Duration</span>
+                    <strong>{timeComplexity.duration} hours</strong>
+                  </div>
+                  <div className="estimator-stat-row">
+                    <span>Project Difficulty</span>
+                    <strong>{formatDifficulty(timeComplexity.difficulty)}</strong>
+                  </div>
+                  <div className="estimator-stat-row">
+                    <span>Difficulty Multiplier</span>
+                    <strong>x{timeComplexity.difficultyMultiplier}</strong>
+                  </div>
+                  <div className="estimator-stat-row">
+                    <span>Client Type</span>
+                    <strong>{clientTypeLabel}</strong>
+                  </div>
+                  <div className="estimator-stat-row">
+                    <span>Client Region</span>
+                    <strong>{clientRegionLabel}</strong>
+                  </div>
+                </div>
+              </section>
+
+              <section className="estimator-panel estimator-panel-accent">
+                <p className="estimator-eyebrow">Usage</p>
+                <h3 className="estimator-kicker">License & Rights</h3>
+                <div className="estimator-stat-list" style={{ marginTop: '1rem' }}>
+                  <div className="estimator-stat-row">
+                    <span>Commercial Rights</span>
+                    <span className="estimator-badge">
+                      {formatCommercialRights(
+                        timeComplexity.licensing.commercialRights,
+                      )}
+                    </span>
+                  </div>
+                  <div className="estimator-stat-row">
+                    <span>Project Licensing</span>
+                    <span className="estimator-badge">
+                      {formatProjectLicensing(
+                        timeComplexity.licensing.projectLicensing,
+                      )}
+                    </span>
+                  </div>
+                  {timeComplexity.licensing.customLicensing && (
+                    <div className="estimator-note-card">
+                      <p className="estimator-eyebrow">Custom Terms</p>
+                      <p className="estimator-body-copy">
+                        {timeComplexity.licensing.customLicensing}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </section>
             </div>
 
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <span style={{ color: '#000000', fontWeight: '600' }}>Client Type</span>
-              <span style={{ color: '#000000', fontWeight: '600' }}>
-                {timeComplexity.client_type
-                  ? { startup: 'Startup', sme: 'SME', corporate: 'Corporate', ngo: 'NGO / Non-Profit', government: 'Government' }[timeComplexity.client_type]
-                  : 'Not specified'}
-              </span>
-            </div>
+            {error && (
+              <div className="estimator-alert estimator-alert-error">{error}</div>
+            )}
 
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <span style={{ color: '#000000', fontWeight: '600' }}>Client Region</span>
-              <span style={{ color: '#000000', fontWeight: '600' }}>
-                {timeComplexity.client_region
-                  ? { cambodia: 'Cambodia', southeast_asia: 'Southeast Asia', global: 'Global' }[timeComplexity.client_region]
-                  : 'Not specified'}
-              </span>
-            </div>
-          </div>
-        </div>
+            {result && (
+              <section className="estimator-panel estimator-panel-strong nb-sticker-slap">
+                <div className="estimator-panel-header-wrap">
+                  <div>
+                    <p className="estimator-eyebrow">Calculated Result</p>
+                    <h3 className="estimator-kicker">Estimated Project Cost</h3>
+                  </div>
+                  <span className="estimator-badge estimator-badge-ink">
+                    Ready to invoice
+                  </span>
+                </div>
 
-        {/* License and Rights */}
-        <div style={{ 
-          background: 'white', 
-          border: '2px solid #000000', 
-          borderRadius: '0.75rem', 
-          padding: '1.5rem', 
-          marginBottom: '2rem',
-          boxShadow: '2px 2px 0 rgba(0, 0, 0, 0.2)'
-        }}>
-          <h3 style={{ 
-            color: '#FB8500', 
-            fontSize: '1rem', 
-            fontWeight: '700', 
-            margin: '0 0 1rem 0', 
-            textTransform: 'uppercase',
-            letterSpacing: '0.5px'
-          }}>
-            License and Rights
-          </h3>
-          
-          <div style={{ display: 'grid', gap: '1rem' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ color: '#000000', fontWeight: '600' }}>
-                Commercial Usage Rights
-              </span>
-              <div style={{
-                padding: '0.25rem 0.75rem',
-                background: '#FFE8DC',
-                border: '2px solid #000000',
-                borderRadius: '1rem',
-                fontSize: '0.75rem',
-                fontWeight: '600',
-                color: '#000000',
-                textTransform: 'uppercase'
-              }}>
-                {formatCommercialRights(timeComplexity.licensing.commercialRights)}
-              </div>
-            </div>
-            
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ color: '#000000', fontWeight: '600' }}>
-                Project Licensing
-              </span>
-              <div style={{
-                padding: '0.25rem 0.75rem',
-                background: '#FFE8DC',
-                border: '2px solid #000000',
-                borderRadius: '1rem',
-                fontSize: '0.75rem',
-                fontWeight: '600',
-                color: '#000000',
-                textTransform: 'uppercase'
-              }}>
-                {formatProjectLicensing(timeComplexity.licensing.projectLicensing)}
-              </div>
-            </div>
-            
-            {timeComplexity.licensing.customLicensing && (
-              <div style={{ marginTop: '0.5rem' }}>
-                <span style={{ color: '#666666', fontSize: '0.875rem' }}>
-                  Custom Licensing: {timeComplexity.licensing.customLicensing}
-                </span>
-              </div>
+                <div
+                  className="estimator-kpi-grid"
+                  style={{ marginTop: '1rem', marginBottom: '1rem' }}
+                >
+                  <div className="estimator-kpi">
+                    <p className="estimator-kpi-label">Adjusted Hourly Rate</p>
+                    <p className="estimator-kpi-number">
+                      ${adjustedHourlyRate?.toFixed(2) || '0.00'}/hr
+                    </p>
+                  </div>
+                  <div className="estimator-kpi">
+                    <p className="estimator-kpi-label">Base Hourly Rate</p>
+                    <p className="estimator-kpi-number">
+                      ${result.base_rate.toFixed(2)}/hr
+                    </p>
+                  </div>
+                  <div className="estimator-kpi">
+                    <p className="estimator-kpi-label">Licensing Factor</p>
+                    <p className="estimator-kpi-number">x{licensingMultiplier}</p>
+                  </div>
+                </div>
+
+                {(result as ProjectRateResponse['data'] & {
+                  adjustments?: {
+                    client_type_multiplier?: number;
+                    region_multiplier?: number;
+                  };
+                  recommended_price_range?: {
+                    min: number;
+                    max: number;
+                  };
+                }).adjustments && (
+                  <div className="estimator-stat-list" style={{ marginBottom: '1rem' }}>
+                    <div className="estimator-stat-row estimator-stat-row-accent">
+                      <span>Client Type Multiplier</span>
+                      <strong>
+                        x
+                        {(
+                          result as ProjectRateResponse['data'] & {
+                            adjustments: { client_type_multiplier: number };
+                          }
+                        ).adjustments.client_type_multiplier}
+                      </strong>
+                    </div>
+                    <div className="estimator-stat-row estimator-stat-row-accent">
+                      <span>Region Multiplier</span>
+                      <strong>
+                        x
+                        {(
+                          result as ProjectRateResponse['data'] & {
+                            adjustments: { region_multiplier: number };
+                          }
+                        ).adjustments.region_multiplier}
+                      </strong>
+                    </div>
+                  </div>
+                )}
+
+                <div className="estimator-summary-total">
+                  <div>
+                    <p className="estimator-eyebrow">Total Estimate</p>
+                    <h4 className="estimator-kicker">
+                      Final recommended project price
+                    </h4>
+                  </div>
+                  <span className="estimator-value estimator-value-lg">
+                    ${totalProjectPrice?.toLocaleString()}
+                  </span>
+                </div>
+
+                {(
+                  result as ProjectRateResponse['data'] & {
+                    recommended_price_range?: { min: number; max: number };
+                  }
+                ).recommended_price_range && (
+                  <p className="estimator-microcopy" style={{ marginTop: '1rem' }}>
+                    Market rate range: $
+                    {(
+                      result as ProjectRateResponse['data'] & {
+                        recommended_price_range: { min: number; max: number };
+                      }
+                    ).recommended_price_range.min.toFixed(0)}
+                    {' '}to $
+                    {(
+                      result as ProjectRateResponse['data'] & {
+                        recommended_price_range: { min: number; max: number };
+                      }
+                    ).recommended_price_range.max.toFixed(0)}
+                    /hr
+                  </p>
+                )}
+
+                {result.market_position && (
+                  <div style={{ marginTop: '0.75rem' }}>
+                    <span className="estimator-badge">
+                      Market Position: {result.market_position}
+                    </span>
+                  </div>
+                )}
+              </section>
             )}
           </div>
         </div>
 
-        {/* Error Banner */}
-        {error && (
-          <div style={{
-            background: '#FEF2F2',
-            border: '2px solid #EF4444',
-            borderRadius: '0.75rem',
-            padding: '1rem',
-            marginBottom: '1.5rem'
-          }}>
-            <p style={{ color: '#DC2626', margin: 0, fontSize: '0.875rem', fontWeight: '600' }}>{error}</p>
-          </div>
-        )}
-
-        {/* Calculation Result */}
-        {result && (
-          <div style={{
-            background: '#F0FDF4',
-            border: '2px solid #000000',
-            borderRadius: '0.75rem',
-            padding: '1.5rem',
-            marginBottom: '1.5rem',
-            boxShadow: '2px 2px 0 rgba(0, 0, 0, 0.2)'
-          }}>
-            <h3 style={{
-              color: '#16A34A',
-              fontSize: '1rem',
-              fontWeight: '700',
-              margin: '0 0 1rem 0',
-              textTransform: 'uppercase',
-              letterSpacing: '0.5px'
-            }}>
-              Estimated Project Cost
-            </h3>
-            <div style={{ display: 'grid', gap: '0.75rem' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ color: '#000000', fontWeight: '600' }}>Adjusted Hourly Rate</span>
-                <span style={{ color: '#16A34A', fontWeight: '700', fontSize: '1.125rem' }}>
-                  ${adjustedHourlyRate?.toFixed(2) || '0.00'}/hr
-                </span>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ color: '#666666', fontSize: '0.875rem' }}>Base Hourly Rate</span>
-                <span style={{ color: '#666666', fontWeight: '600' }}>${result.base_rate.toFixed(2)}/hr</span>
-              </div>
-              {(result as any).adjustments && (
-                <>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span style={{ color: '#666666', fontSize: '0.875rem' }}>Client Type Multiplier</span>
-                    <span style={{ color: '#666666', fontSize: '0.875rem' }}>x{(result as any).adjustments.client_type_multiplier}</span>
-                  </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span style={{ color: '#666666', fontSize: '0.875rem' }}>Region Multiplier</span>
-                    <span style={{ color: '#666666', fontSize: '0.875rem' }}>x{(result as any).adjustments.region_multiplier}</span>
-                  </div>
-                </>
-              )}
-              <div style={{ height: '1px', background: '#D1D5DB', margin: '0.25rem 0' }} />
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ color: '#000000', fontWeight: '700', textTransform: 'uppercase', fontSize: '0.875rem' }}>
-                  Total Project Estimate
-                </span>
-                <span style={{ color: '#FB8500', fontWeight: '800', fontSize: '1.5rem' }}>
-                  ${totalProjectPrice?.toLocaleString()}
-                </span>
-              </div>
-              {(result as any).recommended_price_range && (
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span style={{ color: '#666666', fontSize: '0.875rem' }}>Market Rate Range</span>
-                  <span style={{ color: '#666666', fontSize: '0.875rem' }}>
-                    ${(result as any).recommended_price_range.min.toFixed(0)} to ${(result as any).recommended_price_range.max.toFixed(0)}/hr
-                  </span>
-                </div>
-              )}
-              {result.market_position && (
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span style={{ color: '#666666', fontSize: '0.875rem' }}>Market Position</span>
-                  <div style={{
-                    padding: '0.125rem 0.5rem',
-                    background: '#FFE8DC',
-                    border: '1px solid #FB8500',
-                    borderRadius: '0.5rem',
-                    fontSize: '0.75rem',
-                    fontWeight: '600',
-                    color: '#FB8500'
-                  }}>
-                    {result.market_position}
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Navigation Buttons */}
-      <div className="button-container">
-        <button className="btn btn-secondary" onClick={() => onEdit(4)}>
-          Back
-        </button>
-        {result ? (
-          <button className="btn btn-primary" onClick={() => setShowInvoiceModal(true)}>
-            Generate Invoice
-          </button>
-        ) : (
+        <div className="button-container">
           <button
-            className={`btn btn-primary ${isCalculating ? 'disabled' : ''}`}
-            onClick={handleCalculate}
-            disabled={isCalculating}
+            className="btn btn-secondary nb-pressable"
+            onClick={() => onEdit(4)}
           >
-            {isCalculating ? 'Calculating...' : 'Calculate'}
+            Back
           </button>
-        )}
-      </div>
+          {result ? (
+            <button
+              className="btn btn-primary nb-pressable"
+              onClick={() => setShowInvoiceModal(true)}
+            >
+              Generate Invoice
+            </button>
+          ) : (
+            <button
+              className={`btn btn-primary nb-pressable ${
+                isCalculating ? 'disabled' : ''
+              }`}
+              onClick={handleCalculate}
+              disabled={isCalculating}
+            >
+              {isCalculating ? 'Calculating...' : 'Calculate'}
+            </button>
+          )}
+        </div>
 
-      <InvoiceModal
-        isOpen={showInvoiceModal}
-        clientName={clientName}
-        clientEmail={clientEmail}
-        clientLocation={clientLocation}
-        error={invoiceError}
-        isSubmitting={isGeneratingInvoice}
-        onClientNameChange={setClientName}
-        onClientEmailChange={setClientEmail}
-        onClientLocationChange={setClientLocation}
-        onCancel={() => {
-          setShowInvoiceModal(false);
-          setInvoiceError(null);
-        }}
-        onSubmit={handleGenerateInvoice}
-      />
+        <InvoiceModal
+          isOpen={showInvoiceModal}
+          clientName={clientName}
+          clientEmail={clientEmail}
+          clientLocation={clientLocation}
+          error={invoiceError}
+          isSubmitting={isGeneratingInvoice}
+          onClientNameChange={setClientName}
+          onClientEmailChange={setClientEmail}
+          onClientLocationChange={setClientLocation}
+          onCancel={() => {
+            setShowInvoiceModal(false);
+            setInvoiceError(null);
+          }}
+          onSubmit={handleGenerateInvoice}
+        />
       </div>
     </div>
   );

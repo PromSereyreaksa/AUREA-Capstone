@@ -1,7 +1,7 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../../features/auth/context/AuthContext";
+import UserAvatar from "./UserAvatar";
 
-// Icons as SVG components
 const DashboardIcon = () => (
   <svg
     width="20"
@@ -52,9 +52,17 @@ interface SidebarProps {
   userAvatar?: string;
 }
 
-const Sidebar = ({ userName = "User", userAvatar }: SidebarProps) => {
+const Sidebar = ({ userName, userAvatar }: SidebarProps) => {
   const navigate = useNavigate();
-  const { signOut } = useAuth();
+  const { signOut, user } = useAuth();
+  const avatarName = `${user?.first_name ?? ""} ${user?.last_name ?? ""}`.trim() || user?.first_name || user?.last_name;
+
+  const resolvedUserName =
+    userName ||
+    avatarName ||
+    user?.email?.split("@")[0] ||
+    "User";
+  const resolvedUserAvatar = userAvatar || user?.avatar_url;
 
   const handleLogout = async () => {
     try {
@@ -75,83 +83,69 @@ const Sidebar = ({ userName = "User", userAvatar }: SidebarProps) => {
   ];
 
   return (
-    <aside className="w-full lg:w-60 bg-[#FFFEF9] rounded-2xl p-4 sm:p-5 lg:p-6 flex flex-col shrink-0 border-[3px] border-black shadow-[2px_2px_0_#1a1a1a]">
-      {/* Logo */}
-      <div className="text-black flex flex-col items-center mb-4 lg:mb-6 w-fit self-center">
-        <h1 className="text-xl sm:text-2xl font-black tracking-tight leading-none">
-          AUREA
-        </h1>
-        <span className="text-xs leading-none self-end">.tools</span>
-      </div>
-
-      {/* User Profile Card */}
-      <NavLink to="/designer-profile">
-        <div className="flex items-center gap-3 p-2 sm:p-3 bg-[#FFE8DC] rounded-xl mb-4 lg:mb-6 border-2 border-black shadow-[2px_2px_0_#1a1a1a]">
-          <div className="w-10 h-10 rounded-lg overflow-hidden bg-white flex items-center justify-center border-2 border-black">
-            {userAvatar ? (
-              <img
-                src={userAvatar}
-                alt={userName}
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <div className="text-black">
-                <svg
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                >
-                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                  <circle cx="12" cy="7" r="4" />
-                </svg>
-              </div>
-            )}
-          </div>
-
+    <aside className="w-full shrink-0 rounded-2xl border-[3px] border-black bg-[#FFFEF9] p-3 shadow-[2px_2px_0_#1a1a1a] lg:w-60 lg:p-6">
+      <div className="mb-3 flex items-center justify-between gap-3 lg:mb-6 lg:flex-col lg:items-center">
+        <div className="flex items-center gap-3 text-black lg:flex-col lg:gap-1">
           <div className="flex flex-col">
-            <span className="text-xs font-extrabold text-black tracking-wide">
-              {userName.toUpperCase()}
+            <h1 className="text-lg font-black leading-none tracking-tight sm:text-xl lg:text-2xl">
+              AUREA
+            </h1>
+            <span className="self-end text-[10px] leading-none lg:text-xs">
+              .tools
             </span>
-            <div className="text-[10px] text-black font-medium ">
-              View Profile
-            </div>
           </div>
         </div>
-      </NavLink>
 
-      {/* Navigation */}
-      <nav className="flex flex-row lg:flex-col gap-2 flex-wrap lg:flex-nowrap lg:flex-1">
+        <NavLink
+          to="/designer-profile"
+          className="nb-pressable flex min-w-0 items-center gap-2 rounded-xl border-2 border-black bg-[#FFE8DC] px-2 py-2 shadow-[2px_2px_0_#1a1a1a] lg:w-full lg:px-3"
+        >
+          <UserAvatar
+            name={avatarName}
+            email={user?.email}
+            imageUrl={resolvedUserAvatar}
+            seed={user?.user_id ?? resolvedUserName}
+            className="h-10 w-10 shrink-0 rounded-lg border-2 border-black"
+            initialsClassName="text-xs sm:text-sm"
+          />
+
+          <div className="min-w-0">
+            <span className="block truncate text-[11px] font-extrabold uppercase tracking-[0.08em] text-black">
+              {resolvedUserName}
+            </span>
+            <div className="text-[10px] font-medium text-black">View Profile</div>
+          </div>
+        </NavLink>
+      </div>
+
+      <nav className="grid grid-cols-2 gap-2 lg:flex lg:flex-col lg:gap-2 lg:min-h-[calc(100vh-16rem)]">
         {navItems.map((item) => (
           <NavLink
             key={item.path}
             to={item.path}
             className={({ isActive }) =>
-              `flex items-center justify-center lg:justify-start gap-2 lg:gap-3 px-3 py-2 lg:px-4 lg:py-3 rounded-lg text-black text-xs sm:text-sm font-semibold transition-all duration-150 border-2 flex-1 lg:flex-none ${
+              `nb-pressable flex min-h-12 items-center justify-center gap-2 rounded-xl border-2 px-3 py-3 text-center text-xs font-bold sm:text-sm lg:justify-start lg:px-4 ${
                 isActive
-                  ? "bg-[#FFE8DC] border-black shadow-[2px_2px_0_#1a1a1a]"
-                  : "border-transparent hover:bg-[#FFE8DC] hover:border-black hover:shadow-[2px_2px_0_#1a1a1a] hover:-translate-x-0.5 hover:-translate-y-0.5"
+                  ? "border-black bg-[#FFE8DC] text-black shadow-[2px_2px_0_#1a1a1a]"
+                  : "border-black bg-white text-black shadow-[2px_2px_0_#1a1a1a] hover:bg-[#FFF3E8]"
               }`
             }
           >
-            <span className="flex items-center justify-center w-5">
+            <span className="flex w-5 items-center justify-center">
               {item.icon}
             </span>
-            <span className="hidden sm:inline lg:inline">{item.label}</span>
+            <span>{item.label}</span>
           </NavLink>
         ))}
 
-        {/* Logout Button */}
         <button
-          className="flex items-center justify-center lg:justify-start gap-2 lg:gap-3 px-3 py-2 lg:px-4 lg:py-3 rounded-lg text-black text-xs sm:text-sm font-semibold lg:mt-auto border-2 border-transparent hover:bg-[#FFE8DC] hover:border-black hover:shadow-[2px_2px_0_#1a1a1a] hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all duration-150 cursor-pointer w-full text-center lg:text-left flex-1 lg:flex-none"
+          className="nb-pressable col-span-2 flex min-h-12 items-center justify-center gap-2 rounded-xl border-2 border-black bg-white px-3 py-3 text-center text-xs font-bold text-black shadow-[2px_2px_0_#1a1a1a] hover:bg-[#FFF3E8] sm:text-sm lg:col-span-1 lg:mt-auto lg:justify-start lg:px-4"
           onClick={handleLogout}
         >
-          <span className="flex items-center justify-center w-5">
+          <span className="flex w-5 items-center justify-center">
             <LogoutIcon />
           </span>
-          <span className="hidden sm:inline lg:inline">Logout</span>
+          <span>Logout</span>
         </button>
       </nav>
     </aside>

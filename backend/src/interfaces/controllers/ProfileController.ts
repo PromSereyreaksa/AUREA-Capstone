@@ -69,10 +69,23 @@ export const createProfileController = asyncHandler(async (req: Request, res: Re
 export const getProfileController = asyncHandler(async (req: Request, res: Response) => {
   const { user_id } = req.user as any;
 
-  const profile = await getUserProfile.execute(user_id);
+  let profile = await getUserProfile.execute(user_id);
 
   if (!profile) {
-    return ResponseHelper.error(res, 'Profile not found', 404);
+    try {
+      profile = await createUserProfile.execute({ user_id });
+    } catch (error) {
+      // Handle a concurrent first-load where another request created the row.
+      if (error instanceof Error && error.message === 'User profile already exists') {
+        profile = await getUserProfile.execute(user_id);
+      } else {
+        throw error;
+      }
+    }
+  }
+
+  if (!profile) {
+    return ResponseHelper.error(res, 'Failed to initialize profile', 500);
   }
 
   const userData = await getUserName(user_id);

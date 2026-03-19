@@ -2,7 +2,9 @@ import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../auth';
 import { ProfileService } from '../services/ProfileService';
+import NeobrutalDropdown from '../../fee-estimator/components/NeobrutalDropdown';
 import type { UserProfile, Portfolio } from '../../../shared/types';
+import UserAvatar from '../../../shared/components/UserAvatar';
 import { FaArrowLeft, FaPencilAlt, FaMapMarkerAlt, FaEnvelope, FaInstagram, FaBehance, FaDribbble, FaLinkedin, FaTwitter, FaGlobe, FaLink, FaSave, FaTimes, FaPlus, FaTrash, FaCamera, FaUpload, FaEye, FaEyeSlash } from 'react-icons/fa';
 import '../styles/profile.css';
 
@@ -67,7 +69,12 @@ export const DesignerProfilePage = () => {
           }
           try {
             profileData = await profileService.getCurrentProfile();
-          } catch {
+          } catch (err) {
+            const message = err instanceof Error ? err.message.toLowerCase() : '';
+            if (!message.includes('profile not found')) {
+              throw err;
+            }
+
             // Profile doesn't exist - create a placeholder with user info
             console.log('Profile not found, using user data');
             profileData = {
@@ -393,28 +400,70 @@ export const DesignerProfilePage = () => {
 
   if (loading || authLoading) {
     return (
-      <div className="profile-loading">
-        <div className="loading-spinner"></div>
+      <div className="profile-container profile-state-shell">
+        <div className="profile-loading-shell">
+          <section className="profile-state-card profile-state-card-hero">
+            <p className="profile-state-kicker">Designer Profile</p>
+            <div className="profile-loading-hero">
+              <div className="profile-loading-avatar-block"></div>
+              <div className="profile-loading-copy">
+                <div className="profile-loading-line profile-loading-line-lg"></div>
+                <div className="profile-loading-line profile-loading-line-md"></div>
+                <div className="profile-loading-pill-row">
+                  <div className="profile-loading-pill"></div>
+                  <div className="profile-loading-pill"></div>
+                  <div className="profile-loading-pill profile-loading-pill-short"></div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <div className="profile-loading-grid">
+            <section className="profile-state-card">
+              <p className="profile-state-kicker">About</p>
+              <div className="profile-loading-stack">
+                <div className="profile-loading-line"></div>
+                <div className="profile-loading-line"></div>
+                <div className="profile-loading-line profile-loading-line-short"></div>
+              </div>
+            </section>
+
+            <section className="profile-state-card">
+              <p className="profile-state-kicker">Connect</p>
+              <div className="profile-loading-stack">
+                <div className="profile-loading-chip"></div>
+                <div className="profile-loading-chip"></div>
+                <div className="profile-loading-chip profile-loading-chip-wide"></div>
+              </div>
+            </section>
+          </div>
+        </div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="profile-error">
-        <h2>Error Loading Profile</h2>
-        <p>{error}</p>
-        <button onClick={() => navigate(-1)}>Go Back</button>
+      <div className="profile-container profile-state-shell">
+        <div className="profile-error profile-state-card">
+          <p className="profile-state-kicker">Profile Error</p>
+          <h2>Error Loading Profile</h2>
+          <p>{error}</p>
+          <button onClick={() => navigate(-1)} className="back-button-alt">Go Back</button>
+        </div>
       </div>
     );
   }
 
   if (!profile) {
     return (
-      <div className="profile-error">
-        <h2>Profile Not Found</h2>
-        <p>The profile you're looking for doesn't exist.</p>
-        <button onClick={() => navigate(-1)}>Go Back</button>
+      <div className="profile-container profile-state-shell">
+        <div className="profile-error profile-state-card">
+          <p className="profile-state-kicker">Profile Error</p>
+          <h2>Profile Not Found</h2>
+          <p>The profile you're looking for doesn't exist.</p>
+          <button onClick={() => navigate(-1)} className="back-button-alt">Go Back</button>
+        </div>
       </div>
     );
   }
@@ -423,6 +472,9 @@ export const DesignerProfilePage = () => {
   const displayName = profile.first_name || profile.last_name 
     ? `${profile.first_name || ''} ${profile.last_name || ''}`.trim()
     : user?.email?.split('@')[0] || 'User';
+  const avatarName = profile.first_name || profile.last_name
+    ? `${profile.first_name || ''} ${profile.last_name || ''}`.trim()
+    : undefined;
 
   // Check if profile needs to be completed
   const isIncomplete = !profile.bio && !profile.skills && !profile.location;
@@ -465,12 +517,15 @@ export const DesignerProfilePage = () => {
                 <div className="avatar-loading">
                   <div className="loading-spinner-small"></div>
                 </div>
-              ) : profile.profile_avatar ? (
-                <img src={profile.profile_avatar} alt={displayName} />
               ) : (
-                <div className="profile-avatar-placeholder">
-                  {displayName.charAt(0).toUpperCase()}
-                </div>
+                <UserAvatar
+                  name={avatarName}
+                  email={isOwnProfile ? user?.email : undefined}
+                  imageUrl={profile.profile_avatar}
+                  seed={profile.user_id || user?.user_id || displayName}
+                  className="h-full w-full"
+                  initialsClassName="text-[2.75rem] tracking-[0.04em]"
+                />
               )}
               
               {/* Camera overlay for own profile */}
@@ -542,35 +597,46 @@ export const DesignerProfilePage = () => {
                 )
               )}
               {isEditing ? (
-                <div className="edit-field">
-                  <label>Experience & Seniority</label>
+                <div className="edit-field profile-experience-edit-group">
                   <div className="experience-inputs">
-                    <input
-                      type="number"
-                      value={editedProfile.experience_years || ''}
-                      onChange={(e) => setEditedProfile({ ...editedProfile, experience_years: parseInt(e.target.value) || undefined })}
-                      placeholder="Years"
-                      className="edit-input-small"
-                      min="0"
-                    />
-                    <select
-                      value={editedProfile.seniority_level || ''}
-                      onChange={(e) => setEditedProfile({ ...editedProfile, seniority_level: e.target.value as 'junior' | 'mid' | 'senior' | 'expert' | undefined })}
-                      className="edit-select"
-                    >
-                      <option value="">Select level</option>
-                      <option value="junior">Junior</option>
-                      <option value="mid">Mid</option>
-                      <option value="senior">Senior</option>
-                      <option value="expert">Expert</option>
-                    </select>
+                    <div className="form-group profile-inline-field profile-inline-field-small">
+                      <label className="form-label">Years</label>
+                      <input
+                        type="number"
+                        value={editedProfile.experience_years || ''}
+                        onChange={(e) => setEditedProfile({ ...editedProfile, experience_years: parseInt(e.target.value) || undefined })}
+                        placeholder="Years"
+                        className="edit-input-small profile-years-input"
+                        min="0"
+                      />
+                    </div>
+                    <div className="profile-dropdown-field">
+                      <NeobrutalDropdown
+                        label="Seniority"
+                        value={editedProfile.seniority_level || ''}
+                        onChange={(value) =>
+                          setEditedProfile({
+                            ...editedProfile,
+                            seniority_level: (value || undefined) as 'junior' | 'mid' | 'senior' | 'expert' | undefined,
+                          })
+                        }
+                        placeholder="Select level"
+                        options={[
+                          { value: '', label: 'Select level' },
+                          { value: 'junior', label: 'Junior' },
+                          { value: 'mid', label: 'Mid' },
+                          { value: 'senior', label: 'Senior' },
+                          { value: 'expert', label: 'Expert' },
+                        ]}
+                      />
+                    </div>
                   </div>
                 </div>
               ) : (
                 (profile.experience_years || profile.seniority_level) && (
                   <p className="profile-experience">
                     {profile.experience_years && `${profile.experience_years} years experience`}
-                    {profile.experience_years && profile.seniority_level && ' • '}
+                    {profile.experience_years && profile.seniority_level && ' / '}
                     {profile.seniority_level && (
                       <span className="seniority-badge">{profile.seniority_level}</span>
                     )}
@@ -685,10 +751,23 @@ export const DesignerProfilePage = () => {
           </section>
 
           {/* Recent Work Section */}
-          <section className="profile-section">
+          <section className="profile-section profile-section-compact">
             <h2>Recent Project</h2>
-            <div className="projects-grid">
-              {/* TODO: Populate with project cards once data is available */}
+            <div className="profile-empty-project-card">
+              <div>
+                <p className="profile-empty-project-title">No featured project pinned yet.</p>
+                <p className="profile-empty-text">
+                  {isOwnProfile
+                    ? 'Upload a portfolio cover or connect your portfolio link so this area feels intentional instead of empty.'
+                    : 'This designer has not added a featured project yet.'}
+                </p>
+              </div>
+              {isOwnProfile && (
+                <button onClick={handlePortfolioCoverClick} className="add-social-btn">
+                  <FaUpload size={12} />
+                  Add Cover
+                </button>
+              )}
             </div>
           </section>
         </div>
@@ -709,6 +788,98 @@ export const DesignerProfilePage = () => {
                 Portfolio
               </a>
             )}
+          </div>
+
+          {/* Social Links */}
+          {isEditing ? (
+            <div className="sidebar-section">
+              <h3>Social Links</h3>
+              {(editedProfile.social_links || []).map((link, index) => (
+                <div key={index} className="social-link editable">
+                  {getSocialIcon(link.platform)}
+                  <span>{link.handle || link.platform}</span>
+                  <button onClick={() => handleRemoveSocialLink(index)} className="remove-social-btn">
+                    <FaTrash size={12} />
+                  </button>
+                </div>
+              ))}
+              {isAddingSocial ? (
+                <div className="add-social-form">
+                  <input
+                    type="text"
+                    value={newSocialLink.platform}
+                    onChange={(e) => setNewSocialLink({ ...newSocialLink, platform: e.target.value })}
+                    placeholder="Platform (e.g., instagram)"
+                    className="add-item-input"
+                  />
+                  <input
+                    type="text"
+                    value={newSocialLink.url}
+                    onChange={(e) => setNewSocialLink({ ...newSocialLink, url: e.target.value })}
+                    placeholder="Profile URL"
+                    className="add-item-input"
+                  />
+                  <input
+                    type="text"
+                    value={newSocialLink.handle}
+                    onChange={(e) => setNewSocialLink({ ...newSocialLink, handle: e.target.value })}
+                    placeholder="Handle/Username"
+                    className="add-item-input"
+                  />
+                  <div className="add-social-actions">
+                    <button onClick={handleAddSocialLink} className="add-item-save-btn">
+                      <FaSave size={12} />
+                      Add
+                    </button>
+                    <button onClick={() => { setIsAddingSocial(false); setNewSocialLink({ platform: '', url: '', handle: '' }); }} className="add-item-cancel-btn">
+                      <FaTimes size={12} />
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <button onClick={() => setIsAddingSocial(true)} className="add-social-btn">
+                  <FaPlus size={12} />
+                  Add Social Link
+                </button>
+              )}
+            </div>
+          ) : (
+            profile.social_links && profile.social_links.length > 0 && (
+              <div className="sidebar-section">
+                <h3>Social Links</h3>
+                {profile.social_links.map((link, index) => (
+                  <a 
+                    key={index} 
+                    href={link.url} 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="social-link"
+                  >
+                    {getSocialIcon(link.platform)}
+                    {link.handle || link.platform}
+                  </a>
+                ))}
+              </div>
+            )
+          )}
+
+          {/* Show empty social links section for own profile */}
+          {isOwnProfile && !isEditing && (!profile.social_links || profile.social_links.length === 0) && (
+            <div className="sidebar-section">
+              <h3>Social Links</h3>
+              <p className="profile-empty-text">Add your social links in profile settings.</p>
+            </div>
+          )}
+
+          <div className="sidebar-section">
+            <h3>Statistics</h3>
+            <div className="stats">
+              <div className="stat-item">
+                <span className="stat-value">0</span>
+                <span className="stat-label">Projects</span>
+              </div>
+            </div>
           </div>
 
           {isOwnProfile && (
@@ -826,98 +997,6 @@ export const DesignerProfilePage = () => {
               {portfolioError && <p className="portfolio-error-text">{portfolioError}</p>}
             </div>
           )}
-
-          {/* Social Links */}
-          {isEditing ? (
-            <div className="sidebar-section">
-              <h3>Social Links</h3>
-              {(editedProfile.social_links || []).map((link, index) => (
-                <div key={index} className="social-link editable">
-                  {getSocialIcon(link.platform)}
-                  <span>{link.handle || link.platform}</span>
-                  <button onClick={() => handleRemoveSocialLink(index)} className="remove-social-btn">
-                    <FaTrash size={12} />
-                  </button>
-                </div>
-              ))}
-              {isAddingSocial ? (
-                <div className="add-social-form">
-                  <input
-                    type="text"
-                    value={newSocialLink.platform}
-                    onChange={(e) => setNewSocialLink({ ...newSocialLink, platform: e.target.value })}
-                    placeholder="Platform (e.g., instagram)"
-                    className="add-item-input"
-                  />
-                  <input
-                    type="text"
-                    value={newSocialLink.url}
-                    onChange={(e) => setNewSocialLink({ ...newSocialLink, url: e.target.value })}
-                    placeholder="Profile URL"
-                    className="add-item-input"
-                  />
-                  <input
-                    type="text"
-                    value={newSocialLink.handle}
-                    onChange={(e) => setNewSocialLink({ ...newSocialLink, handle: e.target.value })}
-                    placeholder="Handle/Username"
-                    className="add-item-input"
-                  />
-                  <div className="add-social-actions">
-                    <button onClick={handleAddSocialLink} className="add-item-save-btn">
-                      <FaSave size={12} />
-                      Add
-                    </button>
-                    <button onClick={() => { setIsAddingSocial(false); setNewSocialLink({ platform: '', url: '', handle: '' }); }} className="add-item-cancel-btn">
-                      <FaTimes size={12} />
-                      Cancel
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <button onClick={() => setIsAddingSocial(true)} className="add-social-btn">
-                  <FaPlus size={12} />
-                  Add Social Link
-                </button>
-              )}
-            </div>
-          ) : (
-            profile.social_links && profile.social_links.length > 0 && (
-              <div className="sidebar-section">
-                <h3>Social Links</h3>
-                {profile.social_links.map((link, index) => (
-                  <a 
-                    key={index} 
-                    href={link.url} 
-                    target="_blank" 
-                    rel="noopener noreferrer" 
-                    className="social-link"
-                  >
-                    {getSocialIcon(link.platform)}
-                    {link.handle || link.platform}
-                  </a>
-                ))}
-              </div>
-            )
-          )}
-
-          {/* Show empty social links section for own profile */}
-          {isOwnProfile && !isEditing && (!profile.social_links || profile.social_links.length === 0) && (
-            <div className="sidebar-section">
-              <h3>Social Links</h3>
-              <p className="profile-empty-text">Add your social links in profile settings.</p>
-            </div>
-          )}
-
-          <div className="sidebar-section">
-            <h3>Statistics</h3>
-            <div className="stats">
-              <div className="stat-item">
-                <span className="stat-value">0</span>
-                <span className="stat-label">Projects</span>
-              </div>
-            </div>
-          </div>
         </aside>
       </div>
     </div>

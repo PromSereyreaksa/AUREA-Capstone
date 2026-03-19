@@ -162,7 +162,7 @@ export const ProjectInformation: React.FC<ProjectInformationProps> = ({
   const canProceed = projectInfo.name.trim() !== '' && projectInfo.description.trim() !== '';
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+    <div className="estimator-shell">
       <div className="fee-estimator-header">
         <h1 className="fee-estimator-title">Project Based Estimator</h1>
       </div>
@@ -170,7 +170,7 @@ export const ProjectInformation: React.FC<ProjectInformationProps> = ({
       <div className="fee-estimator-body">
         {/* Upload Method Selection */}
         {!projectInfo.uploadMethod && (
-        <div className="form-section">
+        <div className="form-section nb-cut-in-up">
           <h2 className="form-section-title">How would you like to provide project information?</h2>
           
           {/* PDF Upload Option */}
@@ -195,37 +195,29 @@ export const ProjectInformation: React.FC<ProjectInformationProps> = ({
             />
           </div>
 
-          <p style={{ textAlign: 'center', margin: '1rem 0', fontSize: '0.875rem', color: '#666666' }}>
+          <p className="estimator-microcopy estimator-upload-note">
             Drag and Drop your pdf project description here and let our AI extraction fill up the form for you or{' '}
-            <span 
-              style={{ color: '#FB8500', fontWeight: 'bold', cursor: 'pointer', textDecoration: 'underline' }}
+            <button
+              type="button"
+              className="estimator-link-action"
               onClick={handleManualInput}
             >
               scroll down and fill up the form manually
-            </span>
+            </button>
           </p>
         </div>
       )}
 
       {/* Project Information Form */}
-      <div className="form-section">
+      <div className="form-section nb-cut-in-up">
         <h2 className="form-section-title">Project Information</h2>
         {uploadError && (
-          <div style={{
-            background: '#FEF2F2',
-            border: '2px solid #EF4444',
-            borderRadius: '0.75rem',
-            padding: '0.75rem',
-            marginBottom: '1rem',
-            color: '#DC2626',
-            fontSize: '0.875rem',
-            fontWeight: 600
-          }}>
+          <div className="estimator-alert estimator-alert-error" style={{ marginBottom: '1rem' }}>
             {uploadError}
           </div>
         )}
         
-        <div className="form-group">
+        <div className="form-group estimator-panel estimator-panel-muted">
           <label htmlFor="projectName" className="form-label">Project Name</label>
           <input
             type="text"
@@ -237,7 +229,7 @@ export const ProjectInformation: React.FC<ProjectInformationProps> = ({
           />
         </div>
 
-        <div className="form-group">
+        <div className="form-group estimator-panel">
           <label htmlFor="projectDescription" className="form-label">Project Description</label>
           <textarea
             id="projectDescription"
@@ -251,11 +243,11 @@ export const ProjectInformation: React.FC<ProjectInformationProps> = ({
 
       {/* Navigation Buttons */}
       <div className="button-container">
-        <button className="btn btn-secondary" onClick={onBack}>
+        <button className="btn btn-secondary nb-pressable" onClick={onBack}>
           Back
         </button>
         <button 
-          className={`btn btn-primary ${!canProceed ? 'disabled' : ''}`}
+          className={`btn btn-primary nb-pressable ${!canProceed ? 'disabled' : ''}`}
           onClick={onNext}
           disabled={!canProceed}
         >
