@@ -2,7 +2,7 @@ import { IUserRepository } from '../../domain/repositories/IUserRepository';
 import { IUserProfileRepository } from '../../domain/repositories/IUserProfileRepository';
 import { User } from '../../domain/entities/User';
 import { UserProfile } from '../../domain/entities/UserProfile';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import { EmailService } from '../../infrastructure/services/EmailService';
 
 export class SignUpUser {

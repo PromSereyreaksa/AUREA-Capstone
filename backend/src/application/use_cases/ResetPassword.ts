@@ -1,5 +1,5 @@
 import { IUserRepository } from '../../domain/repositories/IUserRepository';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
 
 export interface ResetPasswordResult {

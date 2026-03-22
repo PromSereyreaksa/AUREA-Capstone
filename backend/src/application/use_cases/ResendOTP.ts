@@ -1,6 +1,6 @@
 import { IUserRepository } from '../../domain/repositories/IUserRepository';
 import { EmailService } from '../../infrastructure/services/EmailService';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 
 export interface ResendOTPResult {
   success: boolean;

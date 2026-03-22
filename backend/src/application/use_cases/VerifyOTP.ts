@@ -1,6 +1,6 @@
 import { IUserRepository } from '../../domain/repositories/IUserRepository';
 import { JwtService } from '../../infrastructure/services/JwtService';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 
 export interface VerifyOTPResult {
   success: boolean;
