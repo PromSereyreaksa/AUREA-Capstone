@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import type {
   ProjectInformation,
   DeliverableItem,
@@ -41,6 +42,7 @@ export const ProjectSummary: React.FC<ProjectSummaryProps> = ({
   onEdit,
   onComplete,
 }) => {
+  const navigate = useNavigate();
   const [isCalculating, setIsCalculating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<ProjectRateResponse['data'] | null>(null);
@@ -153,13 +155,19 @@ export const ProjectSummary: React.FC<ProjectSummaryProps> = ({
         clientLocation,
       });
 
-      await invoiceService.downloadInvoicePdf(
-        invoice.invoice_id,
-        invoice.invoice_number,
-      );
+      // Download is non-critical: the browser may already have started it even if
+      // the JS blob step throws. Never let a download error block navigation.
+      try {
+        await invoiceService.downloadInvoicePdf(
+          invoice.invoice_id,
+          invoice.invoice_number,
+        );
+      } catch {
+        // swallow — browser has already initiated the download
+      }
 
       setShowInvoiceModal(false);
-      onComplete();
+      navigate('/dashboard');
     } catch (err) {
       setInvoiceError(
         err instanceof Error ? err.message : 'Failed to generate invoice',

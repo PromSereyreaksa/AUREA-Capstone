@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 
 export const ProductExplanation = () => {
   return (
-    <section className="bg-[#fafafa] py-10 sm:py-16 lg:py-24 wide-section px-4 sm:px-6 lg:p-12">
+    <section id="about" className="bg-[#fafafa] py-10 sm:py-16 lg:py-24 wide-section px-4 sm:px-6 lg:p-12">
       <div>
         <motion.div
           initial={{ y: 18, rotate: 0.8 }}

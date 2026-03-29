@@ -1,4 +1,4 @@
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink, Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../features/auth/context/AuthContext";
 import UserAvatar from "./UserAvatar";
 
@@ -83,9 +83,9 @@ const Sidebar = ({ userName, userAvatar }: SidebarProps) => {
   ];
 
   return (
-    <aside className="w-full shrink-0 rounded-2xl border-[3px] border-black bg-[#FFFEF9] p-3 shadow-[2px_2px_0_#1a1a1a] lg:w-60 lg:p-6">
+    <aside className="w-full shrink-0 rounded-2xl border-[3px] border-black bg-[#FFFEF9] p-3 shadow-[2px_2px_0_#1a1a1a] flex flex-col lg:w-60 lg:p-6">
       <div className="mb-3 flex items-center justify-between gap-3 lg:mb-6 lg:flex-col lg:items-center">
-        <div className="flex items-center gap-3 text-black lg:flex-col lg:gap-1">
+        <Link to="/" className="flex items-center gap-3 text-black lg:flex-col lg:gap-1">
           <div className="flex flex-col">
             <h1 className="text-lg font-black leading-none tracking-tight sm:text-xl lg:text-2xl">
               AUREA
@@ -94,7 +94,7 @@ const Sidebar = ({ userName, userAvatar }: SidebarProps) => {
               .tools
             </span>
           </div>
-        </div>
+        </Link>
 
         <NavLink
           to="/designer-profile"
@@ -118,7 +118,7 @@ const Sidebar = ({ userName, userAvatar }: SidebarProps) => {
         </NavLink>
       </div>
 
-      <nav className="grid grid-cols-2 gap-2 lg:flex lg:flex-col lg:gap-2 lg:min-h-[calc(100vh-16rem)]">
+      <nav className="grid grid-cols-2 gap-2 lg:flex lg:flex-col lg:gap-2">
         {navItems.map((item) => (
           <NavLink
             key={item.path}
@@ -137,9 +137,11 @@ const Sidebar = ({ userName, userAvatar }: SidebarProps) => {
             <span>{item.label}</span>
           </NavLink>
         ))}
+      </nav>
 
+      <div className="mt-auto pt-2">
         <button
-          className="nb-pressable col-span-2 flex min-h-12 items-center justify-center gap-2 rounded-xl border-2 border-black bg-white px-3 py-3 text-center text-xs font-bold text-black shadow-[2px_2px_0_#1a1a1a] hover:bg-[#FFF3E8] sm:text-sm lg:col-span-1 lg:mt-auto lg:justify-start lg:px-4"
+          className="nb-pressable col-span-2 flex w-full min-h-12 items-center justify-center gap-2 rounded-xl border-2 border-black bg-white px-3 py-3 text-center text-xs font-bold text-black shadow-[2px_2px_0_#1a1a1a] hover:bg-[#FFF3E8] sm:text-sm lg:justify-start lg:px-4"
           onClick={handleLogout}
         >
           <span className="flex w-5 items-center justify-center">
@@ -147,7 +149,7 @@ const Sidebar = ({ userName, userAvatar }: SidebarProps) => {
           </span>
           <span>Logout</span>
         </button>
-      </nav>
+      </div>
     </aside>
   );
 };

@@ -76,7 +76,6 @@ export const DesignerProfilePage = () => {
             }
 
             // Profile doesn't exist - create a placeholder with user info
-            console.log('Profile not found, using user data');
             profileData = {
               profile_id: 0,
               user_id: user.user_id,
@@ -104,7 +103,7 @@ export const DesignerProfilePage = () => {
             setPortfolioUrlInput(portfolioData.portfolio_url || '');
           }
         } catch {
-          console.log('No portfolio found');
+          // No portfolio found for this user
         }
       } catch (err) {
         console.error('Error fetching profile:', err);
