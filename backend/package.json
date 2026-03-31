@@ -9,7 +9,7 @@
     "test:integration": "jest --config tests/pricing_test/jest.config.js --selectProjects integration",
     "test:coverage": "jest --config tests/pricing_test/jest.config.js --coverage",
     "dev": "ts-node-dev src/server.ts",
-    "build": "esbuild src/server.ts --bundle --outdir=dist --platform=node",
+    "build": "esbuild src/server.ts --bundle --outdir=dist --platform=node --external:pdfkit --external:pdf-parse",
     "start": "node dist/server.js"
   },
   "engines": {

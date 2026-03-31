@@ -85,7 +85,7 @@ export default function Navbar() {
           <div className="hidden items-center gap-8 md:flex">
             <nav className="flex items-center gap-8">
               <a
-                href="#"
+                href="/#about"
                 className="text-base font-medium text-black transition hover:text-[#FB8500]"
               >
                 About
@@ -97,7 +97,7 @@ export default function Navbar() {
                 Portfolios
               </Link>
               <a
-                href="#"
+                href="/#contact"
                 className="text-base font-medium text-black transition hover:text-[#FB8500]"
               >
                 Contact
@@ -136,7 +136,7 @@ export default function Navbar() {
           <div className="mt-4 grid gap-4 border-t-[3px] border-black pt-4 md:hidden">
             <nav className="grid gap-2">
               <a
-                href="#"
+                href="/#about"
                 onClick={handleCloseMenu}
                 className="rounded-xl border-2 border-black bg-[#FFFEF9] px-4 py-3 text-sm font-bold text-black shadow-[2px_2px_0_#1a1a1a]"
               >
@@ -150,7 +150,7 @@ export default function Navbar() {
                 Portfolios
               </Link>
               <a
-                href="#"
+                href="/#contact"
                 onClick={handleCloseMenu}
                 className="rounded-xl border-2 border-black bg-[#FFFEF9] px-4 py-3 text-sm font-bold text-black shadow-[2px_2px_0_#1a1a1a]"
               >

@@ -1,5 +1,5 @@
 import { useAuth } from "../../auth/context/AuthContext";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import Sidebar from "../../../shared/components/Sidebar";
 import StatCard from "./StatCard";
 import RecentProjects from "./RecentProjects";
@@ -139,6 +139,18 @@ const DashboardPage = () => {
                 </p>
               </div>
               <div className="flex w-full md:w-auto flex-wrap items-center gap-2 md:justify-end">
+                {/* Home link */}
+                <Link
+                  to="/"
+                  title="Back to homepage"
+                  className="nb-pressable w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center bg-[#FFE8DC] rounded-lg border-2 border-black shadow-[2px_2px_0_#1a1a1a] hover:bg-[#FFD4BC]"
+                >
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FB8500" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9.5z" />
+                    <path d="M9 21V12h6v9" />
+                  </svg>
+                </Link>
+
                 <div className="flex items-center gap-2 text-xs sm:text-sm font-semibold text-black">
                   <span>{formatDate()}</span>
                   <div className="w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center bg-[#FFE8DC] rounded-lg border-2 border-black shadow-[2px_2px_0_#1a1a1a]">
